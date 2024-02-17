@@ -1,0 +1,46 @@
+name: Unit tests + coverage
+
+on:
+  push:
+    branches:
+      - master
+      - release-*
+  pull_request: { }
+  workflow_dispatch: { }
+
+jobs:
+  coverage:
+    runs-on: self-hosted
+    timeout-minutes: 3600
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+      - name: Set Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - name: Run install
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install # will run `yarn install` command
+
+      - name: Deploy local
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: deploy-local
+        env:
+          NODE_OPTIONS: --max_old_space_size=8000
+
+      - name: Test coverage
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: coverage
+        env:
+          NODE_OPTIONS: --max_old_space_size=8000
+
+      - uses: codecov/codecov-action@v2
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
+          fail_ci_if_error: true

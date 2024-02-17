@@ -1,0 +1,26 @@
+node_modules
+
+#Hardhat files
+cache
+artifacts
+deployments/hardhat
+deployments/foundry
+deployments/local
+typechain
+coverage
+coverage.json
+
+.idea
+.hardhat
+secrets.ts
+.openzeppelin
+.tenderly
+arguments-*.js
+sh
+tmp
+settings.ts
+.env
+docs
+abi
+/generated/
+/deployments/localhost/
