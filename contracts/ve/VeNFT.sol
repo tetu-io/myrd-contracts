@@ -43,10 +43,11 @@ contract VeNFT is ReentrancyGuard, ERC721Enumerable, IVeNFT {
   }
 
   function tokenURI(uint _tokenId) public view override returns (string memory) {
+    _requireOwned(_tokenId);
     return VeLib.getTokenURI(_tokenId);
   }
 
-  /// @dev Current block timestamp
+  /// @dev Current block timestamp.
   function blockTimestamp() external view returns (uint) {
     return block.timestamp;
   }
@@ -122,6 +123,26 @@ contract VeNFT is ReentrancyGuard, ERC721Enumerable, IVeNFT {
     return _S().epoch;
   }
 
+  function nftCount() external view returns (uint) {
+    return _S().tokenId;
+  }
+
+  function additionalTotalSupply() external view returns (uint) {
+    return _S().additionalTotalSupply;
+  }
+
+  function tokenWeight(address token) external view returns (uint) {
+    return _S().tokenWeights[token];
+  }
+
+  function isValidToken(address token) external view returns (bool) {
+    return _S().isValidToken[token];
+  }
+
+  function isAlwaysMaxLock(uint tokenId) external view returns (bool) {
+    return _S().isAlwaysMaxLock[tokenId];
+  }
+
   // *************************************************************
   //                        MAIN LOGIC
   // *************************************************************
@@ -177,7 +198,7 @@ contract VeNFT is ReentrancyGuard, ERC721Enumerable, IVeNFT {
     _mint(_msgSender(), newTokenId);
   }
 
-  /// @notice Withdraw all staking tokens for `_tokenId`
+  /// @notice Withdraw all staked tokens for `_tokenId`
   /// @dev Only possible if the lock has expired
   function withdrawAll(uint _tokenId) external {
     uint length = _S().tokens.length;
