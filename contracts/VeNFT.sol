@@ -22,9 +22,14 @@ contract VeNFT is ReentrancyGuard, ERC721Enumerable, IVeNFT {
   //                        INIT
   // *************************************************************
 
-  constructor(string calldata name, address[] calldata tokens, uint[] calldata weights) {
-    _pointHistory[0].blk = block.number;
-    _pointHistory[0].ts = block.timestamp;
+  constructor(string memory name, string memory symbol, address[] memory _tokens, uint[] memory weights) ERC721(name, symbol) {
+    _S()._pointHistory[0].blk = block.number;
+    _S()._pointHistory[0].ts = block.timestamp;
+
+    require(_tokens.length == weights.length, "LENGTH_MISMATCH");
+    for (uint i = 0; i < _tokens.length; i++) {
+      VeLib.addToken(_tokens[i], weights[i]);
+    }
   }
 
   // *************************************************************
@@ -35,7 +40,7 @@ contract VeNFT is ReentrancyGuard, ERC721Enumerable, IVeNFT {
     return VeLib._S();
   }
 
-  function _baseURI(uint _tokenId) internal view override returns (string memory) {
+  function tokenURI(uint _tokenId) public view override returns (string memory) {
     return VeLib.getTokenURI(_tokenId);
   }
 
@@ -53,15 +58,20 @@ contract VeNFT is ReentrancyGuard, ERC721Enumerable, IVeNFT {
     return _S().tokens.length;
   }
 
+  function tokens(uint idx) external view returns (address) {
+    return _S().tokens[idx];
+  }
+
   function balanceOfNFT(uint _tokenId) external view override returns (uint) {
-    return VeLib.balanceOfNFT(_tokenId, block.timestamp);
+    return VeLib.balanceOfNFT(_tokenId);
   }
 
   function balanceOfNFTAt(uint _tokenId, uint _t) external view override returns (uint) {
-    return VeLib.balanceOfNFT(_tokenId, _t);
+    return VeLib._balanceOfNFT(_tokenId, _t);
   }
 
-  function totalSupply() external view returns (uint) {
+  /// @dev ATTENTION! this function return total underlying amount locked in this contract instead of total NFTs count.
+  function totalSupply() public view override(ERC721Enumerable, IERC721Enumerable) returns (uint) {
     return VeLib.totalSupplyAtT(block.timestamp);
   }
 
@@ -86,13 +96,37 @@ contract VeNFT is ReentrancyGuard, ERC721Enumerable, IVeNFT {
     return VeLib.totalSupplyAtT(t);
   }
 
+  function isApprovedOrOwner(address spender, uint tokenId) public view returns (bool) {
+    return _isAuthorized(_ownerOf(tokenId), spender, tokenId);
+  }
+
+  function userPointEpoch(uint tokenId) external override view returns (uint) {
+    return _S().userPointEpoch[tokenId];
+  }
+
+  function totalSupplyAt(uint _block) external view returns (uint) {
+    return VeLib.totalSupplyAt(_block);
+  }
+
+  function lockedDerivedAmount(uint veId) external view returns (uint) {
+    return _S().lockedDerivedAmount[veId];
+  }
+
+  function lockedAmounts(uint veId, address stakingToken) external view returns (uint) {
+    return _S().lockedAmounts[veId][stakingToken];
+  }
+
+  function epoch() external view returns (uint) {
+    return _S().epoch;
+  }
+
   // *************************************************************
   //                        MAIN LOGIC
   // *************************************************************
 
-  /// @notice Record global data to checkpoint
+  /// @notice Record global data to checkpoint. Anyone can call it.
   function checkpoint() external override {
-    _checkpoint(CheckpointInfo(0, 0, 0, 0, 0, false));
+    VeLib.makeEmptyCheckpoint();
   }
 
   /// @notice Deposit `_value` tokens for `_to` and lock for `_lock_duration`
@@ -101,16 +135,16 @@ contract VeNFT is ReentrancyGuard, ERC721Enumerable, IVeNFT {
   /// @param _lockDuration Number of seconds to lock tokens for (rounded down to nearest week)
   /// @param _to Address to deposit
   function createLockFor(address _token, uint _value, uint _lockDuration, address _to, bool alwaysMaxLock) external nonReentrant override returns (uint tokenId) {
-    tokenId = VeLib.createLock(_token, _value, _lockDuration, _to, alwaysMaxLock);
-    // todo mint
+    tokenId = VeLib.createLock(_token, _value, _lockDuration, alwaysMaxLock);
+    _mint(_to, tokenId);
   }
 
   /// @notice Deposit `_value` additional tokens for `_tokenId` without modifying the unlock time
   /// @dev Anyone (even a smart contract) can deposit for someone else, but
   ///      cannot extend their locktime and deposit for a brand new user
-  /// @param _token Token for deposit. Should be whitelisted in this contract.
-  /// @param _tokenId ve token ID
-  /// @param _value Amount of tokens to deposit and add to the lock
+  /// @param token Token for deposit. Should be whitelisted in this contract.
+  /// @param tokenId ve token ID
+  /// @param value Amount of tokens to deposit and add to the lock
   function increaseAmount(address token, uint tokenId, uint value) external nonReentrant override {
     VeLib.increaseAmount(token, tokenId, value);
   }
@@ -119,7 +153,7 @@ contract VeNFT is ReentrancyGuard, ERC721Enumerable, IVeNFT {
   /// @param _tokenId ve token ID
   /// @param _lockDuration New number of seconds until tokens unlock
   function increaseUnlockTime(uint _tokenId, uint _lockDuration) external nonReentrant returns (uint power, uint unlockDate)  {
-    require(isApprovedOrOwner(msg.sender, tokenId), "NOT_OWNER");
+    require(isApprovedOrOwner(msg.sender, _tokenId), "NOT_OWNER");
     return VeLib.increaseUnlockTime(_tokenId, _lockDuration);
   }
 
@@ -128,26 +162,26 @@ contract VeNFT is ReentrancyGuard, ERC721Enumerable, IVeNFT {
     require(isApprovedOrOwner(msg.sender, _from) && isApprovedOrOwner(msg.sender, _to), "NOT_OWNER");
 
     VeLib.merge(_from, _to);
-
-    // todo burn
+    _burn(_from);
   }
 
   /// @dev Split given veNFT. A new NFT will have a given percent of underlying tokens.
   /// @param _tokenId ve token ID
   /// @param percent percent of underlying tokens for new NFT with denominator 1e18 (1-(100e18-1)).
-  function split(uint _tokenId, uint percent) external nonReentrant {
+  function split(uint _tokenId, uint percent) external nonReentrant returns (uint newTokenId){
     require(isApprovedOrOwner(msg.sender, _tokenId), "NOT_OWNER");
 
-    // todo mint
+    newTokenId = VeLib.split(_tokenId, percent);
+    _mint(_msgSender(), newTokenId);
   }
 
   /// @notice Withdraw all staking tokens for `_tokenId`
   /// @dev Only possible if the lock has expired
   function withdrawAll(uint _tokenId) external {
-    uint length = tokens.length;
+    uint length = _S().tokens.length;
     for (uint i; i < length; ++i) {
-      address token = tokens[i];
-      if (lockedAmounts[_tokenId][token] != 0) {
+      address token = _S().tokens[i];
+      if (_S().lockedAmounts[_tokenId][token] != 0) {
         withdraw(token, _tokenId);
       }
     }
@@ -158,6 +192,12 @@ contract VeNFT is ReentrancyGuard, ERC721Enumerable, IVeNFT {
   function withdraw(address stakingToken, uint _tokenId) public nonReentrant {
     require(isApprovedOrOwner(msg.sender, _tokenId), "NOT_OWNER");
 
+    uint newLockedDerivedAmount = VeLib.withdraw(stakingToken, _tokenId);
+
+    // Burn the NFT
+    if (newLockedDerivedAmount == 0) {
+      _burn(_tokenId);
+    }
   }
 
 }

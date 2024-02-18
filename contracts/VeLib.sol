@@ -3,13 +3,25 @@
 pragma solidity 0.8.23;
 
 import "./IVeNFT.sol";
+import "./StringLib.sol";
+import "./Base64.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import "@openzeppelin/contracts/utils/math/Math.sol";
 
 library VeLib {
+  using Math for uint;
 
   // *************************************************************
   //                        STRUCTS
   // *************************************************************
+
+  enum DepositType {
+    DEPOSIT_FOR_TYPE,
+    CREATE_LOCK_TYPE,
+    INCREASE_LOCK_AMOUNT,
+    INCREASE_UNLOCK_TIME,
+    MERGE_TYPE
+  }
 
   struct DepositInfo {
     address stakingToken;
@@ -32,6 +44,20 @@ library VeLib {
     bool isAlwaysMaxLock;
   }
 
+  struct CheckpointInfo2 {
+    uint tokenId;
+    uint oldDerivedAmount;
+    uint newDerivedAmount;
+    uint oldEnd;
+    uint newEnd;
+    uint epoch;
+    IVeNFT.Point uOld;
+    IVeNFT.Point uNew;
+    int128 oldDSlope;
+    int128 newDSlope;
+  }
+
+
   // *************************************************************
   //                        EVENTS
   // *************************************************************
@@ -48,9 +74,7 @@ library VeLib {
   event Withdraw(address indexed stakingToken, address indexed provider, uint tokenId, uint value, uint ts);
   event Merged(address indexed stakingToken, address indexed provider, uint from, uint to);
   event Split(uint parentTokenId, uint newTokenId, uint percent);
-  event TransferWhitelisted(address value);
   event StakingTokenAdded(address value, uint weight);
-  event GovActionAnnounced(uint _type, uint timeToExecute);
   event AlwaysMaxLock(uint tokenId, bool status);
 
   // *************************************************************
@@ -61,6 +85,10 @@ library VeLib {
   bytes32 private constant VE_NFT_STORAGE_LOCATION = 0xd333325b749986e76669f0e0c2c1aa0e0abd19e216c3678477196e4089241400; // todo change
   uint internal constant WEEK = 1 weeks;
   uint internal constant MAX_TIME = 365 days * 4;
+  uint internal constant MULTIPLIER = 1 ether;
+
+  int128 internal constant I_MAX_TIME = int128(int(MAX_TIME));
+  uint internal constant WEIGHT_DENOMINATOR = 100e18;
 
   function _S() internal pure returns (IVeNFT.VeNFTState storage s) {
     assembly {
@@ -89,10 +117,10 @@ library VeLib {
     return _balanceOfNFT(_tokenId, block.timestamp);
   }
 
-  function userPointHistory(uint _tokenId, uint _loc) internal view returns (Point memory point) {
+  function userPointHistory(uint _tokenId, uint _loc) internal view returns (IVeNFT.Point memory point) {
     if (_S().isAlwaysMaxLock[_tokenId]) {
-      return Point({
-        bias: int128(int256(lockedDerivedAmount[_tokenId])),
+      return IVeNFT.Point({
+        bias: int128(int256(_S().lockedDerivedAmount[_tokenId])),
         slope: 0,
         ts: (block.timestamp - MAX_TIME) / WEEK * WEEK, // this represent a simulation that we locked MAX TIME ago, need for VeDist
         blk: block.number
@@ -100,6 +128,67 @@ library VeLib {
     }
 
     point = _S()._userPointHistory[_tokenId][_loc];
+  }
+
+  /// @notice Calculate total voting power
+  /// @dev Adheres to the ERC20 `totalSupply` interface for Aragon compatibility
+  /// @return Total voting power
+  function totalSupplyAtT(uint t) internal view returns (uint) {
+    IVeNFT.Point memory lastPoint = _S()._pointHistory[_S().epoch];
+    return calcSupplyAt(lastPoint, t, _S().slopeChanges) + _S().additionalTotalSupply;
+  }
+
+  /// @notice Calculate total voting power at some point in the past
+  /// @param _block Block to calculate the total voting power at
+  /// @return Total voting power at `_block`
+  function totalSupplyAt(uint _block) internal view returns (uint) {
+    return calcTotalSupplyAt(
+      _block,
+      _S().epoch,
+      _S()._pointHistory,
+      _S().slopeChanges
+    ) + _S().additionalTotalSupply;
+  }
+
+  function _lockInfo(address stakingToken, uint veId) internal view returns (
+    uint _lockedAmount,
+    uint _lockedDerivedAmount,
+    uint _lockedEnd
+  ) {
+    _lockedAmount = _S().lockedAmounts[veId][stakingToken];
+    _lockedDerivedAmount = _S().lockedDerivedAmount[veId];
+    _lockedEnd = lockedEnd(veId);
+  }
+
+  /// @dev Returns current token URI metadata
+  /// @param _tokenId Token ID to fetch URI for.
+  function getTokenURI(uint _tokenId) internal view returns (string memory) {
+    uint _lockedEnd = lockedEnd(_tokenId);
+    return logo(
+      _tokenId,
+      uint(int256(_S().lockedDerivedAmount[_tokenId])),
+      block.timestamp < _lockedEnd ? _lockedEnd - block.timestamp : 0,
+      _balanceOfNFT(_tokenId, block.timestamp)
+    );
+  }
+
+  // *************************************************************
+  //                  MISC
+  // *************************************************************
+
+  function addToken(address token, uint weight) internal {
+    require(token != address(0) && weight != 0 && IERC20Metadata(token).decimals() == 18, "WRONG_INPUT");
+
+    uint length = _S().tokens.length;
+    for (uint i; i < length; ++i) {
+      require(token != _S().tokens[i], "WRONG_INPUT");
+    }
+
+    _S().tokens.push(token);
+    _S().tokenWeights[token] = weight;
+    _S().isValidToken[token] = true;
+
+    emit StakingTokenAdded(token, weight);
   }
 
   // *************************************************************
@@ -113,7 +202,7 @@ library VeLib {
 
   /// @dev Pull tokens to this contract
   function _pullUnderlyingToken(address _token, address _from, uint amount) internal {
-    IERC20(_token).safeTransferFrom(_from, address(this), amount);
+    IERC20(_token).transferFrom(_from, address(this), amount);
   }
 
   /// @notice Deposit and lock tokens for a user
@@ -160,16 +249,6 @@ library VeLib {
     }
 
     emit Deposit(info.stakingToken, from, info.tokenId, info.value, newLockedEnd, info.depositType, block.timestamp);
-  }
-
-  function _lockInfo(address stakingToken, uint veId) internal view returns (
-    uint _lockedAmount,
-    uint _lockedDerivedAmount,
-    uint _lockedEnd
-  ) {
-    _lockedAmount = _S().lockedAmounts[veId][stakingToken];
-    _lockedDerivedAmount = _S().lockedDerivedAmount[veId];
-    _lockedEnd = lockedEnd(veId);
   }
 
   function _incrementTokenIdAndGet() internal returns (uint id){
@@ -238,11 +317,10 @@ library VeLib {
   }
 
   /// @notice Deposit `_value` tokens for `_to` and lock for `_lock_duration`
-  /// @param _token Token for deposit. Should be whitelisted in this contract.
-  /// @param _value Amount to deposit
-  /// @param _lockDuration Number of seconds to lock tokens for (rounded down to nearest week)
-  /// @param _to Address to deposit
-  function createLock(address token, uint value, uint lockDuration, address to, bool alwaysMaxLock) internal returns (uint tokenId) {
+  /// @param token Token for deposit. Should be whitelisted in this contract.
+  /// @param value Amount to deposit
+  /// @param lockDuration Number of seconds to lock tokens for (rounded down to nearest week)
+  function createLock(address token, uint value, uint lockDuration, bool alwaysMaxLock) internal returns (uint tokenId) {
     require(value > 0, "WRONG_INPUT");
     // Lock time is rounded down to weeks
     uint unlockTime = (block.timestamp + lockDuration) / WEEK * WEEK;
@@ -251,10 +329,8 @@ library VeLib {
     require(_S().isValidToken[token], "INVALID_TOKEN");
 
     tokenId = _incrementTokenIdAndGet();
-    // todo move
-    _mint(to, tokenId);
 
-    _depositFor(DepositInfo({
+    depositFor(DepositInfo({
       stakingToken: token,
       tokenId: tokenId,
       value: value,
@@ -277,18 +353,18 @@ library VeLib {
   /// @notice Deposit `_value` additional tokens for `_tokenId` without modifying the unlock time
   /// @dev Anyone (even a smart contract) can deposit for someone else, but
   ///      cannot extend their locktime and deposit for a brand new user
-  /// @param _token Token for deposit. Should be whitelisted in this contract.
-  /// @param _tokenId ve token ID
-  /// @param _value Amount of tokens to deposit and add to the lock
+  /// @param token Token for deposit. Should be whitelisted in this contract.
+  /// @param tokenId ve token ID
+  /// @param value Amount of tokens to deposit and add to the lock
   function increaseAmount(address token, uint tokenId, uint value) internal {
     require(value > 0, "WRONG_INPUT");
     (uint _lockedAmount, uint _lockedDerivedAmount, uint _lockedEnd) = _lockInfo(token, tokenId);
 
     require(_lockedDerivedAmount > 0, "NFT_WITHOUT_POWER");
     require(_lockedEnd > block.timestamp, "EXPIRED");
-    require(isValidToken[token], "INVALID_TOKEN");
+    require(_S().isValidToken[token], "INVALID_TOKEN");
 
-    _depositFor(DepositInfo({
+    depositFor(DepositInfo({
       stakingToken: token,
       tokenId: tokenId,
       value: value,
@@ -301,29 +377,29 @@ library VeLib {
   }
 
   /// @notice Extend the unlock time for `_tokenId`
-  /// @param _tokenId ve token ID
-  /// @param _lockDuration New number of seconds until tokens unlock
+  /// @param tokenId ve token ID
+  /// @param lockDuration New number of seconds until tokens unlock
   function increaseUnlockTime(uint tokenId, uint lockDuration) internal returns (uint power, uint unlockDate)  {
 
     uint lockedDerivedAmount = _S().lockedDerivedAmount[tokenId];
-    uint lockedEnd = _S()._lockedEndReal[tokenId];
+    uint _lockedEnd = _S()._lockedEndReal[tokenId];
 
     // Lock time is rounded down to weeks
     uint unlockTime = (block.timestamp + lockDuration) / WEEK * WEEK;
     require(!_S().isAlwaysMaxLock[tokenId], "ALWAYS_MAX_LOCK");
     require(lockedDerivedAmount > 0, "NFT_WITHOUT_POWER");
-    require(lockedEnd > block.timestamp, "EXPIRED");
-    require(unlockTime > lockedEnd, "LOW_UNLOCK_TIME");
+    require(_lockedEnd > block.timestamp, "EXPIRED");
+    require(unlockTime > _lockedEnd, "LOW_UNLOCK_TIME");
     require(unlockTime <= block.timestamp + MAX_TIME, "HIGH_LOCK_PERIOD");
 
-    _depositFor(DepositInfo({
+    depositFor(DepositInfo({
       stakingToken: address(0),
       tokenId: tokenId,
       value: 0,
       unlockTime: unlockTime,
       lockedAmount: 0,
       lockedDerivedAmount: lockedDerivedAmount,
-      lockedEnd: lockedEnd,
+      lockedEnd: _lockedEnd,
       depositType: DepositType.INCREASE_UNLOCK_TIME
     }));
 
@@ -355,7 +431,7 @@ library VeLib {
       }
       _S().lockedAmounts[_from][stakingToken] = 0;
 
-      _depositFor(DepositInfo({
+      depositFor(DepositInfo({
         stakingToken: stakingToken,
         tokenId: _to,
         value: _lockedAmountFrom,
@@ -384,9 +460,6 @@ library VeLib {
       lockedEndFrom,
       false // at this step it should be always false
     ));
-
-    // todo move
-    _burn(_from);
   }
 
   /// @dev Split given veNFT. A new NFT will have a given percent of underlying tokens.
@@ -395,7 +468,7 @@ library VeLib {
   function split(uint _tokenId, uint percent) internal returns (uint newTokenId) {
 
     // todo make possible
-    require(!isAlwaysMaxLock[_tokenId], "ALWAYS_MAX_LOCK");
+    require(!_S().isAlwaysMaxLock[_tokenId], "ALWAYS_MAX_LOCK");
 
     require(percent != 0 && percent < 100e18, "WRONG_INPUT");
 
@@ -408,9 +481,6 @@ library VeLib {
     // crete new NFT
     newTokenId = _incrementTokenIdAndGet();
 
-    // todo move
-    _mint(msg.sender, newTokenId);
-
     // migrate percent of locked tokens to the new NFT
     uint length = _S().tokens.length;
     for (uint i; i < length; ++i) {
@@ -422,7 +492,7 @@ library VeLib {
       uint amountForNewNFT = _lockedAmount * percent / 100e18;
       require(amountForNewNFT != 0, "LOW_PERCENT");
 
-      lockedDerivedAmount = VeTetuLib.calculateDerivedAmount(
+      lockedDerivedAmount = calculateDerivedAmount(
         _lockedAmount,
         lockedDerivedAmount,
         _lockedAmount - amountForNewNFT,
@@ -433,7 +503,7 @@ library VeLib {
       _S().lockedAmounts[_tokenId][stakingToken] = _lockedAmount - amountForNewNFT;
 
       // increase values for new NFT
-      _depositFor(DepositInfo({
+      depositFor(DepositInfo({
         stakingToken: stakingToken,
         tokenId: newTokenId,
         value: amountForNewNFT,
@@ -462,15 +532,15 @@ library VeLib {
 
   /// @notice Withdraw given staking token for `_tokenId`
   /// @dev Only possible if the lock has expired
-  function withdraw(address stakingToken, uint _tokenId) internal {
-    (uint oldLockedAmount, uint oldLockedDerivedAmount, uint oldLockedEnd) = _S()._lockInfo(stakingToken, _tokenId);
+  function withdraw(address stakingToken, uint _tokenId) internal returns (uint newLockedDerivedAmount){
+    (uint oldLockedAmount, uint oldLockedDerivedAmount, uint oldLockedEnd) = _lockInfo(stakingToken, _tokenId);
 
     require(block.timestamp >= oldLockedEnd, "NOT_EXPIRED");
     require(oldLockedAmount > 0, "ZERO_LOCKED");
     require(!_S().isAlwaysMaxLock[_tokenId], "ALWAYS_MAX_LOCK");
 
 
-    uint newLockedDerivedAmount = calculateDerivedAmount(
+    newLockedDerivedAmount = calculateDerivedAmount(
       oldLockedAmount,
       oldLockedDerivedAmount,
       0,
@@ -500,12 +570,6 @@ library VeLib {
       newLockEnd,
       false // already checked and can not be true
     ));
-
-    // Burn the NFT
-    if (newLockedDerivedAmount == 0) {
-      // todo move
-      _burn(_tokenId);
-    }
 
     _transferUnderlyingToken(stakingToken, msg.sender, oldLockedAmount);
 
@@ -546,7 +610,7 @@ library VeLib {
           _max = _mid - 1;
         }
       }
-      IVeTetu.Point memory lastPoint = _S()._userPointHistory[_tokenId][_min];
+      IVeNFT.Point memory lastPoint = _S()._userPointHistory[_tokenId][_min];
 
       if (lastPoint.ts > ts) {
         return 0;
@@ -562,24 +626,8 @@ library VeLib {
     }
   }
 
-  /// @notice Calculate total voting power
-  /// @dev Adheres to the ERC20 `totalSupply` interface for Aragon compatibility
-  /// @return Total voting power
-  function totalSupplyAtT(uint t) internal view returns (uint) {
-    Point memory lastPoint = _S()._pointHistory[epoch];
-    return calcSupplyAt(lastPoint, t, _S().slopeChanges) + _S().additionalTotalSupply;
-  }
-
-  /// @notice Calculate total voting power at some point in the past
-  /// @param _block Block to calculate the total voting power at
-  /// @return Total voting power at `_block`
-  function totalSupplyAt(uint _block) internal view override returns (uint) {
-    return calcTotalSupplyAt(
-      _block,
-      _S().epoch,
-      _S()._pointHistory,
-      _S().slopeChanges
-    ) + _S().additionalTotalSupply;
+  function makeEmptyCheckpoint() internal {
+    _checkpoint(CheckpointInfo(0, 0, 0, 0, 0, false));
   }
 
   /// @notice Record global and per-user data to checkpoint
@@ -598,10 +646,10 @@ library VeLib {
       info.oldEnd,
       info.newEnd,
       _epoch,
-      slopeChanges,
-      userPointEpoch,
-      _userPointHistory,
-      _pointHistory
+      _S().slopeChanges,
+      _S().userPointEpoch,
+      _S()._userPointHistory,
+      _S()._pointHistory
     );
 
     if (newEpoch != 0 && newEpoch != _epoch) {
@@ -619,8 +667,8 @@ library VeLib {
     // subtract current derived balance
     // rounded to UP for subtracting closer to 0 value
     if (oldDerivedAmount != 0 && currentAmount != 0) {
-      currentAmount = currentAmount.mulDiv(1e18, 10 ** decimals, Math.Rounding.Up);
-      uint currentDerivedAmount = currentAmount.mulDiv(weight, WEIGHT_DENOMINATOR, Math.Rounding.Up);
+      currentAmount = currentAmount.mulDiv(1e18, 10 ** decimals, Math.Rounding.Ceil);
+      uint currentDerivedAmount = currentAmount.mulDiv(weight, WEIGHT_DENOMINATOR, Math.Rounding.Ceil);
       if (oldDerivedAmount > currentDerivedAmount) {
         oldDerivedAmount -= currentDerivedAmount;
       } else {
@@ -632,9 +680,9 @@ library VeLib {
     // recalculate derived amount with new amount
     // rounded to DOWN
     // normalize decimals to 18
-    newAmount = newAmount.mulDiv(1e18, 10 ** decimals, Math.Rounding.Down);
+    newAmount = newAmount.mulDiv(1e18, 10 ** decimals, Math.Rounding.Floor);
     // calculate the final amount based on the weight
-    newAmount = newAmount.mulDiv(weight, WEIGHT_DENOMINATOR, Math.Rounding.Down);
+    newAmount = newAmount.mulDiv(weight, WEIGHT_DENOMINATOR, Math.Rounding.Floor);
     return oldDerivedAmount + newAmount;
   }
 
@@ -642,7 +690,7 @@ library VeLib {
   /// @param _block Block to find
   /// @param maxEpoch Don't go beyond this epoch
   /// @return Approximate timestamp for block
-  function findBlockEpoch(uint _block, uint maxEpoch, mapping(uint => IVeTetu.Point) storage _pointHistory) internal view returns (uint) {
+  function findBlockEpoch(uint _block, uint maxEpoch, mapping(uint => IVeNFT.Point) storage _pointHistory) internal view returns (uint) {
     // Binary search
     uint _min = 0;
     uint _max = maxEpoch;
@@ -652,7 +700,7 @@ library VeLib {
         break;
       }
       uint _mid = (_min + _max + 1) / 2;
-      if (_S()._pointHistory[_mid].blk <= _block) {
+      if (_pointHistory[_mid].blk <= _block) {
         _min = _mid;
       } else {
         _max = _mid - 1;
@@ -691,8 +739,8 @@ library VeLib {
     uint maxEpoch,
     uint lockedDerivedAmount,
     mapping(uint => uint) storage userPointEpoch,
-    mapping(uint => IVeTetu.Point[1000000000]) storage _userPointHistory,
-    mapping(uint => IVeTetu.Point) storage _pointHistory
+    mapping(uint => IVeNFT.Point[1000000000]) storage _userPointHistory,
+    mapping(uint => IVeNFT.Point) storage _pointHistory
   ) internal view returns (uint resultBalance) {
 
     // Binary search closest user point
@@ -713,7 +761,7 @@ library VeLib {
       }
     }
 
-    IVeTetu.Point memory uPoint = _userPointHistory[_tokenId][_min];
+    IVeNFT.Point memory uPoint = _userPointHistory[_tokenId][_min];
 
     // nft does not exist at this block
     if (uPoint.blk > _block) {
@@ -724,11 +772,11 @@ library VeLib {
     uint blockTime;
     if (_block <= block.number) {
       uint _epoch = findBlockEpoch(_block, maxEpoch, _pointHistory);
-      IVeTetu.Point memory point0 = _pointHistory[_epoch];
+      IVeNFT.Point memory point0 = _pointHistory[_epoch];
       uint dBlock = 0;
       uint dt = 0;
       if (_epoch < maxEpoch) {
-        IVeTetu.Point memory point1 = _pointHistory[_epoch + 1];
+        IVeNFT.Point memory point1 = _pointHistory[_epoch + 1];
         dBlock = point1.blk - point0.blk;
         dt = point1.ts - point0.ts;
       } else {
@@ -745,7 +793,7 @@ library VeLib {
         return 0;
       }
       // for future blocks will use a simple estimation
-      IVeTetu.Point memory point0 = _pointHistory[maxEpoch - 1];
+      IVeNFT.Point memory point0 = _pointHistory[maxEpoch - 1];
       uint tsPerBlock18 = (block.timestamp - point0.ts) * 1e18 / (block.number - point0.blk);
       blockTime = block.timestamp + tsPerBlock18 * (_block - block.number) / 1e18;
     }
@@ -764,11 +812,11 @@ library VeLib {
   /// @param point The point (bias/slope) to start search from
   /// @param t Time to calculate the total voting power at
   /// @return Total voting power at that time
-  function calcSupplyAt(IVeTetu.Point memory point, uint t, mapping(uint => int128) storage slopeChanges) internal view returns (uint) {
+  function calcSupplyAt(IVeNFT.Point memory point, uint t, mapping(uint => int128) storage slopeChanges) internal view returns (uint) {
     // this function will return positive value even for block when contract does not exist
     // for reduce gas cost we assume that it will not be used in such form
 
-    IVeTetu.Point memory lastPoint = point;
+    IVeNFT.Point memory lastPoint = point;
     uint ti = (lastPoint.ts / WEEK) * WEEK;
     for (uint i = 0; i < 255; ++i) {
       ti += WEEK;
@@ -794,14 +842,14 @@ library VeLib {
   function calcTotalSupplyAt(
     uint _block,
     uint _epoch,
-    mapping(uint => IVeTetu.Point) storage _pointHistory,
+    mapping(uint => IVeNFT.Point) storage _pointHistory,
     mapping(uint => int128) storage slopeChanges
   ) internal view returns (uint) {
     require(_block <= block.number, "WRONG_INPUT");
 
     uint targetEpoch = findBlockEpoch(_block, _epoch, _pointHistory);
 
-    IVeTetu.Point memory point = _pointHistory[targetEpoch];
+    IVeNFT.Point memory point = _pointHistory[targetEpoch];
     // it is possible only for a block before the launch
     // return 0 as more clear answer than revert
     if (point.blk > _block) {
@@ -809,7 +857,7 @@ library VeLib {
     }
     uint dt = 0;
     if (targetEpoch < _epoch) {
-      IVeTetu.Point memory pointNext = _pointHistory[targetEpoch + 1];
+      IVeNFT.Point memory pointNext = _pointHistory[targetEpoch + 1];
       // next point block can not be the same or lower
       dt = ((_block - point.blk) * (pointNext.ts - point.ts)) / (pointNext.blk - point.blk);
     } else {
@@ -831,13 +879,13 @@ library VeLib {
     uint epoch,
     mapping(uint => int128) storage slopeChanges,
     mapping(uint => uint) storage userPointEpoch,
-    mapping(uint => IVeTetu.Point[1000000000]) storage _userPointHistory,
-    mapping(uint => IVeTetu.Point) storage _pointHistory
+    mapping(uint => IVeNFT.Point[1000000000]) storage _userPointHistory,
+    mapping(uint => IVeNFT.Point) storage _pointHistory
   ) internal returns (uint newEpoch) {
-    IVeTetu.Point memory uOld;
-    IVeTetu.Point memory uNew;
+    IVeNFT.Point memory uOld;
+    IVeNFT.Point memory uNew;
     return _makeCheckpoint(
-      CheckpointInfo({
+      CheckpointInfo2({
         tokenId: tokenId,
         oldDerivedAmount: oldDerivedAmount,
         newDerivedAmount: newDerivedAmount,
@@ -857,11 +905,11 @@ library VeLib {
   }
 
   function _makeCheckpoint(
-    CheckpointInfo memory info,
+    CheckpointInfo2 memory info,
     mapping(uint => int128) storage slopeChanges,
     mapping(uint => uint) storage userPointEpoch,
-    mapping(uint => IVeTetu.Point[1000000000]) storage _userPointHistory,
-    mapping(uint => IVeTetu.Point) storage _pointHistory
+    mapping(uint => IVeNFT.Point[1000000000]) storage _userPointHistory,
+    mapping(uint => IVeNFT.Point) storage _pointHistory
   ) internal returns (uint newEpoch) {
 
     if (info.tokenId != 0) {
@@ -889,7 +937,7 @@ library VeLib {
       }
     }
 
-    IVeTetu.Point memory lastPoint = IVeTetu.Point({bias: 0, slope: 0, ts: block.timestamp, blk: block.number});
+    IVeNFT.Point memory lastPoint = IVeNFT.Point({bias: 0, slope: 0, ts: block.timestamp, blk: block.number});
     if (info.epoch > 0) {
       lastPoint = _pointHistory[info.epoch];
     }
@@ -897,7 +945,7 @@ library VeLib {
     // initialLastPoint is used for extrapolation to calculate block number
     // (approximately, for *At methods) and save them
     // as we cannot figure that out exactly from inside the contract
-    IVeTetu.Point memory initialLastPoint = lastPoint;
+    IVeNFT.Point memory initialLastPoint = lastPoint;
     uint blockSlope = 0;
     // dblock/dt
     if (block.timestamp > lastPoint.ts) {
@@ -981,18 +1029,6 @@ library VeLib {
 
   function toPositiveInt128(int128 value) internal pure returns (int128) {
     return value < 0 ? int128(0) : value;
-  }
-
-  /// @dev Returns current token URI metadata
-  /// @param _tokenId Token ID to fetch URI for.
-  function getTokenURI(uint _tokenId) internal view returns (string memory) {
-    uint _lockedEnd = lockedEnd(_tokenId);
-    return logo(
-      _tokenId,
-      uint(int256(lockedDerivedAmount[_tokenId])),
-      block.timestamp < _lockedEnd ? _lockedEnd - block.timestamp : 0,
-      _balanceOfNFT(_tokenId, block.timestamp)
-    );
   }
 
   /// @dev Return SVG logo in svg format.

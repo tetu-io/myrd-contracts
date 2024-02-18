@@ -4,7 +4,7 @@ pragma solidity 0.8.23;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 
-interface IVeNFT is IERC721Enumerable{
+interface IVeNFT is IERC721Enumerable {
 
   // *************************************************************
   //                        STRUCTS
@@ -15,20 +15,6 @@ interface IVeNFT is IERC721Enumerable{
     int128 slope; // # -dweight / dt
     uint ts;
     uint blk; // block
-  }
-
-  enum TimeLockType {
-    UNKNOWN,
-    ADD_TOKEN,
-    WHITELIST_TRANSFER
-  }
-
-  enum DepositType {
-    DEPOSIT_FOR_TYPE,
-    CREATE_LOCK_TYPE,
-    INCREASE_LOCK_AMOUNT,
-    INCREASE_UNLOCK_TIME,
-    MERGE_TYPE
   }
 
   // *************************************************************
@@ -108,8 +94,6 @@ interface IVeNFT is IERC721Enumerable{
 
   function isApprovedOrOwner(address, uint) external view returns (bool);
 
-  function createLockFor(address _token, uint _value, uint _lockDuration, address _to) external returns (uint);
-
   function userPointEpoch(uint tokenId) external view returns (uint);
 
   function epoch() external view returns (uint);
@@ -120,9 +104,13 @@ interface IVeNFT is IERC721Enumerable{
 
   function checkpoint() external;
 
-  function increaseAmount(address _token, uint _tokenId, uint _value) external;
-
   function totalSupplyAt(uint _block) external view returns (uint);
 
   function totalSupplyAtT(uint timestamp) external view returns (uint);
+
+  // ---
+
+  function createLockFor(address _token, uint _value, uint _lockDuration, address _to, bool alwaysMaxLock) external returns (uint);
+
+  function increaseAmount(address _token, uint _tokenId, uint _value) external;
 }
