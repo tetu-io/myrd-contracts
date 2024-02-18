@@ -761,16 +761,16 @@ async function withdrawIfExist(
   }
 }
 
-export async function currentEpochTS(ve: VeNFT) {
+async function currentEpochTS(ve: VeNFT) {
   const blockTs = await currentTS(ve);
   return Math.floor(blockTs / WEEK) * WEEK;
 }
 
-export async function currentTS(ve: VeNFT) {
+async function currentTS(ve: VeNFT) {
   return Number(await ve.blockTimestamp());
 }
 
-export async function checkTotalVeSupplyAtTS(ve: VeNFT, ts: number) {
+async function checkTotalVeSupplyAtTS(ve: VeNFT, ts: number) {
   await ve.checkpoint();
 
   console.log('additionalTotalSupply', formatUnits(await ve.additionalTotalSupply()));
