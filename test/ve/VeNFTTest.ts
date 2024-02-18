@@ -406,7 +406,7 @@ describe('VeNFTTest', function() {
     await ve.increaseAmount(await token2.getAddress(), 3, parseUnits('0.37'));
     expect(await token2.balanceOf(owner.address)).eq(balUNDERLYING2 - parseUnits('0.7'));
 
-    expect(formatUnits(await ve.lockedDerivedAmount(3))).eq('0.84');
+    expect(formatUnits(await ve.lockedDerivedAmount(3))).eq('1.12');
     expect(+formatUnits(await ve.balanceOfNFT(3))).above(0.6);
 
     await TimeUtils.advanceBlocksOnTs(LOCK_PERIOD / 2);
@@ -417,7 +417,7 @@ describe('VeNFTTest', function() {
 
     await ve.withdrawAll(3);
 
-    expect(await ve.ownerOf(3)).eq(Misc.ZERO_ADDRESS);
+    await expect(ve.ownerOf(3)).revertedWithCustomError(ve, 'ERC721NonexistentToken');
 
     expect(await token2.balanceOf(await ve.getAddress())).eq(0);
     expect(await token1.balanceOf(await ve.getAddress())).eq(0);
@@ -499,7 +499,7 @@ describe('VeNFTTest', function() {
 
     const lock3 = await ve.lockedEnd(3);
 
-    expect(await ve.lockedDerivedAmount(1)).eq(parseUnits('1.1'));
+    expect(await ve.lockedDerivedAmount(1)).eq(parseUnits('1.5'));
     expect(await ve.lockedDerivedAmount(3)).eq(parseUnits('1'));
     expect(await ve.lockedAmounts(1, await token1.getAddress())).eq(parseUnits('1'));
     expect(await ve.lockedAmounts(1, await token2.getAddress())).eq(parseUnits('1'));
@@ -508,7 +508,7 @@ describe('VeNFTTest', function() {
     await ve.merge(1, 3);
 
     expect(await ve.lockedDerivedAmount(1)).eq(parseUnits('0'));
-    expect(await ve.lockedDerivedAmount(3)).eq(parseUnits('2.1'));
+    expect(await ve.lockedDerivedAmount(3)).eq(parseUnits('2.5'));
     expect(await ve.lockedAmounts(1, await token1.getAddress())).eq(0);
     expect(await ve.lockedAmounts(1, await token2.getAddress())).eq(0);
     expect(await ve.lockedAmounts(3, await token1.getAddress())).eq(parseUnits('2'));
@@ -525,14 +525,14 @@ describe('VeNFTTest', function() {
 
     expect(await ve.lockedAmounts(1, await token1.getAddress())).eq(parseUnits('1'));
     expect(await ve.lockedAmounts(1, await token2.getAddress())).eq(parseUnits('1'));
-    expect(await ve.lockedDerivedAmount(1)).eq(parseUnits('1.1'));
+    expect(await ve.lockedDerivedAmount(1)).eq(parseUnits('1.5'));
 
     await ve.split(1, parseUnits('50'));
 
     const lock3 = await ve.lockedEnd(3);
 
-    expect(await ve.lockedDerivedAmount(1)).eq(parseUnits('0.55'));
-    expect(await ve.lockedDerivedAmount(3)).eq(parseUnits('0.55'));
+    expect(await ve.lockedDerivedAmount(1)).eq(parseUnits('0.75'));
+    expect(await ve.lockedDerivedAmount(3)).eq(parseUnits('0.75'));
     expect(await ve.lockedAmounts(1, await token1.getAddress())).eq(parseUnits('0.5'));
     expect(await ve.lockedAmounts(1, await token2.getAddress())).eq(parseUnits('0.5'));
     expect(await ve.lockedAmounts(3, await token1.getAddress())).eq(parseUnits('0.5'));
@@ -541,7 +541,7 @@ describe('VeNFTTest', function() {
     await ve.merge(1, 3);
 
     expect(await ve.lockedDerivedAmount(1)).eq(parseUnits('0'));
-    expect(await ve.lockedDerivedAmount(3)).eq(parseUnits('1.1'));
+    expect(await ve.lockedDerivedAmount(3)).eq(parseUnits('1.5'));
     expect(await ve.lockedAmounts(1, await token1.getAddress())).eq(0);
     expect(await ve.lockedAmounts(1, await token2.getAddress())).eq(0);
     expect(await ve.lockedAmounts(3, await token1.getAddress())).eq(parseUnits('1'));
@@ -604,7 +604,7 @@ describe('VeNFTTest', function() {
     expect((await token1.balanceOf(owner2.address)) >= (parseUnits('1'))).eq(true);
     await expect(ve.connect(owner3)
       .createLockFor(await token1.getAddress(), parseUnits('1'), 60 * 60 * 24 * 14, owner2.address, false))
-      .revertedWith('ERC20: transfer amount exceeds balance');
+      .revertedWithCustomError(token1, 'ERC20InsufficientBalance');
   });
 
   // todo fix
