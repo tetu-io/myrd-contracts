@@ -16,11 +16,8 @@
     "slither": "yarn build && slither .",
     "sporalyzer": "node sporalyzer.js --outputType listing --contract \"contracts/items/ItemCommon.sol:ItemCommon\"",
     "anvil": "anvil --silent --hardfork istanbul --disable-block-gas-limit --code-size-limit 1000000",
-
     "deploy-local": "hardhat deploy --write true --reset",
-
     "deploy-matic": "yarn build && hardhat deploy --network matic --write true && yarn verify-all-matic",
-
     "verify-all-matic": "hardhat run scripts/verify.ts --network matic && hardhat etherscan-verify --solc-input --network matic"
   },
   "keywords": [
@@ -30,7 +27,7 @@
     "contracts"
   ],
   "author": "Tetu team <admin@tetu.io>",
-  "license": "SEE LICENSE IN LICENSE",
+  "license": "MIT",
   "dependencies": {
     "@apollo/client": "^3.8.8",
     "@graphql-codegen/cli": "^5.0.0",
@@ -40,6 +37,7 @@
     "@nomicfoundation/hardhat-ethers": "^3.0.5",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.10",
     "@nomicfoundation/hardhat-verify": "^2.0.3",
+    "@openzeppelin/contracts": "^5.0.1",
     "@typechain/ethers-v6": "^0.5.1",
     "@typechain/hardhat": "^9.1.0",
     "@types/chai": "^4.2.0",
