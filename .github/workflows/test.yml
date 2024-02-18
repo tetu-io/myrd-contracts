@@ -10,7 +10,7 @@ on:
 
 jobs:
   coverage:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     timeout-minutes: 3600
     steps:
       - uses: actions/checkout@v3
