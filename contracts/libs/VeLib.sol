@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.23;
 
-import "./IVeNFT.sol";
+import "../interfaces/IVeNFT.sol";
 import "./StringLib.sol";
 import "./Base64.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
@@ -110,10 +110,6 @@ library VeLib {
   }
 
   function balanceOfNFT(uint _tokenId) internal view returns (uint) {
-    // flash NFT protection
-    if (_S().ownershipChange[_tokenId] == block.number) {
-      return 0;
-    }
     return _balanceOfNFT(_tokenId, block.timestamp);
   }
 

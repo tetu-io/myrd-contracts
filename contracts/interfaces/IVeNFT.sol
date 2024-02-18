@@ -52,30 +52,10 @@ interface IVeNFT is IERC721Enumerable {
     /// @dev time -> signed slope change
     mapping(uint => int128) slopeChanges;
 
-    // --- LOCK
-
-    /// @dev veId -> Attachments counter. With positive counter user unable to transfer NFT
-    mapping(uint => uint) attachments;
-
-    // --- STATISTICS
-
-    /// @dev veId -> Block number when last time NFT owner changed
-    mapping(uint => uint) ownershipChange;
-    /// @dev Mapping from NFT ID to the address that owns it.
-    mapping(uint => address) _idToOwner;
-    /// @dev Mapping from NFT ID to approved address.
-    mapping(uint => address) _idToApprovals;
-    /// @dev Mapping from owner address to count of his tokens.
-    mapping(address => uint) _ownerToNFTokenCount;
-    /// @dev Mapping from owner address to mapping of index to tokenIds
-    mapping(address => mapping(uint => uint)) _ownerToNFTokenIdList;
-    /// @dev Mapping from NFT ID to index of owner
-    mapping(uint => uint) tokenToOwnerIndex;
-    /// @dev Mapping from owner address to mapping of operator addresses.
-    mapping(address => mapping(address => bool)) ownerToOperators;
-
     // --- OTHER
+    /// @dev Indicates that this position is always have max lock period.
     mapping(uint => bool) isAlwaysMaxLock;
+    /// @dev Total supply from positions with always max lock that added to the current total supply calculated dynamically.
     uint additionalTotalSupply;
 
   }

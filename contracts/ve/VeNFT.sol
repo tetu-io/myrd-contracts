@@ -4,8 +4,8 @@ pragma solidity 0.8.23;
 
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import {IVeNFT} from "./IVeNFT.sol";
-import "./VeLib.sol";
+import "../interfaces/IVeNFT.sol";
+import "../libs/VeLib.sol";
 
 /// @title Voting escrow NFT
 /// @author belbix
@@ -23,9 +23,11 @@ contract VeNFT is ReentrancyGuard, ERC721Enumerable, IVeNFT {
   // *************************************************************
 
   constructor(string memory name, string memory symbol, address[] memory _tokens, uint[] memory weights) ERC721(name, symbol) {
+    // Set initial state
     _S()._pointHistory[0].blk = block.number;
     _S()._pointHistory[0].ts = block.timestamp;
 
+    // Add tokens
     require(_tokens.length == weights.length, "LENGTH_MISMATCH");
     for (uint i = 0; i < _tokens.length; i++) {
       VeLib.addToken(_tokens[i], weights[i]);
@@ -125,7 +127,7 @@ contract VeNFT is ReentrancyGuard, ERC721Enumerable, IVeNFT {
   // *************************************************************
 
   /// @notice Record global data to checkpoint. Anyone can call it.
-  function checkpoint() external override {
+  function checkpoint() external nonReentrant override {
     VeLib.makeEmptyCheckpoint();
   }
 
