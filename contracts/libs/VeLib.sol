@@ -57,7 +57,6 @@ library VeLib {
     int128 newDSlope;
   }
 
-
   // *************************************************************
   //                        EVENTS
   // *************************************************************
@@ -407,8 +406,16 @@ library VeLib {
   function merge(uint _from, uint _to) internal {
     require(_from != _to, "IDENTICAL_ADDRESS");
 
-    // todo make possible
-    require(!_S().isAlwaysMaxLock[_from] && !_S().isAlwaysMaxLock[_to], "ALWAYS_MAX_LOCK");
+    // deactivate always max lock if it is active for properly calculations
+    bool isAlwaysMaxLockActive;
+    if (_S().isAlwaysMaxLock[_from]) {
+      isAlwaysMaxLockActive = true;
+      _setAlwaysMaxLock(_from, false);
+    }
+    if (_S().isAlwaysMaxLock[_to]) {
+      isAlwaysMaxLockActive = true;
+      _setAlwaysMaxLock(_to, false);
+    }
 
     uint lockedEndFrom = lockedEnd(_from);
     uint lockedEndTo = lockedEnd(_to);
@@ -456,15 +463,22 @@ library VeLib {
       lockedEndFrom,
       false // at this step it should be always false
     ));
+
+    // activate always max lock if it was active before
+    if (isAlwaysMaxLockActive) {
+      _setAlwaysMaxLock(_to, true);
+    }
   }
 
   /// @dev Split given veNFT. A new NFT will have a given percent of underlying tokens.
   /// @param _tokenId ve token ID
   /// @param percent percent of underlying tokens for new NFT with denominator 1e18 (1-(100e18-1)).
   function split(uint _tokenId, uint percent) internal returns (uint newTokenId) {
-
-    // todo make possible
-    require(!_S().isAlwaysMaxLock[_tokenId], "ALWAYS_MAX_LOCK");
+    // deactivate always max lock if it is active for properly calculations
+    bool isAlwaysMaxLockActive = _S().isAlwaysMaxLock[_tokenId];
+    if (isAlwaysMaxLockActive) {
+      _setAlwaysMaxLock(_tokenId, false);
+    }
 
     require(percent != 0 && percent < 100e18, "WRONG_INPUT");
 
@@ -509,6 +523,11 @@ library VeLib {
         lockedEnd: _lockedEnd,
         depositType: DepositType.MERGE_TYPE
       }));
+
+      // activate always max lock if it was active before
+      if (isAlwaysMaxLockActive) {
+        _setAlwaysMaxLock(_tokenId, true);
+      }
     }
 
     _updateLockedDerivedAmount(_tokenId, lockedDerivedAmount);

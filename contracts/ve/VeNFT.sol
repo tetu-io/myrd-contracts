@@ -223,4 +223,11 @@ contract VeNFT is ReentrancyGuard, ERC721Enumerable, IVeNFT {
     }
   }
 
+  function disableAlwaysMaxLock(uint tokenId) external nonReentrant {
+    require(isApprovedOrOwner(msg.sender, tokenId), "NOT_OWNER");
+    require(_S().isAlwaysMaxLock[tokenId], "WRONG_STATUS");
+
+    VeLib._setAlwaysMaxLock(tokenId, false);
+  }
+
 }
