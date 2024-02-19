@@ -51,16 +51,33 @@ contract Vesting is ReentrancyGuard {
 
   //////////////////////////////
 
-  function start(address _token, uint totalAmount, address[] calldata claimants, uint[] calldata amounts) external {
+  function start(bool useTokensOnBalance, address _token, uint totalAmount, address[] calldata claimants, uint[] calldata amounts) external {
     require(vestingStartTs == 0, "Already started");
     require(_token != address(0), "Zero address");
+    require(claimants.length == amounts.length, "Wrong input");
 
     token = IERC20(_token);
     vestingStartTs = block.timestamp + cliffPeriod;
 
-    // todo loop
+    uint totalForCheck;
 
-    IERC20(_token).transferFrom(msg.sender, address(this), totalAmount);
+    for (uint i; i < claimants.length; ++i) {
+      address claimant = claimants[i];
+      uint amount = amounts[i];
+      require(claimant != address(0), "Zero address");
+      require(amount > 0, "Zero amount");
+
+      toDistribute[claimant] = amount;
+      totalForCheck += amount;
+    }
+
+    require(totalForCheck == totalAmount, "Wrong total amount");
+
+    if (useTokensOnBalance) {
+      require(token.balanceOf(address(this)) >= totalAmount, "Not enough tokens");
+    } else {
+      IERC20(_token).transferFrom(msg.sender, address(this), totalAmount);
+    }
 
     emit Started(_token, totalAmount, block.timestamp, claimants, amounts);
   }
@@ -72,7 +89,7 @@ contract Vesting is ReentrancyGuard {
 
     require(_lastVestedClaimTs != 0, "Not started");
 
-    uint vestingTime = _vestingStartTs + vestingPeriod > block.timestamp ? _vestingStartTs + vestingPeriod : block.timestamp;
+    uint vestingTime = _vestingStartTs + vestingPeriod < block.timestamp ? _vestingStartTs + vestingPeriod : block.timestamp;
     uint timeDiff = _lastVestedClaimTs < vestingTime ? vestingTime - _lastVestedClaimTs : 0;
 
     uint _toDistribute = toDistribute[claimant];
@@ -97,7 +114,7 @@ contract Vesting is ReentrancyGuard {
     }
 
     // assume that any claim will mark TGE as claimed
-    if(!tgeClaimed[msg.sender]) {
+    if (!tgeClaimed[msg.sender]) {
       tgeClaimed[msg.sender] = true;
     }
 
