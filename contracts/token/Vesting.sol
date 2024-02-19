@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
+/// @title Vesting contract for token distribution
 contract Vesting is ReentrancyGuard {
 
   //////////////////////////////
@@ -27,7 +28,9 @@ contract Vesting is ReentrancyGuard {
 
   /// @dev Claimant => whole amount for distribution
   mapping(address => uint) public toDistribute;
+  /// @dev Claimant => last claimed timestamp
   mapping(address => uint) public lastVestedClaimTs;
+  /// @dev Claimant => TGE claimed indicator
   mapping(address => bool) public tgeClaimed;
 
   //////////////////////////////
@@ -51,7 +54,13 @@ contract Vesting is ReentrancyGuard {
 
   //////////////////////////////
 
-  function start(bool useTokensOnBalance, address _token, uint totalAmount, address[] calldata claimants, uint[] calldata amounts) external {
+  function start(
+    bool useTokensOnBalance,
+    address _token,
+    uint totalAmount,
+    address[] calldata claimants,
+    uint[] calldata amounts
+  ) external {
     require(vestingStartTs == 0, "Already started");
     require(_token != address(0), "Zero address");
     require(claimants.length == amounts.length, "Wrong input");

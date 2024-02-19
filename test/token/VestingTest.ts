@@ -184,4 +184,164 @@ describe('VestingTest', function() {
     expect(await token.balanceOf(await vesting.getAddress())).is.eq(2);
   });
 
+  it('vesting without tge', async function() {
+    const vesting = await DeployerUtils.deployContract(owner, 'Vesting', ...[
+      WEEK * 4 * 12,
+      WEEK * 4 * 3,
+      0,
+    ]) as Vesting;
+
+    const amount = 10000;
+    await token.mint(await vesting.getAddress(), amount);
+
+    await vesting.start(true, await token.getAddress(), amount,
+      [
+        owner.address,
+        owner2.address,
+        owner3.address,
+      ],
+      [
+        1000,
+        1000,
+        8000,
+      ],
+    );
+
+
+    expect(await token.balanceOf(owner.address)).is.eq(0);
+    expect(await token.balanceOf(owner2.address)).is.eq(0);
+    expect(await token.balanceOf(owner3.address)).is.eq(0);
+    expect(await token.balanceOf(await vesting.getAddress())).is.eq(10000);
+
+    expect((await vesting.toClaim(owner.address)).amount).is.eq(0);
+    expect((await vesting.toClaim(owner2.address)).amount).is.eq(0);
+    expect((await vesting.toClaim(owner3.address)).amount).is.eq(0);
+
+    await TimeUtils.advanceBlocksOnTs(WEEK * 4 * 4);
+
+    expect((await vesting.toClaim(owner.address)).amount).is.eq(83);
+    expect((await vesting.toClaim(owner2.address)).amount).is.eq(83);
+    expect((await vesting.toClaim(owner3.address)).amount).is.eq(666);
+
+    await vesting.connect(owner).claim();
+    await vesting.connect(owner3).claim();
+
+    expect(await token.balanceOf(owner.address)).is.eq(83);
+    expect(await token.balanceOf(owner3.address)).is.eq(666);
+
+    await TimeUtils.advanceBlocksOnTs(WEEK * 4 * 9);
+
+    expect((await vesting.toClaim(owner.address)).amount).is.eq(750);
+    expect((await vesting.toClaim(owner2.address)).amount).is.eq(833);
+    expect((await vesting.toClaim(owner3.address)).amount).is.eq(6000);
+
+    await vesting.connect(owner).claim();
+    await vesting.connect(owner3).claim();
+
+    expect(await token.balanceOf(owner.address)).is.eq(833);
+    expect(await token.balanceOf(owner3.address)).is.eq(6666);
+
+    await TimeUtils.advanceBlocksOnTs(WEEK * 4 * 6);
+
+    expect((await vesting.toClaim(owner.address)).amount).is.eq(166);
+    expect((await vesting.toClaim(owner2.address)).amount).is.eq(1000);
+    expect((await vesting.toClaim(owner3.address)).amount).is.eq(1333);
+
+    await vesting.connect(owner).claim();
+    await vesting.connect(owner3).claim();
+
+    expect(await token.balanceOf(owner.address)).is.eq(999);
+    expect(await token.balanceOf(owner3.address)).is.eq(7999);
+
+
+    await TimeUtils.advanceBlocksOnTs(WEEK * 4 * 6);
+
+    expect((await vesting.toClaim(owner2.address)).amount).is.eq(1000);
+
+    await vesting.connect(owner2).claim();
+
+    expect(await token.balanceOf(owner2.address)).is.eq(1000);
+    expect(await token.balanceOf(await vesting.getAddress())).is.eq(2);
+  });
+
+  it('vesting without cliff', async function() {
+    const vesting = await DeployerUtils.deployContract(owner, 'Vesting', ...[
+      WEEK * 4 * 12,
+      0,
+      0,
+    ]) as Vesting;
+
+    const amount = 10000;
+    await token.mint(await vesting.getAddress(), amount);
+
+    await vesting.start(true, await token.getAddress(), amount,
+      [
+        owner.address,
+        owner2.address,
+        owner3.address,
+      ],
+      [
+        1000,
+        1000,
+        8000,
+      ],
+    );
+
+
+    expect(await token.balanceOf(owner.address)).is.eq(0);
+    expect(await token.balanceOf(owner2.address)).is.eq(0);
+    expect(await token.balanceOf(owner3.address)).is.eq(0);
+    expect(await token.balanceOf(await vesting.getAddress())).is.eq(10000);
+
+    expect((await vesting.toClaim(owner.address)).amount).is.eq(0);
+    expect((await vesting.toClaim(owner2.address)).amount).is.eq(0);
+    expect((await vesting.toClaim(owner3.address)).amount).is.eq(0);
+
+    await TimeUtils.advanceBlocksOnTs(WEEK * 4);
+
+    expect((await vesting.toClaim(owner.address)).amount).is.eq(83);
+    expect((await vesting.toClaim(owner2.address)).amount).is.eq(83);
+    expect((await vesting.toClaim(owner3.address)).amount).is.eq(666);
+
+    await vesting.connect(owner).claim();
+    await vesting.connect(owner3).claim();
+
+    expect(await token.balanceOf(owner.address)).is.eq(83);
+    expect(await token.balanceOf(owner3.address)).is.eq(666);
+
+    await TimeUtils.advanceBlocksOnTs(WEEK * 4 * 9);
+
+    expect((await vesting.toClaim(owner.address)).amount).is.eq(750);
+    expect((await vesting.toClaim(owner2.address)).amount).is.eq(833);
+    expect((await vesting.toClaim(owner3.address)).amount).is.eq(6000);
+
+    await vesting.connect(owner).claim();
+    await vesting.connect(owner3).claim();
+
+    expect(await token.balanceOf(owner.address)).is.eq(833);
+    expect(await token.balanceOf(owner3.address)).is.eq(6666);
+
+    await TimeUtils.advanceBlocksOnTs(WEEK * 4 * 6);
+
+    expect((await vesting.toClaim(owner.address)).amount).is.eq(166);
+    expect((await vesting.toClaim(owner2.address)).amount).is.eq(1000);
+    expect((await vesting.toClaim(owner3.address)).amount).is.eq(1333);
+
+    await vesting.connect(owner).claim();
+    await vesting.connect(owner3).claim();
+
+    expect(await token.balanceOf(owner.address)).is.eq(999);
+    expect(await token.balanceOf(owner3.address)).is.eq(7999);
+
+
+    await TimeUtils.advanceBlocksOnTs(WEEK * 4 * 6);
+
+    expect((await vesting.toClaim(owner2.address)).amount).is.eq(1000);
+
+    await vesting.connect(owner2).claim();
+
+    expect(await token.balanceOf(owner2.address)).is.eq(1000);
+    expect(await token.balanceOf(await vesting.getAddress())).is.eq(2);
+  });
+
 });
