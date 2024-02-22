@@ -3,6 +3,7 @@
 pragma solidity 0.8.23;
 
 import "../interfaces/IVeNFT.sol";
+import "../interfaces/IVeDistributor.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /// @title Contract for distributing rewards to veNFT holders.
@@ -10,7 +11,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 ///        Pay all rewards at once for individual user.
 ///        No need to wait any epoch delays.
 /// @author belbix
-contract VeDistributor {
+contract VeDistributor is IVeDistributor{
 
   struct EpochInfo {
     uint ts;
@@ -162,7 +163,7 @@ contract VeDistributor {
   }
 
   /// @dev Claim rewards for given veID
-  function claim(uint _tokenId) public returns (uint toClaim) {
+  function claim(uint _tokenId) public override returns (uint toClaim) {
     toClaim = claimable(_tokenId);
 
     if (toClaim != 0) {

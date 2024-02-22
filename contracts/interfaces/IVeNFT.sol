@@ -88,6 +88,8 @@ interface IVeNFT is IERC721Enumerable {
 
   function totalSupplyAtT(uint timestamp) external view returns (uint);
 
+  function maxLock() external view returns (uint);
+
   // ---
 
   function createLockFor(address _token, uint _value, uint _lockDuration, address _to, bool alwaysMaxLock) external returns (uint);

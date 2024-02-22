@@ -32,6 +32,8 @@ contract Vesting is ReentrancyGuard {
   mapping(address => uint) public lastVestedClaimTs;
   /// @dev Claimant => TGE claimed indicator
   mapping(address => bool) public tgeClaimed;
+  /// @dev if for some reason claimant did not claim all tokens it recorded in this map for make possible to claim it later
+  mapping(address => uint) public extraAmounts;
 
   //////////////////////////////
 
@@ -91,7 +93,7 @@ contract Vesting is ReentrancyGuard {
     emit Started(_token, totalAmount, block.timestamp, claimants, amounts);
   }
 
-  function toClaim(address claimant) public view returns (uint amount, uint _lastVestedClaimTs){
+  function toClaim(address claimant) public view returns (uint amount, uint _lastVestedClaimTs, uint extraAmount){
     uint _vestingStartTs = vestingStartTs;
     _lastVestedClaimTs = lastVestedClaimTs[claimant];
     _lastVestedClaimTs = _lastVestedClaimTs == 0 ? _vestingStartTs : _lastVestedClaimTs;
@@ -106,14 +108,16 @@ contract Vesting is ReentrancyGuard {
     uint claimableVesting = _toDistribute - claimableTGE;
     claimableTGE = tgeClaimed[claimant] ? 0 : claimableTGE;
 
-    amount = (timeDiff * claimableVesting / vestingPeriod) + claimableTGE;
+    extraAmount = extraAmounts[claimant];
+
+    amount = (timeDiff * claimableVesting / vestingPeriod) + claimableTGE + extraAmount;
 
     uint balance = token.balanceOf(address(this));
     amount = balance < amount ? balance : amount;
   }
 
   function claim() external nonReentrant {
-    (uint _toClaim, uint _lastVestedClaimTs) = toClaim(msg.sender);
+    (uint _toClaim, uint _lastVestedClaimTs, uint extraAmount) = toClaim(msg.sender);
 
     require(_toClaim != 0, "Nothing to claim");
 
@@ -127,9 +131,25 @@ contract Vesting is ReentrancyGuard {
       tgeClaimed[msg.sender] = true;
     }
 
-    token.transfer(msg.sender, _toClaim);
+    // if extra amount is not zero need ro reset it
+    if (extraAmount != 0) {
+      delete extraAmounts[msg.sender];
+    }
+
+    uint notClaimed = _transferClaimedTokens(token, _toClaim, msg.sender);
+
+    // if we claimed not all amount need to write extra amount for future claims
+    if (notClaimed != 0) {
+      extraAmounts[msg.sender] = notClaimed;
+    }
 
     emit Claimed(msg.sender, _toClaim);
+  }
+
+  function _transferClaimedTokens(IERC20 _token, uint amount, address claimant) internal virtual returns (uint notClaimed) {
+    _token.transfer(claimant, amount);
+    // by default all tokens claimed
+    return 0;
   }
 
 

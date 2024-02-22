@@ -143,6 +143,10 @@ contract VeNFT is ReentrancyGuard, ERC721Enumerable, IVeNFT {
     return _S().isAlwaysMaxLock[tokenId];
   }
 
+  function maxLock() external pure override returns (uint) {
+    return VeLib.MAX_TIME;
+  }
+
   // *************************************************************
   //                        MAIN LOGIC
   // *************************************************************
