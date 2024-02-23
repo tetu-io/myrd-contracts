@@ -11,43 +11,47 @@ const NAME = 'TokenFactory';
 
 const PREFIX = '0x55555';
 
-const MAINNET_GOV = '0x4bE13bf2B983C31414b358C634bbb61230c332A7';
-
-const TREASURY_CLAIMANT = [MAINNET_GOV];
-const TREASURY_CLAIM_AMOUNT = [parseUnits((35_000_000).toString())];
-
-const TETU_CLAIMANT = [MAINNET_GOV];
-const TETU_CLAIM_AMOUNT = [parseUnits((20_000_000).toString())];
-
-const AMBASSADORS_CLAIMANTS = [
-  '0x000000000000000000000000000000000000dead', // todo
-];
-const AMBASSADORS_CLAIM_AMOUNTS = [
-  parseUnits((4_000_000).toString()), // todo
-];
-
-const SEED_CLAIMANTS = [
-  '0x000000000000000000000000000000000000dead', // todo
-];
-const SEED_CLAIM_AMOUNTS = [
-  parseUnits((10_000_000).toString()), // todo
-];
-
-const PRIVATE_CLAIMANTS = [
-  '0x000000000000000000000000000000000000dead', // todo
-];
-const PRIVATE_CLAIM_AMOUNTS = [
-  parseUnits((10_000_000).toString()), // todo
-];
-
-const TEAM_CLAIMANT = [MAINNET_GOV];
-const TEAM_CLAIM_AMOUNT = [parseUnits((20_000_000).toString())];
-
 
 const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
-  const { deployer } = await getNamedAccounts();
+  const { deployer, GOVERNANCE } = await getNamedAccounts();
+
+  ////////////////////////////////////
+
+  const GOV = GOVERNANCE;
+
+  const TREASURY_CLAIMANT = [GOV];
+  const TREASURY_CLAIM_AMOUNT = [parseUnits((35_000_000).toString())];
+
+  const TETU_CLAIMANT = [GOV];
+  const TETU_CLAIM_AMOUNT = [parseUnits((20_000_000).toString())];
+
+  const AMBASSADORS_CLAIMANTS = [
+    '0x000000000000000000000000000000000000dead', // todo
+  ];
+  const AMBASSADORS_CLAIM_AMOUNTS = [
+    parseUnits((4_000_000).toString()), // todo
+  ];
+
+  const SEED_CLAIMANTS = [
+    '0x000000000000000000000000000000000000dead', // todo
+  ];
+  const SEED_CLAIM_AMOUNTS = [
+    parseUnits((10_000_000).toString()), // todo
+  ];
+
+  const PRIVATE_CLAIMANTS = [
+    '0x000000000000000000000000000000000000dead', // todo
+  ];
+  const PRIVATE_CLAIM_AMOUNTS = [
+    parseUnits((10_000_000).toString()), // todo
+  ];
+
+  const TEAM_CLAIMANT = [GOV];
+  const TEAM_CLAIM_AMOUNT = [parseUnits((20_000_000).toString())];
+
+  ////////////////////////////////////
 
   const result = await deploy(NAME, {
     contract: 'TokenFactory',
@@ -141,3 +145,11 @@ const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
 };
 export default func;
 func.tags = [NAME];
+func.dependencies = [
+  'VestingTreasury',
+  'VestingTetuPart',
+  'VestingAmbassadors',
+  'VestingSeed',
+  'VestingPrivate',
+  'VestingTeam',
+];
