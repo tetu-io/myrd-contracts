@@ -11,36 +11,6 @@ import "../interfaces/IBPT.sol";
 /// @title Vesting contract for token distribution and locking forever in veNFT.
 contract VestingLocked is Vesting {
 
-  /// @dev veNFT for locking claimed tokens.
-  IVeNFT public ve;
-
-  /// @dev Created veNFT IDs during claiming process.
-  mapping(address => uint) public veIds;
-
-  //////////////////////////////
-
-  constructor(uint _vestingPeriod, uint _cliffPeriod, uint _tgePercent) Vesting(_vestingPeriod, _cliffPeriod, _tgePercent) {
-    // noop
-  }
-
-  //////////////////////////////
-
-  function _transferClaimedTokens(IERC20 _token, uint amount, address claimant) internal override returns (uint notClaimed) {
-    uint existId = veIds[claimant];
-
-    (uint notUsedAmount, IBPT underlying, uint bptAmount) = _createBpt(_token, amount, claimant);
-    notClaimed = notUsedAmount;
-
-    _approveIfNeeds(address(underlying), bptAmount, address(ve));
-
-    if (existId != 0) {
-      ve.increaseAmount(address(underlying), existId, bptAmount);
-    } else {
-      veIds[claimant] = ve.createLockFor(address(underlying), bptAmount, ve.maxLock(), claimant, true);
-    }
-
-  }
-
   struct CreateBptContext {
     IBVault vault;
     bytes32 poolId;
@@ -51,6 +21,62 @@ contract VestingLocked is Vesting {
     uint tokenANeed;
     uint tokenBNeed;
     uint tokenBClaimantBalance;
+  }
+
+  //////////////////////////////
+
+  /// @dev veNFT for locking claimed tokens.
+  IVeNFT public ve;
+
+  /// @dev Created veNFT IDs during claiming process.
+  mapping(address => uint) public veIds;
+
+  //////////////////////////////
+
+  event VeSet(address ve);
+  event Claimed(address token, uint amount, address distributor, uint tokenId);
+
+  //////////////////////////////
+
+  constructor(uint _vestingPeriod, uint _cliffPeriod, uint _tgePercent) Vesting(_vestingPeriod, _cliffPeriod, _tgePercent) {
+    // noop
+  }
+
+  function setVe(IVeNFT _ve) external {
+    require(address(ve) == address(0), "already set");
+    ve = _ve;
+    emit VeSet(address(_ve));
+  }
+
+  //////////////////////////////
+
+  function claimRewards(IVeDistributor distributor, uint tokenId, address tokenToClaim) external nonReentrant {
+    require(tokenId == veIds[msg.sender], "not owner");
+
+    uint toClaim = distributor.claim(tokenId);
+    IERC20(tokenToClaim).transfer(msg.sender, toClaim);
+
+    emit Claimed(tokenToClaim, toClaim, address(distributor), tokenId);
+  }
+
+  //////////////////////////////
+
+  function _transferClaimedTokens(IERC20 _token, uint amount, address claimant) internal override returns (uint notClaimed) {
+    uint existId = veIds[claimant];
+
+    (uint notUsedAmount, IBPT underlying, uint bptAmount) = _createBpt(_token, amount, claimant);
+    notClaimed = notUsedAmount;
+
+    IVeNFT _ve = ve;
+
+    _approveIfNeeds(address(underlying), bptAmount, address(_ve));
+
+    if (existId != 0) {
+      _ve.increaseAmount(address(underlying), existId, bptAmount);
+    } else {
+      veIds[claimant] = _ve.createLockFor(address(underlying), bptAmount, _ve.maxLock(), claimant, true);
+    }
+
   }
 
   function _createBpt(IERC20 tokenA, uint amount, address claimant) internal returns (uint notUsedAmount, IBPT underlying, uint bptAmount) {

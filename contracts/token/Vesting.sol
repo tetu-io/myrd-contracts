@@ -2,12 +2,13 @@
 
 pragma solidity 0.8.23;
 
+import "../interfaces/IVesting.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
 /// @title Vesting contract for token distribution
-contract Vesting is ReentrancyGuard {
+contract Vesting is IVesting, ReentrancyGuard {
 
   //////////////////////////////
 
@@ -62,7 +63,7 @@ contract Vesting is ReentrancyGuard {
     uint totalAmount,
     address[] calldata claimants,
     uint[] calldata amounts
-  ) external {
+  ) external override {
     require(vestingStartTs == 0, "Already started");
     require(_token != address(0), "Zero address");
     require(claimants.length == amounts.length, "Wrong input");
@@ -85,7 +86,7 @@ contract Vesting is ReentrancyGuard {
     require(totalForCheck == totalAmount, "Wrong total amount");
 
     if (useTokensOnBalance) {
-      require(token.balanceOf(address(this)) >= totalAmount, "Not enough tokens");
+       require(token.balanceOf(address(this)) >= totalAmount, "Not enough tokens");
     } else {
       IERC20(_token).transferFrom(msg.sender, address(this), totalAmount);
     }
