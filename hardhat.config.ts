@@ -13,6 +13,7 @@ import 'hardhat-deploy';
 import {task} from "hardhat/config";
 import {deployContract} from "./scripts/deploy/DeployContract";
 import {deployAddresses} from "./deploy_helpers/deploy-addresses";
+import 'hardhat-ignore-warnings'
 
 dotEnvConfig();
 // tslint:disable-next-line:no-var-requires
@@ -107,6 +108,15 @@ export default {
           }
         }
       },
+      { // for Balancer
+        version: "0.7.6",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 150,
+          }
+        },
+      }
     ]
   },
   paths: {
@@ -139,4 +149,18 @@ export default {
     pretty: false,
   },
   namedAccounts: deployAddresses,
+  warnings: {
+    '@balancer-labs/v2-solidity-utils/contracts/**/*': {
+      default: 'off',
+    },
+    '@balancer-labs/v2-vault/contracts/**/*': {
+      default: 'off',
+    },
+    'contracts/test/**/*': {
+      default: 'off',
+    },
+    '@balancer-labs/v2-pool-utils/contracts/**/*': {
+      default: 'off',
+    },
+  }
 };
