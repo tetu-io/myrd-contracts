@@ -6,10 +6,9 @@ import {MockToken, Vault, Vault__factory, WeightedPool} from '../../typechain';
 import path from 'node:path';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { Misc } from '../Misc';
+import {BalancerUtils} from "../utils/balancer-utils";
 
 const MONTH = 30n * 24n * 3600n
-const PAUSE_WINDOW_DURATION = 90n * 24n * 3600n
-const BUFFER_PERIOD_DURATION = 30n * 24n * 3600n
 
 export class DeployerUtils {
 
@@ -46,8 +45,8 @@ export class DeployerUtils {
 
   public static async deployBalancer(
     signer: SignerWithAddress,
-    pauseWindowDuration = PAUSE_WINDOW_DURATION,
-    bufferPeriodDuration = BUFFER_PERIOD_DURATION
+    pauseWindowDuration = BalancerUtils.PAUSE_WINDOW_DURATION,
+    bufferPeriodDuration = BalancerUtils.BUFFER_PERIOD_DURATION
   ) {
 
     const entrypoint = await this.deployContract(signer, 'MockAuthorizerAdaptorEntrypoint');
@@ -81,8 +80,8 @@ export class DeployerUtils {
     normalizedWeights: bigint[],
     initialBalances: bigint[],
     swapFeePercentage = parseEther('0.0025'),
-    pauseWindowDuration = PAUSE_WINDOW_DURATION,
-    bufferPeriodDuration = BUFFER_PERIOD_DURATION
+    pauseWindowDuration = BalancerUtils.PAUSE_WINDOW_DURATION,
+    bufferPeriodDuration = BalancerUtils.BUFFER_PERIOD_DURATION
   ) {
     // const protocolFeeCollector = await Vault__factory.connect(vaultAddress, signer).getProtocolFeesCollector()
 

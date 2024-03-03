@@ -64,7 +64,7 @@ export default {
           argv.hardhatChainId === 1 ? argv.ethRpcUrl :
                 undefined,
         blockNumber:
-          argv.hardhatChainId === 1 ? argv.ethForkBlock !== 0 : undefined
+          argv.hardhatChainId === 1 ? argv.ethForkBlock || undefined : undefined,
       } : undefined,
       accounts: {
         mnemonic: "test test test test test test test test test test test junk",

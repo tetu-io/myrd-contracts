@@ -35,14 +35,23 @@ describe('VestingLockedTest', function() {
     const balancerCore = await DeployerUtils.deployBalancer(owner);
     vault = balancerCore.vault
 
+    let tokens = [token0, token1]
+    let weights = [parseUnits('0.8'), parseUnits('0.2')]
+    let initialBalances = [parseUnits('80000000'), parseUnits('2000000')]
+    if (BigInt(await token0.getAddress()) > BigInt(await token1.getAddress())) {
+      tokens = [tokens[1], tokens[0]]
+      weights = [weights[1], weights[0]]
+      initialBalances = [initialBalances[1], initialBalances[0]]
+    }
+
     weightedPool = await DeployerUtils.deployAndInitBalancerWeightedPool(
       owner,
       await vault.getAddress(),
       await balancerCore.protocolFeePercentagesProvider.getAddress(),
-      [token0, token1,],
-      [parseUnits('0.8'), parseUnits('0.2')],
+      tokens,
+      weights,
       // Initially 1 token0 = 10 token1
-      [parseUnits('80000000'), parseUnits('2000000')]
+      initialBalances
     );
 
     ve = await DeployerUtils.deployContract(owner, 'VeNFT', ...[
