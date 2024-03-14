@@ -2,11 +2,11 @@ import { DeployFunction } from 'hardhat-deploy/dist/types';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { getDeployedContractByName, txParams } from '../deploy_helpers/deploy-helpers';
 import { ethers } from 'hardhat';
-import { parseUnits } from 'ethers';
-import { TokenFactory__factory } from '../typechain';
+import { parseUnits, ZeroAddress } from 'ethers';
+import { LiquidityFactory__factory } from '../typechain';
+import {BalancerUtils} from "../scripts/utils/balancer-utils";
 
 const NAME = 'VeNFT';
-
 
 const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
@@ -16,7 +16,16 @@ const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
   ////////////////////////////////////////////////
 
 
-  const UNDERLYING_BPT = await TokenFactory__factory.connect(await getDeployedContractByName('TokenFactory'), ethers.provider).token(); // todo change to BPT
+  const UNDERLYING_BPT = await LiquidityFactory__factory.connect(await getDeployedContractByName('LiquidityFactory'), ethers.provider).deployedBPT(deployer);
+  if (UNDERLYING_BPT == ZeroAddress) {
+    throw new Error("Underlying not deployed yet")
+  } else {
+    const signer = (await ethers.getSigners())[0];
+    const isPoolInited = await BalancerUtils.isPoolInited(UNDERLYING_BPT, signer)
+    if (!isPoolInited) {
+      throw new Error("BPT is not initialized")
+    }
+  }
 
   const VE_NAME = 'Voting escrow MYRD';
   const VE_SYMBOL = 'veMYRD';
