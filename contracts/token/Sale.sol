@@ -17,6 +17,7 @@ contract Sale {
   address public tokenToSale;
   uint public sold;
   mapping(address user => uint bought) public bought;
+  bool public allowToClaim = false;
 
   constructor(
     address _gov,
@@ -45,6 +46,12 @@ contract Sale {
     require(IERC20(token).balanceOf(address(this)) == SALE_TOTAL_AMOUNT, "incorrect supply");
 
     tokenToSale = token;
+  }
+
+  // after the sale ended we need to allow to claim in the same moment when create the token pool
+  function allowClaim() external {
+    require(msg.sender == governance, "not allowed");
+    allowToClaim = true;
   }
 
   // anyone can call after the sale end
@@ -76,6 +83,7 @@ contract Sale {
   function claim() external {
     address _token = tokenToSale;
     require(_token != address(0) && block.timestamp >= end, 'sale not ended');
+    require(allowToClaim, 'not allowed yet');
 
     uint userBought = bought[msg.sender];
     require(userBought > 0, 'bought zero');
