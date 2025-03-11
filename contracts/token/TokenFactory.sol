@@ -85,22 +85,22 @@ contract TokenFactory {
     cliffStarted = block.timestamp;
 
     vestingContractTeam = IVesting(_vestingContractTeam);
-    require(IVesting(_vestingContractTeam).vestingPeriod() == TEAM_VESTING, 'wrong vesting');
-    require(IVesting(_vestingContractTeam).cliffPeriod() == 0, 'wrong vesting');
-    require(IVesting(_vestingContractTeam).tgePercent() == 0, 'wrong vesting');
+    require(IVesting(_vestingContractTeam).vestingPeriod() == TEAM_VESTING, 'team wrong vesting');
+    require(IVesting(_vestingContractTeam).cliffPeriod() == 0, 'team wrong cliff');
+    require(IVesting(_vestingContractTeam).tgePercent() == 0, 'team wrong tge');
 
     vestingContractTreasury = IVesting(_vestingContractTreasury);
-    require(IVesting(_vestingContractTreasury).vestingPeriod() == TREASURY_VESTING, 'wrong vesting');
-    require(IVesting(_vestingContractTreasury).cliffPeriod() == 0, 'wrong vesting');
-    require(IVesting(_vestingContractTreasury).tgePercent() == 0, 'wrong vesting');
+    require(IVesting(_vestingContractTreasury).vestingPeriod() == TREASURY_VESTING, 'treasury wrong vesting');
+    require(IVesting(_vestingContractTreasury).cliffPeriod() == 0, 'treasury wrong cliff');
+    require(IVesting(_vestingContractTreasury).tgePercent() == 0, 'treasury wrong tge');
 
     vestingContractRewards = IVesting(_vestingContractRewards);
-    require(IVesting(_vestingContractRewards).vestingPeriod() == REWARDS_AMOUNT, 'wrong vesting');
-    require(IVesting(_vestingContractRewards).cliffPeriod() == 0, 'wrong vesting');
-    require(IVesting(_vestingContractRewards).tgePercent() == 0, 'wrong vesting');
+    require(IVesting(_vestingContractRewards).vestingPeriod() == REWARDS_VESTING, 'rewards wrong vesting');
+    require(IVesting(_vestingContractRewards).cliffPeriod() == 0, 'rewards wrong cliff');
+    require(IVesting(_vestingContractRewards).tgePercent() == 0, 'rewards wrong tge');
 
     require(_token.totalSupply() == 0, "wrong total supply");
-    require(_token.minter() == _governance, "wrong gov");
+    require(_token.minter() == address(this), "wrong gov");
 
     _token.mint(_saleContract, PUBLIC_SALE_AMOUNT);
     _token.mint(_governance, LIQUIDITY_AMOUNT);
