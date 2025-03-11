@@ -1,6 +1,6 @@
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers';
 import { MockToken, Vesting } from '../../typechain';
-import { TimeUtils } from '../TimeUtils';
+import { TimeUtils } from '../utils/TimeUtils';
 import { ethers } from 'hardhat';
 import { DeployerUtils } from '../../scripts/deploy/DeployerUtils';
 import { parseUnits } from 'ethers';
