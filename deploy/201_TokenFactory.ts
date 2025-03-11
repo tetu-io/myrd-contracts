@@ -6,10 +6,21 @@ import { parseUnits } from 'ethers';
 import { ERC20__factory, MYRD__factory, TokenFactory__factory } from '../typechain';
 import { Misc } from '../scripts/Misc';
 import { expect } from 'chai';
+import {config as dotEnvConfig} from "dotenv";
+import { TOKEN_PREFIX } from '../deploy_helpers/sale.config';
 
 const NAME = 'TokenFactory';
 
-const PREFIX = '0x55555';
+
+dotEnvConfig();
+// tslint:disable-next-line:no-var-requires
+const argv = require('yargs/yargs')()
+  .env('')
+  .options({
+    salt: {
+      type: "string",
+    },
+  }).argv;
 
 
 const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
@@ -20,36 +31,6 @@ const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
   ////////////////////////////////////
 
   const GOV = GOVERNANCE;
-
-  const TREASURY_CLAIMANT = [GOV];
-  const TREASURY_CLAIM_AMOUNT = [parseUnits((35_000_000).toString())];
-
-  const TETU_CLAIMANT = [GOV];
-  const TETU_CLAIM_AMOUNT = [parseUnits((20_000_000).toString())];
-
-  const AMBASSADORS_CLAIMANTS = [
-    '0x000000000000000000000000000000000000dead', // todo
-  ];
-  const AMBASSADORS_CLAIM_AMOUNTS = [
-    parseUnits((4_000_000).toString()), // todo
-  ];
-
-  const SEED_CLAIMANTS = [
-    '0x000000000000000000000000000000000000dead', // todo
-  ];
-  const SEED_CLAIM_AMOUNTS = [
-    parseUnits((10_000_000).toString()), // todo
-  ];
-
-  const PRIVATE_CLAIMANTS = [
-    '0x000000000000000000000000000000000000dead', // todo
-  ];
-  const PRIVATE_CLAIM_AMOUNTS = [
-    parseUnits((10_000_000).toString()), // todo
-  ];
-
-  const TEAM_CLAIMANT = [GOV];
-  const TEAM_CLAIM_AMOUNT = [parseUnits((20_000_000).toString())];
 
   ////////////////////////////////////
 
@@ -67,35 +48,13 @@ const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
 
   if ((await factory.token()) === Misc.ZERO_ADDRESS) {
 
-    const vestingContracts = [
-      await getDeployedContractByName('VestingTreasury'),
-      await getDeployedContractByName('VestingTetuPart'),
-      await getDeployedContractByName('VestingAmbassadors'),
-      await getDeployedContractByName('VestingSeed'),
-      await getDeployedContractByName('VestingPrivate'),
-      await getDeployedContractByName('VestingTeam'),
-    ];
-
-    const claimants = [
-      TREASURY_CLAIMANT, // Treasury
-      TETU_CLAIMANT, // Tetu
-      AMBASSADORS_CLAIMANTS, // Ambassadors
-      SEED_CLAIMANTS, // Seed
-      PRIVATE_CLAIMANTS, // Private
-      TEAM_CLAIMANT, // Team
-    ];
-
-    const amounts = [
-      TREASURY_CLAIM_AMOUNT, // Treasury
-      TETU_CLAIM_AMOUNT, // Tetu
-      AMBASSADORS_CLAIM_AMOUNTS, // Ambassadors
-      SEED_CLAIM_AMOUNTS, // Seed
-      PRIVATE_CLAIM_AMOUNTS, // Private
-      TEAM_CLAIM_AMOUNT, // Team
-    ];
-
     const bytecode = MYRD__factory.bytecode;
     let salt = ethers.randomBytes(32);
+
+    if(argv.salt && argv.salt !== '') {
+      salt = ethers.getBytesCopy(argv.salt);
+    }
+
 
     // skip generate for tests
     if (hre.network.name !== 'hardhat') {
@@ -103,18 +62,28 @@ const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
         salt = ethers.randomBytes(32);
         const address = ethers.getCreate2Address(await factory.getAddress(), salt, ethers.keccak256(bytecode));
         console.log('Try Address:', address);
-        if (address.startsWith(PREFIX)) {
+        if (address.startsWith(TOKEN_PREFIX)) {
           break;
         }
       }
     }
 
+    console.log('SALT:', salt.toString());
+
+    const sale = await getDeployedContractByName('Sale');
+    const vestingTeam = await getDeployedContractByName('VestingTeam');
+    const vestingTreasury = await getDeployedContractByName('VestingTreasury');
+    const vestingRewards = await getDeployedContractByName('VestingRewards');
+
+
     const gas = await factory.createToken.estimateGas(
       salt,
       bytecode,
-      vestingContracts,
-      claimants,
-      amounts,
+      GOV,
+      sale,
+      vestingTeam,
+      vestingTreasury,
+      vestingRewards,
     );
 
     expect(gas).lt(25_000_000n, 'Gas limit is too high');
@@ -123,33 +92,26 @@ const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
     await Misc.runAndWait2(factory.createToken.populateTransaction(
       salt,
       bytecode,
-      vestingContracts,
-      claimants,
-      amounts,
+      GOV,
+      sale,
+      vestingTeam,
+      vestingTreasury,
+      vestingRewards,
     ));
     console.log('Token created');
 
     const token = ERC20__factory.connect(await factory.token(), ethers.provider);
     console.log('MYRD address:', await token.getAddress());
 
-    expect(await token.balanceOf(signer.address)).to.eq(parseUnits((1_000_000).toString()));
-    expect(await token.balanceOf(vestingContracts[0])).to.eq(parseUnits((35_000_000).toString()));
-    expect(await token.balanceOf(vestingContracts[1])).to.eq(parseUnits((20_000_000).toString()));
-    expect(await token.balanceOf(vestingContracts[2])).to.eq(parseUnits((4_000_000).toString()));
-    expect(await token.balanceOf(vestingContracts[3])).to.eq(parseUnits((10_000_000).toString()));
-    expect(await token.balanceOf(vestingContracts[4])).to.eq(parseUnits((10_000_000).toString()));
-    expect(await token.balanceOf(vestingContracts[5])).to.eq(parseUnits((20_000_000).toString()));
-
-
+    expect(await token.balanceOf(sale)).to.eq(parseUnits((4_000_000).toString()));
+    expect(await token.balanceOf(GOV)).to.eq(parseUnits((6_000_000).toString()));
   }
 };
 export default func;
 func.tags = [NAME];
 func.dependencies = [
-  'VestingTreasury',
-  'VestingTetuPart',
-  'VestingAmbassadors',
-  'VestingSeed',
-  'VestingPrivate',
+  'Sale',
   'VestingTeam',
+  'VestingTreasury',
+  'VestingRewards',
 ];

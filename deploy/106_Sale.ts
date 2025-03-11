@@ -2,22 +2,25 @@ import { DeployFunction } from 'hardhat-deploy/dist/types';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { txParams } from '../deploy_helpers/deploy-helpers';
 import { ethers } from 'hardhat';
+import { SALE_END, SALE_PRICE, SALE_START } from '../deploy_helpers/sale.config';
 
-const NAME = 'VestingTeam';
-const DAY = 60 * 60 * 24;
-const VESTING_PERIOD = DAY * 30 * 18;
-const CLIFF_PERIOD = DAY * 365;
-const TGE_PERCENT = 0;
+const NAME = 'Sale';
 
 const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
-  const { deployer } = await getNamedAccounts();
+  const { deployer, GOVERNANCE, PAY_TOKEN } = await getNamedAccounts();
 
   await deploy(NAME, {
-    contract: 'Vesting',
+    contract: 'Sale',
     from: deployer,
-    args: [VESTING_PERIOD, CLIFF_PERIOD, TGE_PERCENT],
+    args: [
+      GOVERNANCE,
+      PAY_TOKEN,
+      SALE_PRICE,
+      SALE_START,
+      SALE_END,
+    ],
     log: true,
     skipIfAlreadyDeployed: true,
     ...(await txParams(hre, ethers.provider)),

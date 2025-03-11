@@ -3,74 +3,147 @@
 pragma solidity 0.8.23;
 
 import "../interfaces/IVesting.sol";
+import "../interfaces/ISale.sol";
 import "@openzeppelin/contracts/utils/Create2.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+interface IMYRD is IERC20 {
+  function minter() external view returns (address);
+
+  function mint(address to, uint256 amount) external;
+}
+
 contract TokenFactory {
 
-  uint private constant INITIAL_LIQUIDITY = 1_000_000e18;
-  uint private constant TREASURY = 35_000_000e18;
-  uint private constant TETU = 20_000_000e18;
-  uint private constant AMBASSADORS = 4_000_000e18;
-  uint private constant FUNDRAISE_SEED = 10_000_000e18;
-  uint private constant FUNDRAISE_PRIVATE = 10_000_000e18;
-  uint private constant TEAM = 20_000_000e18;
+  // ********************** TOKENOMICS **********************
 
-  address public token;
+  uint private constant PUBLIC_SALE_AMOUNT = 4_000_000e18;
+//  uint private constant PUBLIC_SALE_CLIFF = 0;
+//  uint private constant PUBLIC_SALE_VESTING = 0;
+
+  uint private constant LIQUIDITY_AMOUNT = 6_000_000e18;
+//  uint private constant LIQUIDITY_CLIFF = 0;
+//  uint private constant LIQUIDITY_VESTING = 0;
+
+  uint private constant TEAM_AMOUNT = 20_000_000e18;
+  uint private constant TEAM_CLIFF = 182 days;
+  uint private constant TEAM_VESTING = 1277 days;
+
+  uint private constant TREASURY_AMOUNT = 50_000_000e18;
+  uint private constant TREASURY_CLIFF = 365 days;
+  uint private constant TREASURY_VESTING = 1095 days;
+
+  uint private constant REWARDS_AMOUNT = 20_000_000e18;
+  uint private constant REWARDS_CLIFF = 547 days;
+  uint private constant REWARDS_VESTING = 912 days;
+
+  // ********************** VARIABLES **********************
+
+  address public governance;
+  IMYRD public token;
+  address public saleContract;
+  uint public cliffStarted;
+  IVesting public vestingContractTeam;
+  IVesting public vestingContractTreasury;
+  IVesting public vestingContractRewards;
+  // vesting contract => start block. Zero means not started yet.
+  mapping(address => uint) public vestingStarted;
 
   function computeAddress(bytes32 salt, bytes memory bytecode) external view returns (address) {
     return Create2.computeAddress(salt, keccak256(bytecode), address(this));
   }
 
-  /// @dev vestingContracts array:
-  /// 0 - Treasury 35%
-  /// 1 - Tetu 20%
-  /// 2 - Ambassadors 4%
-  /// 3 - Fundraise (Seed) 10%
-  /// 4 - Fundraise (Private) 10%
-  /// 5 - Team 20%
+  // need to pass immutable deployed vesting contracts to be sure that final total supply is correct
   function createToken(
     bytes32 salt,
     bytes memory bytecode,
-    address[] memory vestingContracts,
-    address[][] memory claimants,
-    uint[][] memory amounts
+    address _governance,
+    address _saleContract,
+    address _vestingContractTeam,
+    address _vestingContractTreasury,
+    address _vestingContractRewards
   ) external {
-    require(token == address(0), 'created');
-    require(vestingContracts.length == 6 && claimants.length == 6 && amounts.length == 6, "length");
+    require(
+      address(token) == address(0)
+      && governance == address(0)
+      && address(vestingContractTeam) == address(0)
+      && address(vestingContractTreasury) == address(0)
+      && address(vestingContractRewards) == address(0)
+      , 'created');
+    require(
+      _governance != address(0)
+      && _vestingContractTeam != address(0)
+      && _vestingContractTreasury != address(0)
+      && _vestingContractRewards != address(0)
+      , "empty");
 
-    IERC20 _token = IERC20(Create2.deploy(0, salt, bytecode));
+    IMYRD _token = IMYRD(Create2.deploy(0, salt, bytecode));
 
-    // Initial Liquidity 1%, just send to EOA
-    _token.transfer(msg.sender, INITIAL_LIQUIDITY);
+    governance = _governance;
+    token = _token;
+    saleContract = _saleContract;
+    cliffStarted = block.timestamp;
 
-    // --- Treasury 35%
-    _token.transfer(vestingContracts[0], TREASURY);
-    IVesting(vestingContracts[0]).start(true, address(_token), TREASURY, claimants[0], amounts[0]);
+    vestingContractTeam = IVesting(_vestingContractTeam);
+    require(IVesting(_vestingContractTeam).vestingPeriod() == TEAM_VESTING, 'wrong vesting');
+    require(IVesting(_vestingContractTeam).cliffPeriod() == 0, 'wrong vesting');
+    require(IVesting(_vestingContractTeam).tgePercent() == 0, 'wrong vesting');
 
-    // Tetu 20%
-    _token.transfer(vestingContracts[1], TETU);
-    IVesting(vestingContracts[1]).start(true, address(_token), TETU, claimants[1], amounts[1]);
+    vestingContractTreasury = IVesting(_vestingContractTreasury);
+    require(IVesting(_vestingContractTreasury).vestingPeriod() == TREASURY_VESTING, 'wrong vesting');
+    require(IVesting(_vestingContractTreasury).cliffPeriod() == 0, 'wrong vesting');
+    require(IVesting(_vestingContractTreasury).tgePercent() == 0, 'wrong vesting');
 
-    // Ambassadors 4%
-    _token.transfer(vestingContracts[2], AMBASSADORS);
-    IVesting(vestingContracts[2]).start(true, address(_token), AMBASSADORS, claimants[2], amounts[2]);
+    vestingContractRewards = IVesting(_vestingContractRewards);
+    require(IVesting(_vestingContractRewards).vestingPeriod() == REWARDS_AMOUNT, 'wrong vesting');
+    require(IVesting(_vestingContractRewards).cliffPeriod() == 0, 'wrong vesting');
+    require(IVesting(_vestingContractRewards).tgePercent() == 0, 'wrong vesting');
 
-    // Fundraise (Seed) 10%
-    _token.transfer(vestingContracts[3], FUNDRAISE_SEED);
-    IVesting(vestingContracts[3]).start(true, address(_token), FUNDRAISE_SEED, claimants[3], amounts[3]);
+    require(_token.totalSupply() == 0, "wrong total supply");
+    require(_token.minter() == _governance, "wrong gov");
 
-    // Fundraise (Private) 10%
-    _token.transfer(vestingContracts[4], FUNDRAISE_PRIVATE);
-    IVesting(vestingContracts[4]).start(true, address(_token), FUNDRAISE_PRIVATE, claimants[4], amounts[4]);
+    _token.mint(_saleContract, PUBLIC_SALE_AMOUNT);
+    _token.mint(_governance, LIQUIDITY_AMOUNT);
 
-    // Team 20%
-    _token.transfer(vestingContracts[5], TEAM);
-    IVesting(vestingContracts[5]).start(true, address(_token), TEAM, claimants[5], amounts[5]);
+    ISale(_saleContract).setupTokenToSale(address(_token));
+  }
 
-    require(_token.totalSupply() == 100_000_000e18, "total");
+  function startTeamVesting(address[] calldata claimants, uint[] calldata amounts) external {
+    _startVesting(vestingContractTeam, TEAM_CLIFF, TEAM_AMOUNT, claimants, amounts);
+  }
 
-    token = address(_token);
+  function startTreasuryVesting(address[] calldata claimants, uint[] calldata amounts) external {
+    _startVesting(vestingContractTreasury, TREASURY_CLIFF, TREASURY_AMOUNT, claimants, amounts);
+  }
+
+  function startRewardsVesting(address[] calldata claimants, uint[] calldata amounts) external {
+    _startVesting(vestingContractRewards, REWARDS_CLIFF, REWARDS_AMOUNT, claimants, amounts);
+  }
+
+  function _startVesting(
+    IVesting vestingContract,
+    uint cliff,
+    uint totalAmount,
+    address[] calldata claimants,
+    uint[] calldata amounts
+  ) internal {
+    require(msg.sender == governance, "governance");
+    require(vestingStarted[address(vestingContract)] == 0, "started");
+    require(block.timestamp >= cliffStarted + cliff, "cliff");
+
+    vestingStarted[address(vestingContract)] = block.number;
+
+    IMYRD _token = IMYRD(token);
+
+    _token.mint(address(vestingContract), totalAmount);
+
+    IVesting(vestingContract).start(
+      true,
+      address(_token),
+      totalAmount,
+      claimants,
+      amounts
+    );
   }
 
 }
