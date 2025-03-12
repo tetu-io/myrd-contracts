@@ -344,4 +344,56 @@ describe('VestingTest', function() {
     expect(await token.balanceOf(await vesting.getAddress())).is.eq(2);
   });
 
+  it("should revert if pass wrong params to constructor", async () => {
+    await expect(DeployerUtils.deployContract(owner, 'Vesting', ...[
+      0, // (!) _vestingPeriod
+      WEEK * 4 * 3, // _cliffPeriod
+      10, // _tgePercent
+    ])).rejectedWith("Zero vesting");
+
+    await expect(DeployerUtils.deployContract(owner, 'Vesting', ...[
+      WEEK * 4 * 12,
+      WEEK * 4 * 3,
+      100, // (!) _tgePercent
+    ])).rejectedWith("Too much TGE");
+  });
+
+  it("should take amount from signer's balance if useTokensOnBalance is false", async () => {
+    const vesting = await DeployerUtils.deployContract(owner, 'Vesting', ...[
+      WEEK * 4 * 12,
+      WEEK * 4 * 3,
+      10,
+    ]) as Vesting;
+
+    const amount = 3000;
+    await token.mint(owner, amount);
+
+    await token.connect(owner).approve(vesting, amount);
+    await vesting.start(false, await token.getAddress(), amount, [owner.address, owner2.address], [1000, 2000]);
+
+    expect(await token.balanceOf(owner)).eq(0);
+    expect(await token.balanceOf(vesting)).eq(amount);
+  });
+
+  it("should revert if start is called with wrong params", async () => {
+    const vesting = await DeployerUtils.deployContract(owner, 'Vesting', ...[
+      WEEK * 4 * 12,
+      WEEK * 4 * 3,
+      10,
+    ]) as Vesting;
+
+    const amount = 3000;
+    await token.mint(vesting, amount);
+
+    await expect(vesting.start(
+      false,
+      await token.getAddress(),
+      amount,
+      [owner.address, owner2.address],
+      [1000, 2000]
+    )).rejectedWith("");
+
+    // todo only governance
+  });
+
 });
