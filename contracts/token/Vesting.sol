@@ -99,27 +99,32 @@ contract Vesting is IVesting, ReentrancyGuard {
     _lastVestedClaimTs = lastVestedClaimTs[claimant];
     _lastVestedClaimTs = _lastVestedClaimTs == 0 ? _vestingStartTs : _lastVestedClaimTs;
 
-    require(_lastVestedClaimTs != 0, "Not started");
+    if (_lastVestedClaimTs != 0) {
+      uint vestingTime = _vestingStartTs + vestingPeriod < block.timestamp ? _vestingStartTs + vestingPeriod : block.timestamp;
+      uint timeDiff = _lastVestedClaimTs < vestingTime ? vestingTime - _lastVestedClaimTs : 0;
 
-    uint vestingTime = _vestingStartTs + vestingPeriod < block.timestamp ? _vestingStartTs + vestingPeriod : block.timestamp;
-    uint timeDiff = _lastVestedClaimTs < vestingTime ? vestingTime - _lastVestedClaimTs : 0;
+      uint _toDistribute = toDistribute[claimant];
+      uint claimableTGE = _toDistribute * tgePercent / 100;
+      uint claimableVesting = _toDistribute - claimableTGE;
+      claimableTGE = tgeClaimed[claimant] ? 0 : claimableTGE;
 
-    uint _toDistribute = toDistribute[claimant];
-    uint claimableTGE = _toDistribute * tgePercent / 100;
-    uint claimableVesting = _toDistribute - claimableTGE;
-    claimableTGE = tgeClaimed[claimant] ? 0 : claimableTGE;
+      extraAmount = extraAmounts[claimant];
 
-    extraAmount = extraAmounts[claimant];
+      amount = (timeDiff * claimableVesting / vestingPeriod) + claimableTGE + extraAmount;
 
-    amount = (timeDiff * claimableVesting / vestingPeriod) + claimableTGE + extraAmount;
+      uint balance = token.balanceOf(address(this));
+      amount = balance < amount ? balance : amount;
+    } else {
+      // not started yet
+    }
 
-    uint balance = token.balanceOf(address(this));
-    amount = balance < amount ? balance : amount;
+    return (amount, _lastVestedClaimTs, extraAmount);
   }
 
   function claim() external nonReentrant {
     (uint _toClaim, uint _lastVestedClaimTs, uint extraAmount) = toClaim(msg.sender);
 
+    require(_lastVestedClaimTs != 0, "Not started");
     require(_toClaim != 0, "Nothing to claim");
 
     // if vesting started need to update last claim timestamp
