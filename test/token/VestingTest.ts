@@ -473,7 +473,9 @@ describe('VestingTest', function() {
 
     const claim3 = await vesting.toClaim(owner.address);
     expect(claim3.amount).eq(250n);
-    expect(claim3._lastVestedClaimTs).eq(await vesting.lastVestedClaimTs(owner.address));
+    const b3 = await vesting.unpackLastVestedData(await vesting.lastVestedClaim(owner.address));
+
+    expect(claim3._lastVestedClaimTs).eq(b3.lastVestedClaimTs);
     expect(claim3.extraAmount).eq(0n);
 
     await vesting.connect(owner).claim();
@@ -482,14 +484,16 @@ describe('VestingTest', function() {
 
     const claim4 = await vesting.toClaim(owner.address);
     expect(claim4.amount).eq(250n);
-    expect(claim4._lastVestedClaimTs).eq(await vesting.lastVestedClaimTs(owner.address));
+    const b4 = await vesting.unpackLastVestedData(await vesting.lastVestedClaim(owner.address));
+    expect(claim4._lastVestedClaimTs).eq(b4.lastVestedClaimTs);
     expect(claim4.extraAmount).eq(0n);
 
     await vesting.connect(owner).claim();
 
     const claim5 = await vesting.toClaim(owner.address);
     expect(claim5.amount).eq(0n);
-    expect(claim5._lastVestedClaimTs).eq(await vesting.lastVestedClaimTs(owner.address));
+    const b5 = await vesting.unpackLastVestedData(await vesting.lastVestedClaim(owner.address));
+    expect(claim5._lastVestedClaimTs).eq(b5.lastVestedClaimTs);
     expect(claim5.extraAmount).eq(0n);
 
     expect(await token.balanceOf(owner)).eq(1000n);
