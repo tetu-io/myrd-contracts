@@ -78,7 +78,7 @@ contract TokenFactory {
       && _vestingContractRewards != address(0)
       , "empty");
 
-    require(ConstantsLib.MAX_SUPPLY == PUBLIC_SALE_AMOUNT + LIQUIDITY_AMOUNT + TEAM_AMOUNT + TREASURY_AMOUNT + REWARDS_AMOUNT, "wrong total supply");
+    require(ConstantsLib.MAX_SUPPLY == PUBLIC_SALE_AMOUNT + LIQUIDITY_AMOUNT + TEAM_AMOUNT + TREASURY_AMOUNT + REWARDS_AMOUNT, "amounts don't match");
 
     IMYRD _token = IMYRD(Create2.deploy(0, salt, bytecode));
 

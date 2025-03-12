@@ -5,6 +5,7 @@ import { ethers } from 'hardhat';
 import { DeployerUtils } from '../../scripts/deploy/DeployerUtils';
 import { parseUnits } from 'ethers';
 import { expect } from 'chai';
+import {DeployUtils} from "../utils/DeployUtils";
 
 const WEEK = 60 * 60 * 24 * 7;
 
@@ -385,15 +386,157 @@ describe('VestingTest', function() {
     const amount = 3000;
     await token.mint(vesting, amount);
 
-    await expect(vesting.start(
-      false,
-      await token.getAddress(),
-      amount,
-      [owner.address, owner2.address],
-      [1000, 2000]
-    )).rejectedWith("");
+    const claimants = [owner.address, owner2.address];
+    const amounts = [1000, 2000];
 
-    // todo only governance
+    await expect(vesting.start(true, ethers.ZeroAddress, amount, claimants, amounts)).rejectedWith("Zero address");
+    await expect(vesting.start(true, token, amount, [...claimants, owner3.address], amounts)).rejectedWith("Wrong input");
+    await expect(vesting.start(true, token, amount, [owner.address, ethers.ZeroAddress], amounts)).rejectedWith("Zero address");
+    await expect(vesting.start(true, token, amount, claimants, [0, 1])).rejectedWith("Zero amount");
+    await expect(vesting.start(true, token, amount, claimants, [1000, 2001])).rejectedWith("Wrong total amount");
+    await expect(vesting.start(true, token, amount, claimants, [1000, 1999])).rejectedWith("Wrong total amount");
+    await expect(vesting.start(true, token, amount + 1, claimants, [1000, 2001])).rejectedWith("Not enough tokens");
+
+    await vesting.start(true, token, amount, claimants, amounts);
+    await expect(vesting.start(true, token, amount, claimants, amounts)).rejectedWith("Already started");
   });
 
+  it("toClaim should return correct amount (no claims)", async () => {
+    const vesting = await DeployerUtils.deployContract(owner, 'Vesting', ...[WEEK * 4 * 12, 0, 0]) as Vesting;
+
+    const amount = 3000;
+    await token.mint(vesting, amount);
+
+    const claimants = [owner.address, owner2.address];
+    const amounts = [1000, 2000];
+
+    const claim0 = await vesting.toClaim(owner.address);
+    expect(claim0.amount).eq(0n);
+    expect(claim0._lastVestedClaimTs).eq(0n);
+    expect(claim0.extraAmount).eq(0n);
+
+    await vesting.start(true, token, amount, claimants, amounts);
+
+    const claim1 = await vesting.toClaim(owner.address);
+    expect(claim1.amount).eq(0n);
+    expect(claim1._lastVestedClaimTs).eq(await vesting.vestingStartTs());
+    expect(claim1.extraAmount).eq(0n);
+
+    await TimeUtils.advanceBlocksOnTs(WEEK * 2 * 12);
+
+    const claim2 = await vesting.toClaim(owner.address);
+    expect(claim2.amount).eq(500n);
+    expect(claim2._lastVestedClaimTs).eq(await vesting.vestingStartTs());
+    expect(claim2.extraAmount).eq(0n);
+
+    await TimeUtils.advanceBlocksOnTs(WEEK * 2 * 12);
+
+    const claim3 = await vesting.toClaim(owner.address);
+    expect(claim3.amount).eq(1000n);
+    expect(claim3._lastVestedClaimTs).eq(await vesting.vestingStartTs());
+    expect(claim3.extraAmount).eq(0n);
+
+    // ------------------ reduce balance of the vesting contract for test purposes
+    await token.connect(await DeployUtils.impersonate(await vesting.getAddress())).transfer(owner3.address, 3000 - 11);
+    const claim4 = await vesting.toClaim(owner.address);
+    expect(claim4.amount).eq(11n);
+    expect(claim4._lastVestedClaimTs).eq(await vesting.vestingStartTs());
+    expect(claim4.extraAmount).eq(0n);
+  });
+
+  it("toClaim should return correct amount (multiple claims)", async () => {
+    const vesting = await DeployerUtils.deployContract(owner, 'Vesting', ...[WEEK * 4 * 12, 0, 0]) as Vesting;
+
+    const amount = 3000;
+    await token.mint(vesting, amount);
+
+    const claimants = [owner.address, owner2.address];
+    const amounts = [1000, 2000];
+
+    await vesting.start(true, token, amount, claimants, amounts);
+
+    await TimeUtils.advanceBlocksOnTs(WEEK * 2 * 12);
+
+    const claim1 = await vesting.toClaim(owner.address);
+    expect(claim1.amount).eq(500n);
+    expect(claim1._lastVestedClaimTs).eq(await vesting.vestingStartTs());
+    expect(claim1.extraAmount).eq(0n);
+
+    await vesting.connect(owner).claim();
+
+    const claim2 = await vesting.toClaim(owner.address);
+    expect(claim2.amount).eq(0);
+    expect(claim2._lastVestedClaimTs).gt(await vesting.vestingStartTs());
+    expect(claim2.extraAmount).eq(0n);
+
+    await TimeUtils.advanceBlocksOnTs(WEEK * 12);
+
+    const claim3 = await vesting.toClaim(owner.address);
+    expect(claim3.amount).eq(250n);
+    expect(claim3._lastVestedClaimTs).eq(await vesting.lastVestedClaimTs(owner.address));
+    expect(claim3.extraAmount).eq(0n);
+
+    await vesting.connect(owner).claim();
+
+    await TimeUtils.advanceBlocksOnTs(WEEK * 12 + 10);
+
+    const claim4 = await vesting.toClaim(owner.address);
+    expect(claim4.amount).eq(250n);
+    expect(claim4._lastVestedClaimTs).eq(await vesting.lastVestedClaimTs(owner.address));
+    expect(claim4.extraAmount).eq(0n);
+
+    await vesting.connect(owner).claim();
+
+    const claim5 = await vesting.toClaim(owner.address);
+    expect(claim5.amount).eq(0n);
+    expect(claim5._lastVestedClaimTs).eq(await vesting.lastVestedClaimTs(owner.address));
+    expect(claim5.extraAmount).eq(0n);
+
+    expect(await token.balanceOf(owner)).eq(1000n);
+  });
+
+  it("toClaim should return correct amount (a lot of small claims)", async () => {
+    const vesting = await DeployerUtils.deployContract(owner, 'Vesting', ...[WEEK * 4 * 12, 0, 0]) as Vesting;
+
+    const amount = parseUnits("33333");
+    const amount1 = parseUnits("13333");
+    await token.mint(vesting, amount);
+
+    const claimants = [owner.address, owner2.address];
+    const amounts = [amount1, amount - amount1];
+
+    await vesting.start(true, token, amount, claimants, amounts);
+
+    const COUNT = 4;
+    for (let i = 0; i < COUNT; ++i) {
+      await TimeUtils.advanceBlocksOnTs(Math.floor(WEEK * 4 * 12 / COUNT));
+      await vesting.connect(owner).claim();
+    }
+
+    await TimeUtils.advanceBlocksOnTs(WEEK);
+    if ((await vesting.toClaim(owner)).amount) {
+      await vesting.connect(owner).claim();
+    } else {
+      console.log("no more tokens to claim")
+    }
+
+    expect(await token.balanceOf(owner)).eq(amount1);
+  });
+
+  it("claim should revert on bad paths", async () => {
+    const vesting = await DeployerUtils.deployContract(owner, 'Vesting', ...[WEEK * 4 * 12, 0, 0]) as Vesting;
+
+    const amount = parseUnits("30000");
+    await token.mint(vesting, amount);
+
+    const claimants = [owner.address, owner2.address];
+    const amounts = [parseUnits("10000"), parseUnits("20000")];
+
+    await expect(vesting.connect(owner3).claim()).rejectedWith("Not started");
+
+    await vesting.start(true, token, amount, claimants, amounts);
+    await TimeUtils.advanceBlocksOnTs(WEEK);
+
+    await expect(vesting.connect(owner3).claim()).rejectedWith("Nothing to claim");
+  });
 });
