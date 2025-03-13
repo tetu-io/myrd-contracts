@@ -29,7 +29,8 @@ contract Vesting is IVesting, ReentrancyGuard {
 
   /// @dev Claimant => whole amount for distribution
   mapping(address => uint) public toDistribute;
-  /// @dev Claimant => last claimed timestamp
+  /// @notice Claimant => [last claimed timestamp, claimed vesting amount]
+  /// @dev Use unpackLastVestedData to decode
   mapping(address => bytes32) public lastVestedClaim;
   /// @dev Claimant => TGE claimed indicator
   mapping(address => bool) public tgeClaimed;
@@ -94,6 +95,14 @@ contract Vesting is IVesting, ReentrancyGuard {
     emit Started(_token, totalAmount, block.timestamp, claimants, amounts);
   }
 
+
+  /// @notice Returns the claimable amount for a given claimant
+  /// @param claimant Address of the claimant
+  /// @return amount Total amount claimable at current moment
+  /// @return _lastVestedClaimTs Timestamp of the last vested claim
+  /// @return extraAmount Extra amount that can be claimed (it's included to {amount})
+  /// @return amountVestingToClaim The amount of vesting that will be credited as claimed during the next claim call
+  /// @return claimedVestingAmount The amount of vesting that is currently considered claimed
   function toClaim(address claimant) public view returns (
     uint amount,
     uint _lastVestedClaimTs,
@@ -116,9 +125,11 @@ contract Vesting is IVesting, ReentrancyGuard {
 
       extraAmount = extraAmounts[claimant];
 
+      // The claimant should claim exactly {_toDistribute} amount in total.
+      // Don't allow any losses because of rounding.
       amountVestingToClaim = block.timestamp <= vestingTime
-        ? (timeDiff * claimableVesting / vestingPeriod)
-        : claimableVesting - claimedVestingAmount;
+        ? timeDiff * claimableVesting / vestingPeriod
+        : claimableVesting > claimedVestingAmount ? claimableVesting - claimedVestingAmount : 0;
 
       amount = amountVestingToClaim + claimableTGE + extraAmount;
 
