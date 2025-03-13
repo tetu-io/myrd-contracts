@@ -6,9 +6,10 @@ import "../interfaces/IVesting.sol";
 import "../interfaces/ISale.sol";
 import "@openzeppelin/contracts/utils/Create2.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {ConstantsLib} from "./ConstantsLib.sol";
 
 interface IMYRD is IERC20 {
+  function MAX_SUPPLY() external view returns (uint);
+
   function minter() external view returns (address);
 
   function mint(address to, uint256 amount) external;
@@ -18,7 +19,7 @@ contract TokenFactory {
 
   // ********************** TOKENOMICS **********************
 
-  uint private constant PUBLIC_SALE_AMOUNT = ConstantsLib.SALE_TOTAL_AMOUNT;
+  uint private constant PUBLIC_SALE_AMOUNT = 4_000_000e18;
 //  uint private constant PUBLIC_SALE_CLIFF = 0;
 //  uint private constant PUBLIC_SALE_VESTING = 0;
 
@@ -78,9 +79,8 @@ contract TokenFactory {
       && _vestingContractRewards != address(0)
       , "empty");
 
-    require(ConstantsLib.MAX_SUPPLY == PUBLIC_SALE_AMOUNT + LIQUIDITY_AMOUNT + TEAM_AMOUNT + TREASURY_AMOUNT + REWARDS_AMOUNT, "amounts don't match");
-
     IMYRD _token = IMYRD(Create2.deploy(0, salt, bytecode));
+    require(_token.MAX_SUPPLY() == PUBLIC_SALE_AMOUNT + LIQUIDITY_AMOUNT + TEAM_AMOUNT + TREASURY_AMOUNT + REWARDS_AMOUNT, "amounts don't match");
 
     governance = _governance;
     token = _token;

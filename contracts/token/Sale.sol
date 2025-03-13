@@ -3,10 +3,10 @@ pragma solidity 0.8.23;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../interfaces/IERC20Burnable.sol";
-import {ConstantsLib} from "./ConstantsLib.sol";
 
 contract Sale {
 
+  uint public constant SALE_TOTAL_AMOUNT = 4_000_000e18;
   /// @notice burnNotSold cannot be called if less than 30 days passed since the sale end
   uint public constant MIN_CLAIMING_PERIOD = 30 days;
 
@@ -45,7 +45,7 @@ contract Sale {
   function setupTokenToSale(address token) external {
     require(token != address(0), "zero token");
     require(tokenToSale == address(0), "already");
-    require(IERC20(token).balanceOf(address(this)) == ConstantsLib.SALE_TOTAL_AMOUNT, "incorrect supply");
+    require(IERC20(token).balanceOf(address(this)) == SALE_TOTAL_AMOUNT, "incorrect supply");
 
     tokenToSale = token;
   }
@@ -73,10 +73,10 @@ contract Sale {
   function buy(uint amount) external {
     require(block.timestamp >= start, "Sale is not started yet");
     require(block.timestamp < end, "Sale ended");
-    require(sold + amount <= ConstantsLib.SALE_TOTAL_AMOUNT, "Too much");
+    require(sold + amount <= SALE_TOTAL_AMOUNT, "Too much");
 
     uint totalBought = bought[msg.sender];
-    require(totalBought + amount <= ConstantsLib.SALE_TOTAL_AMOUNT / 10, "Too much for user");
+    require(totalBought + amount <= SALE_TOTAL_AMOUNT / 10, "Too much for user");
 
     uint toSpend = amount * price / 1e18;
     require(toSpend > 0, "Zero amount");
