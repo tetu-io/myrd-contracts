@@ -18,4 +18,9 @@ contract MockToken is ERC20 {
   function burn(address from, uint amount) external {
     _burn(from, amount);
   }
+
+  function burn(uint amount) external {
+    _burn(msg.sender, amount);
+  }
+
 }

@@ -8,6 +8,8 @@ import "@openzeppelin/contracts/utils/Create2.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface IMYRD is IERC20 {
+  function MAX_SUPPLY() external view returns (uint);
+
   function minter() external view returns (address);
 
   function mint(address to, uint256 amount) external;
@@ -78,6 +80,7 @@ contract TokenFactory {
       , "empty");
 
     IMYRD _token = IMYRD(Create2.deploy(0, salt, bytecode));
+    require(_token.MAX_SUPPLY() == PUBLIC_SALE_AMOUNT + LIQUIDITY_AMOUNT + TEAM_AMOUNT + TREASURY_AMOUNT + REWARDS_AMOUNT, "amounts don't match");
 
     governance = _governance;
     token = _token;

@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 
 contract MYRD is ERC20Permit,ERC20Burnable {
-
   uint public constant MAX_SUPPLY = 100_000_000e18;
 
   address public immutable minter;

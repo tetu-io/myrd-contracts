@@ -7,6 +7,8 @@ import "../interfaces/IERC20Burnable.sol";
 contract Sale {
 
   uint public constant SALE_TOTAL_AMOUNT = 4_000_000e18;
+  /// @notice burnNotSold cannot be called if less than 30 days passed since the sale end
+  uint public constant MIN_CLAIMING_PERIOD = 30 days;
 
   address public immutable governance;
   address public immutable payToken;
@@ -54,10 +56,14 @@ contract Sale {
     allowToClaim = true;
   }
 
-  // anyone can call after the sale end
+  /// @notice Burn ALL tokens from balance (users won't be able to claim tokens after that)
+  /// @dev governance can call after the sale end + 1 month
   function burnNotSold() external {
+    require(msg.sender == governance, "not allowed");
+
     address _token = tokenToSale;
     require(_token != address(0) && block.timestamp > end, 'not ended');
+    require(block.timestamp >= end + MIN_CLAIMING_PERIOD, '< 1 month since end');
 
     uint toBurn = IERC20(_token).balanceOf(address(this));
     require(toBurn != 0, 'nothing to burn');
