@@ -1,0 +1,570 @@
+{
+  "address": "0x9C0C9a4396229073341101CEfA0a4dd57b5fa8c4",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_vestingPeriod",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_cliffPeriod",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_tgePercent",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "ReentrancyGuardReentrantCall",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "claimer",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "Claimed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "vestingPeriod",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "cliffPeriod",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "tgePercent",
+          "type": "uint256"
+        }
+      ],
+      "name": "Created",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "totalAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "time",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address[]",
+          "name": "claimants",
+          "type": "address[]"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256[]",
+          "name": "amounts",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "Started",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "claim",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "cliffPeriod",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "extraAmounts",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "lastVestedClaim",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "useTokensOnBalance",
+          "type": "bool"
+        },
+        {
+          "internalType": "address",
+          "name": "_token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address[]",
+          "name": "claimants",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "amounts",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "start",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "tgeClaimed",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "tgePercent",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "claimant",
+          "type": "address"
+        }
+      ],
+      "name": "toClaim",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_lastVestedClaimTs",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "extraAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountVestingToClaim",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "claimedVestingAmount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "toDistribute",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "token",
+      "outputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "data",
+          "type": "bytes32"
+        }
+      ],
+      "name": "unpackLastVestedData",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "lastVestedClaimTs",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint256",
+          "name": "claimedVestingAmount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "vestingPeriod",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "vestingStartTs",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xdb29d6b0bc2d5fe15c28df301a93ad557d40f3dd7c7189bcb2b3519125ff8cfc",
+  "receipt": {
+    "to": null,
+    "from": "0xbbbbb8C4364eC2ce52c59D2Ed3E56F307E529a94",
+    "contractAddress": "0x9C0C9a4396229073341101CEfA0a4dd57b5fa8c4",
+    "transactionIndex": 0,
+    "gasUsed": "872958",
+    "logsBloom": "0x00000000000000000000000000000010000000000000000080000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x0516d26d46a3975e2e8faf1870adcf15686b2a50c84137ccdf1ca5a35a4570cc",
+    "transactionHash": "0xdb29d6b0bc2d5fe15c28df301a93ad557d40f3dd7c7189bcb2b3519125ff8cfc",
+    "logs": [
+      {
+        "transactionIndex": 0,
+        "blockNumber": 15038481,
+        "transactionHash": "0xdb29d6b0bc2d5fe15c28df301a93ad557d40f3dd7c7189bcb2b3519125ff8cfc",
+        "address": "0x9C0C9a4396229073341101CEfA0a4dd57b5fa8c4",
+        "topics": [
+          "0x22615617f04f2947d859f9a342fa4f3cd380f106367d8b2f00ef4209843c74c8"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000006938b8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "logIndex": 0,
+        "blockHash": "0x0516d26d46a3975e2e8faf1870adcf15686b2a50c84137ccdf1ca5a35a4570cc"
+      }
+    ],
+    "blockNumber": 15038481,
+    "cumulativeGasUsed": "872958",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    110332800,
+    0,
+    0
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "c58a764a72eaf5c3059cf0b59a44410a",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.23+commit.f704f362\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_vestingPeriod\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_cliffPeriod\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_tgePercent\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"ReentrancyGuardReentrantCall\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"claimer\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Claimed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"vestingPeriod\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"cliffPeriod\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"tgePercent\",\"type\":\"uint256\"}],\"name\":\"Created\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"totalAmount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"time\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"address[]\",\"name\":\"claimants\",\"type\":\"address[]\"},{\"indexed\":false,\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"}],\"name\":\"Started\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"claim\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"cliffPeriod\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"extraAmounts\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"lastVestedClaim\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bool\",\"name\":\"useTokensOnBalance\",\"type\":\"bool\"},{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"totalAmount\",\"type\":\"uint256\"},{\"internalType\":\"address[]\",\"name\":\"claimants\",\"type\":\"address[]\"},{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"}],\"name\":\"start\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"tgeClaimed\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"tgePercent\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"claimant\",\"type\":\"address\"}],\"name\":\"toClaim\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_lastVestedClaimTs\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"extraAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountVestingToClaim\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"claimedVestingAmount\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"toDistribute\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"token\",\"outputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"data\",\"type\":\"bytes32\"}],\"name\":\"unpackLastVestedData\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"lastVestedClaimTs\",\"type\":\"uint64\"},{\"internalType\":\"uint256\",\"name\":\"claimedVestingAmount\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"vestingPeriod\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"vestingStartTs\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"errors\":{\"ReentrancyGuardReentrantCall()\":[{\"details\":\"Unauthorized reentrant call.\"}]},\"kind\":\"dev\",\"methods\":{\"toClaim(address)\":{\"params\":{\"claimant\":\"Address of the claimant\"},\"returns\":{\"_lastVestedClaimTs\":\"Timestamp of the last vested claim\",\"amount\":\"Total amount claimable at current moment\",\"amountVestingToClaim\":\"The amount of vesting that will be credited as claimed during the next claim call\",\"claimedVestingAmount\":\"The amount of vesting that is currently considered claimed\",\"extraAmount\":\"Extra amount that can be claimed (it's included to {amount})\"}}},\"stateVariables\":{\"cliffPeriod\":{\"details\":\"Delay before the vesting\"},\"extraAmounts\":{\"details\":\"if for some reason claimant did not claim all tokens it recorded in this map for make possible to claim it later\"},\"lastVestedClaim\":{\"details\":\"Use unpackLastVestedData to decode\"},\"tgeClaimed\":{\"details\":\"Claimant => TGE claimed indicator\"},\"tgePercent\":{\"details\":\"Percent of TGE, no decimals\"},\"toDistribute\":{\"details\":\"Claimant => whole amount for distribution\"},\"token\":{\"details\":\"Token for vesting\"},\"vestingPeriod\":{\"details\":\"Will start after the cliff\"},\"vestingStartTs\":{\"details\":\"Start of vesting\"}},\"title\":\"Vesting contract for token distribution\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"lastVestedClaim(address)\":{\"notice\":\"Claimant => [last claimed timestamp, claimed vesting amount]\"},\"toClaim(address)\":{\"notice\":\"Returns the claimable amount for a given claimant\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/token/Vesting.sol\":\"Vesting\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":150},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/IERC20.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev Interface of the ERC20 standard as defined in the EIP.\\n */\\ninterface IERC20 {\\n    /**\\n     * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n     * another (`to`).\\n     *\\n     * Note that `value` may be zero.\\n     */\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n    /**\\n     * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n     * a call to {approve}. `value` is the new allowance.\\n     */\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\n\\n    /**\\n     * @dev Returns the value of tokens in existence.\\n     */\\n    function totalSupply() external view returns (uint256);\\n\\n    /**\\n     * @dev Returns the value of tokens owned by `account`.\\n     */\\n    function balanceOf(address account) external view returns (uint256);\\n\\n    /**\\n     * @dev Moves a `value` amount of tokens from the caller's account to `to`.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transfer(address to, uint256 value) external returns (bool);\\n\\n    /**\\n     * @dev Returns the remaining number of tokens that `spender` will be\\n     * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n     * zero by default.\\n     *\\n     * This value changes when {approve} or {transferFrom} are called.\\n     */\\n    function allowance(address owner, address spender) external view returns (uint256);\\n\\n    /**\\n     * @dev Sets a `value` amount of tokens as the allowance of `spender` over the\\n     * caller's tokens.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n     * that someone may use both the old and the new allowance by unfortunate\\n     * transaction ordering. One possible solution to mitigate this race\\n     * condition is to first reduce the spender's allowance to 0 and set the\\n     * desired value afterwards:\\n     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n     *\\n     * Emits an {Approval} event.\\n     */\\n    function approve(address spender, uint256 value) external returns (bool);\\n\\n    /**\\n     * @dev Moves a `value` amount of tokens from `from` to `to` using the\\n     * allowance mechanism. `value` is then deducted from the caller's\\n     * allowance.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transferFrom(address from, address to, uint256 value) external returns (bool);\\n}\\n\",\"keccak256\":\"0xc6a8ff0ea489379b61faa647490411b80102578440ab9d84e9a957cc12164e70\",\"license\":\"MIT\"},\"@openzeppelin/contracts/utils/ReentrancyGuard.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (utils/ReentrancyGuard.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev Contract module that helps prevent reentrant calls to a function.\\n *\\n * Inheriting from `ReentrancyGuard` will make the {nonReentrant} modifier\\n * available, which can be applied to functions to make sure there are no nested\\n * (reentrant) calls to them.\\n *\\n * Note that because there is a single `nonReentrant` guard, functions marked as\\n * `nonReentrant` may not call one another. This can be worked around by making\\n * those functions `private`, and then adding `external` `nonReentrant` entry\\n * points to them.\\n *\\n * TIP: If you would like to learn more about reentrancy and alternative ways\\n * to protect against it, check out our blog post\\n * https://blog.openzeppelin.com/reentrancy-after-istanbul/[Reentrancy After Istanbul].\\n */\\nabstract contract ReentrancyGuard {\\n    // Booleans are more expensive than uint256 or any type that takes up a full\\n    // word because each write operation emits an extra SLOAD to first read the\\n    // slot's contents, replace the bits taken up by the boolean, and then write\\n    // back. This is the compiler's defense against contract upgrades and\\n    // pointer aliasing, and it cannot be disabled.\\n\\n    // The values being non-zero value makes deployment a bit more expensive,\\n    // but in exchange the refund on every call to nonReentrant will be lower in\\n    // amount. Since refunds are capped to a percentage of the total\\n    // transaction's gas, it is best to keep them low in cases like this one, to\\n    // increase the likelihood of the full refund coming into effect.\\n    uint256 private constant NOT_ENTERED = 1;\\n    uint256 private constant ENTERED = 2;\\n\\n    uint256 private _status;\\n\\n    /**\\n     * @dev Unauthorized reentrant call.\\n     */\\n    error ReentrancyGuardReentrantCall();\\n\\n    constructor() {\\n        _status = NOT_ENTERED;\\n    }\\n\\n    /**\\n     * @dev Prevents a contract from calling itself, directly or indirectly.\\n     * Calling a `nonReentrant` function from another `nonReentrant`\\n     * function is not supported. It is possible to prevent this from happening\\n     * by making the `nonReentrant` function external, and making it call a\\n     * `private` function that does the actual work.\\n     */\\n    modifier nonReentrant() {\\n        _nonReentrantBefore();\\n        _;\\n        _nonReentrantAfter();\\n    }\\n\\n    function _nonReentrantBefore() private {\\n        // On the first call to nonReentrant, _status will be NOT_ENTERED\\n        if (_status == ENTERED) {\\n            revert ReentrancyGuardReentrantCall();\\n        }\\n\\n        // Any calls to nonReentrant after this point will fail\\n        _status = ENTERED;\\n    }\\n\\n    function _nonReentrantAfter() private {\\n        // By storing the original value once again, a refund is triggered (see\\n        // https://eips.ethereum.org/EIPS/eip-2200)\\n        _status = NOT_ENTERED;\\n    }\\n\\n    /**\\n     * @dev Returns true if the reentrancy guard is currently set to \\\"entered\\\", which indicates there is a\\n     * `nonReentrant` function in the call stack.\\n     */\\n    function _reentrancyGuardEntered() internal view returns (bool) {\\n        return _status == ENTERED;\\n    }\\n}\\n\",\"keccak256\":\"0xf980daa263b661ab8ddee7d4fd833c7da7e7995e2c359ff1f17e67e4112f2236\",\"license\":\"MIT\"},\"@openzeppelin/contracts/utils/math/Math.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (utils/math/Math.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev Standard math utilities missing in the Solidity language.\\n */\\nlibrary Math {\\n    /**\\n     * @dev Muldiv operation overflow.\\n     */\\n    error MathOverflowedMulDiv();\\n\\n    enum Rounding {\\n        Floor, // Toward negative infinity\\n        Ceil, // Toward positive infinity\\n        Trunc, // Toward zero\\n        Expand // Away from zero\\n    }\\n\\n    /**\\n     * @dev Returns the addition of two unsigned integers, with an overflow flag.\\n     */\\n    function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {\\n        unchecked {\\n            uint256 c = a + b;\\n            if (c < a) return (false, 0);\\n            return (true, c);\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns the subtraction of two unsigned integers, with an overflow flag.\\n     */\\n    function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {\\n        unchecked {\\n            if (b > a) return (false, 0);\\n            return (true, a - b);\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns the multiplication of two unsigned integers, with an overflow flag.\\n     */\\n    function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {\\n        unchecked {\\n            // Gas optimization: this is cheaper than requiring 'a' not being zero, but the\\n            // benefit is lost if 'b' is also tested.\\n            // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522\\n            if (a == 0) return (true, 0);\\n            uint256 c = a * b;\\n            if (c / a != b) return (false, 0);\\n            return (true, c);\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns the division of two unsigned integers, with a division by zero flag.\\n     */\\n    function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {\\n        unchecked {\\n            if (b == 0) return (false, 0);\\n            return (true, a / b);\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns the remainder of dividing two unsigned integers, with a division by zero flag.\\n     */\\n    function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {\\n        unchecked {\\n            if (b == 0) return (false, 0);\\n            return (true, a % b);\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns the largest of two numbers.\\n     */\\n    function max(uint256 a, uint256 b) internal pure returns (uint256) {\\n        return a > b ? a : b;\\n    }\\n\\n    /**\\n     * @dev Returns the smallest of two numbers.\\n     */\\n    function min(uint256 a, uint256 b) internal pure returns (uint256) {\\n        return a < b ? a : b;\\n    }\\n\\n    /**\\n     * @dev Returns the average of two numbers. The result is rounded towards\\n     * zero.\\n     */\\n    function average(uint256 a, uint256 b) internal pure returns (uint256) {\\n        // (a + b) / 2 can overflow.\\n        return (a & b) + (a ^ b) / 2;\\n    }\\n\\n    /**\\n     * @dev Returns the ceiling of the division of two numbers.\\n     *\\n     * This differs from standard division with `/` in that it rounds towards infinity instead\\n     * of rounding towards zero.\\n     */\\n    function ceilDiv(uint256 a, uint256 b) internal pure returns (uint256) {\\n        if (b == 0) {\\n            // Guarantee the same behavior as in a regular Solidity division.\\n            return a / b;\\n        }\\n\\n        // (a + b - 1) / b can overflow on addition, so we distribute.\\n        return a == 0 ? 0 : (a - 1) / b + 1;\\n    }\\n\\n    /**\\n     * @notice Calculates floor(x * y / denominator) with full precision. Throws if result overflows a uint256 or\\n     * denominator == 0.\\n     * @dev Original credit to Remco Bloemen under MIT license (https://xn--2-umb.com/21/muldiv) with further edits by\\n     * Uniswap Labs also under MIT license.\\n     */\\n    function mulDiv(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256 result) {\\n        unchecked {\\n            // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2^256 and mod 2^256 - 1, then use\\n            // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256\\n            // variables such that product = prod1 * 2^256 + prod0.\\n            uint256 prod0 = x * y; // Least significant 256 bits of the product\\n            uint256 prod1; // Most significant 256 bits of the product\\n            assembly {\\n                let mm := mulmod(x, y, not(0))\\n                prod1 := sub(sub(mm, prod0), lt(mm, prod0))\\n            }\\n\\n            // Handle non-overflow cases, 256 by 256 division.\\n            if (prod1 == 0) {\\n                // Solidity will revert if denominator == 0, unlike the div opcode on its own.\\n                // The surrounding unchecked block does not change this fact.\\n                // See https://docs.soliditylang.org/en/latest/control-structures.html#checked-or-unchecked-arithmetic.\\n                return prod0 / denominator;\\n            }\\n\\n            // Make sure the result is less than 2^256. Also prevents denominator == 0.\\n            if (denominator <= prod1) {\\n                revert MathOverflowedMulDiv();\\n            }\\n\\n            ///////////////////////////////////////////////\\n            // 512 by 256 division.\\n            ///////////////////////////////////////////////\\n\\n            // Make division exact by subtracting the remainder from [prod1 prod0].\\n            uint256 remainder;\\n            assembly {\\n                // Compute remainder using mulmod.\\n                remainder := mulmod(x, y, denominator)\\n\\n                // Subtract 256 bit number from 512 bit number.\\n                prod1 := sub(prod1, gt(remainder, prod0))\\n                prod0 := sub(prod0, remainder)\\n            }\\n\\n            // Factor powers of two out of denominator and compute largest power of two divisor of denominator.\\n            // Always >= 1. See https://cs.stackexchange.com/q/138556/92363.\\n\\n            uint256 twos = denominator & (0 - denominator);\\n            assembly {\\n                // Divide denominator by twos.\\n                denominator := div(denominator, twos)\\n\\n                // Divide [prod1 prod0] by twos.\\n                prod0 := div(prod0, twos)\\n\\n                // Flip twos such that it is 2^256 / twos. If twos is zero, then it becomes one.\\n                twos := add(div(sub(0, twos), twos), 1)\\n            }\\n\\n            // Shift in bits from prod1 into prod0.\\n            prod0 |= prod1 * twos;\\n\\n            // Invert denominator mod 2^256. Now that denominator is an odd number, it has an inverse modulo 2^256 such\\n            // that denominator * inv = 1 mod 2^256. Compute the inverse by starting with a seed that is correct for\\n            // four bits. That is, denominator * inv = 1 mod 2^4.\\n            uint256 inverse = (3 * denominator) ^ 2;\\n\\n            // Use the Newton-Raphson iteration to improve the precision. Thanks to Hensel's lifting lemma, this also\\n            // works in modular arithmetic, doubling the correct bits in each step.\\n            inverse *= 2 - denominator * inverse; // inverse mod 2^8\\n            inverse *= 2 - denominator * inverse; // inverse mod 2^16\\n            inverse *= 2 - denominator * inverse; // inverse mod 2^32\\n            inverse *= 2 - denominator * inverse; // inverse mod 2^64\\n            inverse *= 2 - denominator * inverse; // inverse mod 2^128\\n            inverse *= 2 - denominator * inverse; // inverse mod 2^256\\n\\n            // Because the division is now exact we can divide by multiplying with the modular inverse of denominator.\\n            // This will give us the correct result modulo 2^256. Since the preconditions guarantee that the outcome is\\n            // less than 2^256, this is the final result. We don't need to compute the high bits of the result and prod1\\n            // is no longer required.\\n            result = prod0 * inverse;\\n            return result;\\n        }\\n    }\\n\\n    /**\\n     * @notice Calculates x * y / denominator with full precision, following the selected rounding direction.\\n     */\\n    function mulDiv(uint256 x, uint256 y, uint256 denominator, Rounding rounding) internal pure returns (uint256) {\\n        uint256 result = mulDiv(x, y, denominator);\\n        if (unsignedRoundsUp(rounding) && mulmod(x, y, denominator) > 0) {\\n            result += 1;\\n        }\\n        return result;\\n    }\\n\\n    /**\\n     * @dev Returns the square root of a number. If the number is not a perfect square, the value is rounded\\n     * towards zero.\\n     *\\n     * Inspired by Henry S. Warren, Jr.'s \\\"Hacker's Delight\\\" (Chapter 11).\\n     */\\n    function sqrt(uint256 a) internal pure returns (uint256) {\\n        if (a == 0) {\\n            return 0;\\n        }\\n\\n        // For our first guess, we get the biggest power of 2 which is smaller than the square root of the target.\\n        //\\n        // We know that the \\\"msb\\\" (most significant bit) of our target number `a` is a power of 2 such that we have\\n        // `msb(a) <= a < 2*msb(a)`. This value can be written `msb(a)=2**k` with `k=log2(a)`.\\n        //\\n        // This can be rewritten `2**log2(a) <= a < 2**(log2(a) + 1)`\\n        // \\u2192 `sqrt(2**k) <= sqrt(a) < sqrt(2**(k+1))`\\n        // \\u2192 `2**(k/2) <= sqrt(a) < 2**((k+1)/2) <= 2**(k/2 + 1)`\\n        //\\n        // Consequently, `2**(log2(a) / 2)` is a good first approximation of `sqrt(a)` with at least 1 correct bit.\\n        uint256 result = 1 << (log2(a) >> 1);\\n\\n        // At this point `result` is an estimation with one bit of precision. We know the true value is a uint128,\\n        // since it is the square root of a uint256. Newton's method converges quadratically (precision doubles at\\n        // every iteration). We thus need at most 7 iteration to turn our partial result with one bit of precision\\n        // into the expected uint128 result.\\n        unchecked {\\n            result = (result + a / result) >> 1;\\n            result = (result + a / result) >> 1;\\n            result = (result + a / result) >> 1;\\n            result = (result + a / result) >> 1;\\n            result = (result + a / result) >> 1;\\n            result = (result + a / result) >> 1;\\n            result = (result + a / result) >> 1;\\n            return min(result, a / result);\\n        }\\n    }\\n\\n    /**\\n     * @notice Calculates sqrt(a), following the selected rounding direction.\\n     */\\n    function sqrt(uint256 a, Rounding rounding) internal pure returns (uint256) {\\n        unchecked {\\n            uint256 result = sqrt(a);\\n            return result + (unsignedRoundsUp(rounding) && result * result < a ? 1 : 0);\\n        }\\n    }\\n\\n    /**\\n     * @dev Return the log in base 2 of a positive value rounded towards zero.\\n     * Returns 0 if given 0.\\n     */\\n    function log2(uint256 value) internal pure returns (uint256) {\\n        uint256 result = 0;\\n        unchecked {\\n            if (value >> 128 > 0) {\\n                value >>= 128;\\n                result += 128;\\n            }\\n            if (value >> 64 > 0) {\\n                value >>= 64;\\n                result += 64;\\n            }\\n            if (value >> 32 > 0) {\\n                value >>= 32;\\n                result += 32;\\n            }\\n            if (value >> 16 > 0) {\\n                value >>= 16;\\n                result += 16;\\n            }\\n            if (value >> 8 > 0) {\\n                value >>= 8;\\n                result += 8;\\n            }\\n            if (value >> 4 > 0) {\\n                value >>= 4;\\n                result += 4;\\n            }\\n            if (value >> 2 > 0) {\\n                value >>= 2;\\n                result += 2;\\n            }\\n            if (value >> 1 > 0) {\\n                result += 1;\\n            }\\n        }\\n        return result;\\n    }\\n\\n    /**\\n     * @dev Return the log in base 2, following the selected rounding direction, of a positive value.\\n     * Returns 0 if given 0.\\n     */\\n    function log2(uint256 value, Rounding rounding) internal pure returns (uint256) {\\n        unchecked {\\n            uint256 result = log2(value);\\n            return result + (unsignedRoundsUp(rounding) && 1 << result < value ? 1 : 0);\\n        }\\n    }\\n\\n    /**\\n     * @dev Return the log in base 10 of a positive value rounded towards zero.\\n     * Returns 0 if given 0.\\n     */\\n    function log10(uint256 value) internal pure returns (uint256) {\\n        uint256 result = 0;\\n        unchecked {\\n            if (value >= 10 ** 64) {\\n                value /= 10 ** 64;\\n                result += 64;\\n            }\\n            if (value >= 10 ** 32) {\\n                value /= 10 ** 32;\\n                result += 32;\\n            }\\n            if (value >= 10 ** 16) {\\n                value /= 10 ** 16;\\n                result += 16;\\n            }\\n            if (value >= 10 ** 8) {\\n                value /= 10 ** 8;\\n                result += 8;\\n            }\\n            if (value >= 10 ** 4) {\\n                value /= 10 ** 4;\\n                result += 4;\\n            }\\n            if (value >= 10 ** 2) {\\n                value /= 10 ** 2;\\n                result += 2;\\n            }\\n            if (value >= 10 ** 1) {\\n                result += 1;\\n            }\\n        }\\n        return result;\\n    }\\n\\n    /**\\n     * @dev Return the log in base 10, following the selected rounding direction, of a positive value.\\n     * Returns 0 if given 0.\\n     */\\n    function log10(uint256 value, Rounding rounding) internal pure returns (uint256) {\\n        unchecked {\\n            uint256 result = log10(value);\\n            return result + (unsignedRoundsUp(rounding) && 10 ** result < value ? 1 : 0);\\n        }\\n    }\\n\\n    /**\\n     * @dev Return the log in base 256 of a positive value rounded towards zero.\\n     * Returns 0 if given 0.\\n     *\\n     * Adding one to the result gives the number of pairs of hex symbols needed to represent `value` as a hex string.\\n     */\\n    function log256(uint256 value) internal pure returns (uint256) {\\n        uint256 result = 0;\\n        unchecked {\\n            if (value >> 128 > 0) {\\n                value >>= 128;\\n                result += 16;\\n            }\\n            if (value >> 64 > 0) {\\n                value >>= 64;\\n                result += 8;\\n            }\\n            if (value >> 32 > 0) {\\n                value >>= 32;\\n                result += 4;\\n            }\\n            if (value >> 16 > 0) {\\n                value >>= 16;\\n                result += 2;\\n            }\\n            if (value >> 8 > 0) {\\n                result += 1;\\n            }\\n        }\\n        return result;\\n    }\\n\\n    /**\\n     * @dev Return the log in base 256, following the selected rounding direction, of a positive value.\\n     * Returns 0 if given 0.\\n     */\\n    function log256(uint256 value, Rounding rounding) internal pure returns (uint256) {\\n        unchecked {\\n            uint256 result = log256(value);\\n            return result + (unsignedRoundsUp(rounding) && 1 << (result << 3) < value ? 1 : 0);\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns whether a provided rounding mode is considered rounding up for unsigned integers.\\n     */\\n    function unsignedRoundsUp(Rounding rounding) internal pure returns (bool) {\\n        return uint8(rounding) % 2 == 1;\\n    }\\n}\\n\",\"keccak256\":\"0x005ec64c6313f0555d59e278f9a7a5ab2db5bdc72a027f255a37c327af1ec02d\",\"license\":\"MIT\"},\"contracts/interfaces/IVesting.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.23;\\n\\ninterface IVesting {\\n\\n  function vestingPeriod() external view returns (uint);\\n  function cliffPeriod() external view returns (uint);\\n  function tgePercent() external view returns (uint);\\n\\n  function start(\\n    bool useTokensOnBalance,\\n    address _token,\\n    uint totalAmount,\\n    address[] calldata claimants,\\n    uint[] calldata amounts\\n  ) external;\\n\\n}\\n\",\"keccak256\":\"0xf095d53aa4d31bd9257c1c4d9596ec6ace198c07659135face49e5e631871a20\",\"license\":\"MIT\"},\"contracts/token/Vesting.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.23;\\n\\nimport \\\"../interfaces/IVesting.sol\\\";\\nimport \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\nimport \\\"@openzeppelin/contracts/utils/ReentrancyGuard.sol\\\";\\nimport \\\"@openzeppelin/contracts/utils/math/Math.sol\\\";\\n\\n/// @title Vesting contract for token distribution\\ncontract Vesting is IVesting, ReentrancyGuard {\\n\\n  //////////////////////////////\\n\\n  /// @dev Will start after the cliff\\n  uint public immutable vestingPeriod;\\n  /// @dev Delay before the vesting\\n  uint public immutable cliffPeriod;\\n  /// @dev Percent of TGE, no decimals\\n  uint public immutable tgePercent;\\n\\n  //////////////////////////////\\n\\n  /// @dev Token for vesting\\n  IERC20 public token;\\n\\n  /// @dev Start of vesting\\n  uint public vestingStartTs;\\n\\n  /// @dev Claimant => whole amount for distribution\\n  mapping(address => uint) public toDistribute;\\n  /// @notice Claimant => [last claimed timestamp, claimed vesting amount]\\n  /// @dev Use unpackLastVestedData to decode\\n  mapping(address => bytes32) public lastVestedClaim;\\n  /// @dev Claimant => TGE claimed indicator\\n  mapping(address => bool) public tgeClaimed;\\n  /// @dev if for some reason claimant did not claim all tokens it recorded in this map for make possible to claim it later\\n  mapping(address => uint) public extraAmounts;\\n\\n  //////////////////////////////\\n\\n  event Created(uint vestingPeriod, uint cliffPeriod, uint tgePercent);\\n  event Started(address token, uint totalAmount, uint time, address[] claimants, uint[] amounts);\\n  event Claimed(address claimer, uint amount);\\n\\n  //////////////////////////////\\n\\n  constructor(uint _vestingPeriod, uint _cliffPeriod, uint _tgePercent) {\\n    require(_vestingPeriod > 0, \\\"Zero vesting\\\");\\n    require(_tgePercent < 100, \\\"Too much TGE\\\");\\n\\n    vestingPeriod = _vestingPeriod;\\n    cliffPeriod = _cliffPeriod;\\n    tgePercent = _tgePercent;\\n\\n    emit Created(_vestingPeriod, _cliffPeriod, _tgePercent);\\n  }\\n\\n  //////////////////////////////\\n\\n  function start(\\n    bool useTokensOnBalance,\\n    address _token,\\n    uint totalAmount,\\n    address[] calldata claimants,\\n    uint[] calldata amounts\\n  ) external override {\\n    require(vestingStartTs == 0, \\\"Already started\\\");\\n    require(_token != address(0), \\\"Zero address\\\");\\n    require(claimants.length == amounts.length, \\\"Wrong input\\\");\\n\\n    token = IERC20(_token);\\n    vestingStartTs = block.timestamp + cliffPeriod;\\n\\n    uint totalForCheck;\\n\\n    for (uint i; i < claimants.length; ++i) {\\n      address claimant = claimants[i];\\n      uint amount = amounts[i];\\n      require(claimant != address(0), \\\"Zero address\\\");\\n      require(amount > 0, \\\"Zero amount\\\");\\n\\n      toDistribute[claimant] = amount;\\n      totalForCheck += amount;\\n    }\\n\\n    require(totalForCheck == totalAmount, \\\"Wrong total amount\\\");\\n\\n    if (useTokensOnBalance) {\\n       require(token.balanceOf(address(this)) >= totalAmount, \\\"Not enough tokens\\\");\\n    } else {\\n      IERC20(_token).transferFrom(msg.sender, address(this), totalAmount);\\n    }\\n\\n    emit Started(_token, totalAmount, block.timestamp, claimants, amounts);\\n  }\\n\\n\\n  /// @notice Returns the claimable amount for a given claimant\\n  /// @param claimant Address of the claimant\\n  /// @return amount Total amount claimable at current moment\\n  /// @return _lastVestedClaimTs Timestamp of the last vested claim\\n  /// @return extraAmount Extra amount that can be claimed (it's included to {amount})\\n  /// @return amountVestingToClaim The amount of vesting that will be credited as claimed during the next claim call\\n  /// @return claimedVestingAmount The amount of vesting that is currently considered claimed\\n  function toClaim(address claimant) public view returns (\\n    uint amount,\\n    uint _lastVestedClaimTs,\\n    uint extraAmount,\\n    uint amountVestingToClaim,\\n    uint claimedVestingAmount\\n  ) {\\n    uint _vestingStartTs = vestingStartTs;\\n    (_lastVestedClaimTs, claimedVestingAmount) = unpackLastVestedData(lastVestedClaim[claimant]);\\n    _lastVestedClaimTs = _lastVestedClaimTs == 0 ? _vestingStartTs : _lastVestedClaimTs;\\n\\n    if (_lastVestedClaimTs != 0) {\\n      uint vestingTime = _vestingStartTs + vestingPeriod < block.timestamp ? _vestingStartTs + vestingPeriod : block.timestamp;\\n      uint timeDiff = _lastVestedClaimTs < vestingTime ? vestingTime - _lastVestedClaimTs : 0;\\n\\n      uint _toDistribute = toDistribute[claimant];\\n      uint claimableTGE = _toDistribute * tgePercent / 100;\\n      uint claimableVesting = _toDistribute - claimableTGE;\\n      claimableTGE = tgeClaimed[claimant] ? 0 : claimableTGE;\\n\\n      extraAmount = extraAmounts[claimant];\\n\\n      // The claimant should claim exactly {_toDistribute} amount in total.\\n      // Don't allow any losses because of rounding.\\n      amountVestingToClaim = block.timestamp <= vestingTime\\n        ? timeDiff * claimableVesting / vestingPeriod\\n        : claimableVesting > claimedVestingAmount ? claimableVesting - claimedVestingAmount : 0;\\n\\n      amount = amountVestingToClaim + claimableTGE + extraAmount;\\n\\n      uint balance = token.balanceOf(address(this));\\n      amount = balance < amount ? balance : amount;\\n    } else {\\n      // not started yet\\n    }\\n\\n    return (amount, _lastVestedClaimTs, extraAmount, amountVestingToClaim, claimedVestingAmount);\\n  }\\n\\n  function claim() external nonReentrant {\\n    (uint _toClaim, uint _lastVestedClaimTs, uint extraAmount, uint amountVestingToClaim, uint claimedAmount) = toClaim(msg.sender);\\n\\n    require(_lastVestedClaimTs != 0, \\\"Not started\\\");\\n    require(_toClaim != 0, \\\"Nothing to claim\\\");\\n\\n    // if vesting started need to update last claim timestamp\\n    if (_lastVestedClaimTs < block.timestamp) {\\n      lastVestedClaim[msg.sender] = packLastVestedData(uint64(block.timestamp), claimedAmount + amountVestingToClaim);\\n    }\\n\\n    // assume that any claim will mark TGE as claimed\\n    if (!tgeClaimed[msg.sender]) {\\n      tgeClaimed[msg.sender] = true;\\n    }\\n\\n    // if extra amount is not zero need ro reset it\\n    if (extraAmount != 0) {\\n      delete extraAmounts[msg.sender];\\n    }\\n\\n    uint notClaimed = _transferClaimedTokens(token, _toClaim, msg.sender);\\n\\n    // if we claimed not all amount need to write extra amount for future claims\\n    if (notClaimed != 0) {\\n      extraAmounts[msg.sender] = notClaimed;\\n    }\\n\\n    emit Claimed(msg.sender, _toClaim);\\n  }\\n\\n  function _transferClaimedTokens(IERC20 _token, uint amount, address claimant) internal virtual returns (uint notClaimed) {\\n    _token.transfer(claimant, amount);\\n    // by default all tokens claimed\\n    return 0;\\n  }\\n\\n  function packLastVestedData(uint64 lastVestedClaimTs, uint claimedVestingAmount) internal pure returns (bytes32 data) {\\n    data = bytes32(uint(lastVestedClaimTs));\\n    data |= bytes32(uint(uint192(claimedVestingAmount))) << 64;\\n  }\\n\\n  function unpackLastVestedData(bytes32 data) public pure returns (uint64 lastVestedClaimTs, uint claimedVestingAmount) {\\n    lastVestedClaimTs = uint64(uint(data));\\n    claimedVestingAmount = uint192(uint(data) >> 64);\\n  }\\n}\\n\",\"keccak256\":\"0x3f47b2b0ab0a61db41fecff3f7a42ade52f907b59566eaf1fbdadc1b0e78bb01\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x60e060405234801561001057600080fd5b50604051610fe1380380610fe183398101604081905261002f9161010c565b6001600055826100755760405162461bcd60e51b815260206004820152600c60248201526b5a65726f2076657374696e6760a01b60448201526064015b60405180910390fd5b606481106100b45760405162461bcd60e51b815260206004820152600c60248201526b546f6f206d7563682054474560a01b604482015260640161006c565b608083905260a082905260c081905260408051848152602081018490529081018290527f22615617f04f2947d859f9a342fa4f3cd380f106367d8b2f00ef4209843c74c89060600160405180910390a150505061013a565b60008060006060848603121561012157600080fd5b8351925060208401519150604084015190509250925092565b60805160a05160c051610e5561018c6000396000818161021a015261093201526000818161011a015261038b01526000818161016901528181610899015281816108ce01526109df0152610e556000f3fe608060405234801561001057600080fd5b50600436106100bf5760003560e01c80637313ee5a1161007c5780637313ee5a14610164578063776dffc81461018b5780637c352e36146101c2578063be68d17a146101e2578063e2f0f42d14610215578063fc0c546a1461023c578063fe812d621461026757600080fd5b806309208a53146100c4578063094cc0db146100d95780630f93bcac1461010c5780632f661946146101155780634e71d92d1461013c578063588fbde114610144575b600080fd5b6100d76100d2366004610be4565b6102a2565b005b6100f96100e7366004610c81565b60066020526000908152604090205481565b6040519081526020015b60405180910390f35b6100f960025481565b6100f97f000000000000000000000000000000000000000000000000000000000000000081565b6100d7610684565b6100f9610152366004610c81565b60046020526000908152604090205481565b6100f97f000000000000000000000000000000000000000000000000000000000000000081565b6101a2610199366004610ca3565b90604082901c90565b6040805167ffffffffffffffff9093168352602083019190915201610103565b6100f96101d0366004610c81565b60036020526000908152604090205481565b6102056101f0366004610c81565b60056020526000908152604090205460ff1681565b6040519015158152602001610103565b6100f97f000000000000000000000000000000000000000000000000000000000000000081565b60015461024f906001600160a01b031681565b6040516001600160a01b039091168152602001610103565b61027a610275366004610c81565b610839565b604080519586526020860194909452928401919091526060830152608082015260a001610103565b600254156102e95760405162461bcd60e51b815260206004820152600f60248201526e105b1c9958591e481cdd185c9d1959608a1b60448201526064015b60405180910390fd5b6001600160a01b03861661032e5760405162461bcd60e51b815260206004820152600c60248201526b5a65726f206164647265737360a01b60448201526064016102e0565b82811461036b5760405162461bcd60e51b815260206004820152600b60248201526a15dc9bdb99c81a5b9c1d5d60aa1b60448201526064016102e0565b600180546001600160a01b0319166001600160a01b0388161790556103b07f000000000000000000000000000000000000000000000000000000000000000042610cd2565b6002556000805b848110156104c05760008686838181106103d3576103d3610ceb565b90506020020160208101906103e89190610c81565b905060008585848181106103fe576103fe610ceb565b60200291909101359150506001600160a01b03821661044e5760405162461bcd60e51b815260206004820152600c60248201526b5a65726f206164647265737360a01b60448201526064016102e0565b6000811161048c5760405162461bcd60e51b815260206004820152600b60248201526a16995c9bc8185b5bdd5b9d60aa1b60448201526064016102e0565b6001600160a01b03821660009081526003602052604090208190556104b18185610cd2565b935050508060010190506103b7565b508581146105055760405162461bcd60e51b815260206004820152601260248201527115dc9bdb99c81d1bdd185b08185b5bdd5b9d60721b60448201526064016102e0565b87156105be576001546040516370a0823160e01b815230600482015287916001600160a01b0316906370a0823190602401602060405180830381865afa158015610553573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906105779190610d01565b10156105b95760405162461bcd60e51b81526020600482015260116024820152704e6f7420656e6f75676820746f6b656e7360781b60448201526064016102e0565b610637565b6040516323b872dd60e01b8152336004820152306024820152604481018790526001600160a01b038816906323b872dd906064016020604051808303816000875af1158015610611573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906106359190610d1a565b505b7f93667d3045dc5148834d8d44b2312efbc93ca8c13a080251f1d08234a61bc734878742888888886040516106729796959493929190610d37565b60405180910390a15050505050505050565b61068c610abf565b600080600080600061069d33610839565b94509450945094509450836000036106e55760405162461bcd60e51b815260206004820152600b60248201526a139bdd081cdd185c9d195960aa1b60448201526064016102e0565b846000036107285760405162461bcd60e51b815260206004820152601060248201526f4e6f7468696e6720746f20636c61696d60801b60448201526064016102e0565b428410156107705761075f4261073e8484610cd2565b67ffffffffffffffff1960409190911b1667ffffffffffffffff9091161790565b336000908152600460205260409020555b3360009081526005602052604090205460ff166107a257336000908152600560205260409020805460ff191660011790555b82156107b957336000908152600660205260408120555b6001546000906107d3906001600160a01b03168733610ae9565b905080156107ee573360009081526006602052604090208190555b60408051338152602081018890527fd8138f8a3f377c5259ca548e70e4c2de94f129f5a11036a15b69513cba2b426a910160405180910390a15050505050506108376001600055565b565b6002546001600160a01b038216600090815260046020526040812054909182918291829182919061086b604082901c90565b67ffffffffffffffff9091169550915084156108875784610889565b805b94508415610ab5576000426108be7f000000000000000000000000000000000000000000000000000000000000000084610cd2565b106108c957426108f3565b6108f37f000000000000000000000000000000000000000000000000000000000000000083610cd2565b9050600081871061090557600061090f565b61090f8783610dd3565b6001600160a01b038a1660009081526003602052604081205491925060646109577f000000000000000000000000000000000000000000000000000000000000000084610de6565b6109619190610dfd565b9050600061096f8284610dd3565b6001600160a01b038d1660009081526005602052604090205490915060ff16610998578161099b565b60005b6001600160a01b038d1660009081526006602052604090205499509150428510156109dd578681116109ce576000610a12565b6109d88782610dd3565b610a12565b7f0000000000000000000000000000000000000000000000000000000000000000610a088286610de6565b610a129190610dfd565b975088610a1f838a610cd2565b610a299190610cd2565b6001546040516370a0823160e01b8152306004820152919c506000916001600160a01b03909116906370a0823190602401602060405180830381865afa158015610a77573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610a9b9190610d01565b90508b8110610aaa578b610aac565b805b9b505050505050505b5091939590929450565b600260005403610ae257604051633ee5aeb560e01b815260040160405180910390fd5b6002600055565b60405163a9059cbb60e01b81526001600160a01b038281166004830152602482018490526000919085169063a9059cbb906044016020604051808303816000875af1158015610b3c573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610b609190610d1a565b506000949350505050565b8015158114610b7957600080fd5b50565b80356001600160a01b0381168114610b9357600080fd5b919050565b60008083601f840112610baa57600080fd5b50813567ffffffffffffffff811115610bc257600080fd5b6020830191508360208260051b8501011115610bdd57600080fd5b9250929050565b600080600080600080600060a0888a031215610bff57600080fd5b8735610c0a81610b6b565b9650610c1860208901610b7c565b955060408801359450606088013567ffffffffffffffff80821115610c3c57600080fd5b610c488b838c01610b98565b909650945060808a0135915080821115610c6157600080fd5b50610c6e8a828b01610b98565b989b979a50959850939692959293505050565b600060208284031215610c9357600080fd5b610c9c82610b7c565b9392505050565b600060208284031215610cb557600080fd5b5035919050565b634e487b7160e01b600052601160045260246000fd5b80820180821115610ce557610ce5610cbc565b92915050565b634e487b7160e01b600052603260045260246000fd5b600060208284031215610d1357600080fd5b5051919050565b600060208284031215610d2c57600080fd5b8151610c9c81610b6b565b6001600160a01b03888116825260208083018990526040830188905260a0606084018190528301869052600091879160c08501845b89811015610d915783610d7e86610b7c565b1682529382019390820190600101610d6c565b5085810360808701528681526001600160fb1b03871115610db157600080fd5b8660051b9350838860208301379092016020019b9a5050505050505050505050565b81810381811115610ce557610ce5610cbc565b8082028115828204841417610ce557610ce5610cbc565b600082610e1a57634e487b7160e01b600052601260045260246000fd5b50049056fea2646970667358221220e97c3ea22f1292f055e96b8c14cd8399ebb6fddd8d16ecaf6669bf18a2c4f52564736f6c63430008170033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100bf5760003560e01c80637313ee5a1161007c5780637313ee5a14610164578063776dffc81461018b5780637c352e36146101c2578063be68d17a146101e2578063e2f0f42d14610215578063fc0c546a1461023c578063fe812d621461026757600080fd5b806309208a53146100c4578063094cc0db146100d95780630f93bcac1461010c5780632f661946146101155780634e71d92d1461013c578063588fbde114610144575b600080fd5b6100d76100d2366004610be4565b6102a2565b005b6100f96100e7366004610c81565b60066020526000908152604090205481565b6040519081526020015b60405180910390f35b6100f960025481565b6100f97f000000000000000000000000000000000000000000000000000000000000000081565b6100d7610684565b6100f9610152366004610c81565b60046020526000908152604090205481565b6100f97f000000000000000000000000000000000000000000000000000000000000000081565b6101a2610199366004610ca3565b90604082901c90565b6040805167ffffffffffffffff9093168352602083019190915201610103565b6100f96101d0366004610c81565b60036020526000908152604090205481565b6102056101f0366004610c81565b60056020526000908152604090205460ff1681565b6040519015158152602001610103565b6100f97f000000000000000000000000000000000000000000000000000000000000000081565b60015461024f906001600160a01b031681565b6040516001600160a01b039091168152602001610103565b61027a610275366004610c81565b610839565b604080519586526020860194909452928401919091526060830152608082015260a001610103565b600254156102e95760405162461bcd60e51b815260206004820152600f60248201526e105b1c9958591e481cdd185c9d1959608a1b60448201526064015b60405180910390fd5b6001600160a01b03861661032e5760405162461bcd60e51b815260206004820152600c60248201526b5a65726f206164647265737360a01b60448201526064016102e0565b82811461036b5760405162461bcd60e51b815260206004820152600b60248201526a15dc9bdb99c81a5b9c1d5d60aa1b60448201526064016102e0565b600180546001600160a01b0319166001600160a01b0388161790556103b07f000000000000000000000000000000000000000000000000000000000000000042610cd2565b6002556000805b848110156104c05760008686838181106103d3576103d3610ceb565b90506020020160208101906103e89190610c81565b905060008585848181106103fe576103fe610ceb565b60200291909101359150506001600160a01b03821661044e5760405162461bcd60e51b815260206004820152600c60248201526b5a65726f206164647265737360a01b60448201526064016102e0565b6000811161048c5760405162461bcd60e51b815260206004820152600b60248201526a16995c9bc8185b5bdd5b9d60aa1b60448201526064016102e0565b6001600160a01b03821660009081526003602052604090208190556104b18185610cd2565b935050508060010190506103b7565b508581146105055760405162461bcd60e51b815260206004820152601260248201527115dc9bdb99c81d1bdd185b08185b5bdd5b9d60721b60448201526064016102e0565b87156105be576001546040516370a0823160e01b815230600482015287916001600160a01b0316906370a0823190602401602060405180830381865afa158015610553573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906105779190610d01565b10156105b95760405162461bcd60e51b81526020600482015260116024820152704e6f7420656e6f75676820746f6b656e7360781b60448201526064016102e0565b610637565b6040516323b872dd60e01b8152336004820152306024820152604481018790526001600160a01b038816906323b872dd906064016020604051808303816000875af1158015610611573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906106359190610d1a565b505b7f93667d3045dc5148834d8d44b2312efbc93ca8c13a080251f1d08234a61bc734878742888888886040516106729796959493929190610d37565b60405180910390a15050505050505050565b61068c610abf565b600080600080600061069d33610839565b94509450945094509450836000036106e55760405162461bcd60e51b815260206004820152600b60248201526a139bdd081cdd185c9d195960aa1b60448201526064016102e0565b846000036107285760405162461bcd60e51b815260206004820152601060248201526f4e6f7468696e6720746f20636c61696d60801b60448201526064016102e0565b428410156107705761075f4261073e8484610cd2565b67ffffffffffffffff1960409190911b1667ffffffffffffffff9091161790565b336000908152600460205260409020555b3360009081526005602052604090205460ff166107a257336000908152600560205260409020805460ff191660011790555b82156107b957336000908152600660205260408120555b6001546000906107d3906001600160a01b03168733610ae9565b905080156107ee573360009081526006602052604090208190555b60408051338152602081018890527fd8138f8a3f377c5259ca548e70e4c2de94f129f5a11036a15b69513cba2b426a910160405180910390a15050505050506108376001600055565b565b6002546001600160a01b038216600090815260046020526040812054909182918291829182919061086b604082901c90565b67ffffffffffffffff9091169550915084156108875784610889565b805b94508415610ab5576000426108be7f000000000000000000000000000000000000000000000000000000000000000084610cd2565b106108c957426108f3565b6108f37f000000000000000000000000000000000000000000000000000000000000000083610cd2565b9050600081871061090557600061090f565b61090f8783610dd3565b6001600160a01b038a1660009081526003602052604081205491925060646109577f000000000000000000000000000000000000000000000000000000000000000084610de6565b6109619190610dfd565b9050600061096f8284610dd3565b6001600160a01b038d1660009081526005602052604090205490915060ff16610998578161099b565b60005b6001600160a01b038d1660009081526006602052604090205499509150428510156109dd578681116109ce576000610a12565b6109d88782610dd3565b610a12565b7f0000000000000000000000000000000000000000000000000000000000000000610a088286610de6565b610a129190610dfd565b975088610a1f838a610cd2565b610a299190610cd2565b6001546040516370a0823160e01b8152306004820152919c506000916001600160a01b03909116906370a0823190602401602060405180830381865afa158015610a77573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610a9b9190610d01565b90508b8110610aaa578b610aac565b805b9b505050505050505b5091939590929450565b600260005403610ae257604051633ee5aeb560e01b815260040160405180910390fd5b6002600055565b60405163a9059cbb60e01b81526001600160a01b038281166004830152602482018490526000919085169063a9059cbb906044016020604051808303816000875af1158015610b3c573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610b609190610d1a565b506000949350505050565b8015158114610b7957600080fd5b50565b80356001600160a01b0381168114610b9357600080fd5b919050565b60008083601f840112610baa57600080fd5b50813567ffffffffffffffff811115610bc257600080fd5b6020830191508360208260051b8501011115610bdd57600080fd5b9250929050565b600080600080600080600060a0888a031215610bff57600080fd5b8735610c0a81610b6b565b9650610c1860208901610b7c565b955060408801359450606088013567ffffffffffffffff80821115610c3c57600080fd5b610c488b838c01610b98565b909650945060808a0135915080821115610c6157600080fd5b50610c6e8a828b01610b98565b989b979a50959850939692959293505050565b600060208284031215610c9357600080fd5b610c9c82610b7c565b9392505050565b600060208284031215610cb557600080fd5b5035919050565b634e487b7160e01b600052601160045260246000fd5b80820180821115610ce557610ce5610cbc565b92915050565b634e487b7160e01b600052603260045260246000fd5b600060208284031215610d1357600080fd5b5051919050565b600060208284031215610d2c57600080fd5b8151610c9c81610b6b565b6001600160a01b03888116825260208083018990526040830188905260a0606084018190528301869052600091879160c08501845b89811015610d915783610d7e86610b7c565b1682529382019390820190600101610d6c565b5085810360808701528681526001600160fb1b03871115610db157600080fd5b8660051b9350838860208301379092016020019b9a5050505050505050505050565b81810381811115610ce557610ce5610cbc565b8082028115828204841417610ce557610ce5610cbc565b600082610e1a57634e487b7160e01b600052601260045260246000fd5b50049056fea2646970667358221220e97c3ea22f1292f055e96b8c14cd8399ebb6fddd8d16ecaf6669bf18a2c4f52564736f6c63430008170033",
+  "devdoc": {
+    "errors": {
+      "ReentrancyGuardReentrantCall()": [
+        {
+          "details": "Unauthorized reentrant call."
+        }
+      ]
+    },
+    "kind": "dev",
+    "methods": {
+      "toClaim(address)": {
+        "params": {
+          "claimant": "Address of the claimant"
+        },
+        "returns": {
+          "_lastVestedClaimTs": "Timestamp of the last vested claim",
+          "amount": "Total amount claimable at current moment",
+          "amountVestingToClaim": "The amount of vesting that will be credited as claimed during the next claim call",
+          "claimedVestingAmount": "The amount of vesting that is currently considered claimed",
+          "extraAmount": "Extra amount that can be claimed (it's included to {amount})"
+        }
+      }
+    },
+    "stateVariables": {
+      "cliffPeriod": {
+        "details": "Delay before the vesting"
+      },
+      "extraAmounts": {
+        "details": "if for some reason claimant did not claim all tokens it recorded in this map for make possible to claim it later"
+      },
+      "lastVestedClaim": {
+        "details": "Use unpackLastVestedData to decode"
+      },
+      "tgeClaimed": {
+        "details": "Claimant => TGE claimed indicator"
+      },
+      "tgePercent": {
+        "details": "Percent of TGE, no decimals"
+      },
+      "toDistribute": {
+        "details": "Claimant => whole amount for distribution"
+      },
+      "token": {
+        "details": "Token for vesting"
+      },
+      "vestingPeriod": {
+        "details": "Will start after the cliff"
+      },
+      "vestingStartTs": {
+        "details": "Start of vesting"
+      }
+    },
+    "title": "Vesting contract for token distribution",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "lastVestedClaim(address)": {
+        "notice": "Claimant => [last claimed timestamp, claimed vesting amount]"
+      },
+      "toClaim(address)": {
+        "notice": "Returns the claimable amount for a given claimant"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 1228,
+        "contract": "contracts/token/Vesting.sol:Vesting",
+        "label": "_status",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 5046,
+        "contract": "contracts/token/Vesting.sol:Vesting",
+        "label": "token",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_contract(IERC20)754"
+      },
+      {
+        "astId": 5049,
+        "contract": "contracts/token/Vesting.sol:Vesting",
+        "label": "vestingStartTs",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 5054,
+        "contract": "contracts/token/Vesting.sol:Vesting",
+        "label": "toDistribute",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_mapping(t_address,t_uint256)"
+      },
+      {
+        "astId": 5059,
+        "contract": "contracts/token/Vesting.sol:Vesting",
+        "label": "lastVestedClaim",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_mapping(t_address,t_bytes32)"
+      },
+      {
+        "astId": 5064,
+        "contract": "contracts/token/Vesting.sol:Vesting",
+        "label": "tgeClaimed",
+        "offset": 0,
+        "slot": "5",
+        "type": "t_mapping(t_address,t_bool)"
+      },
+      {
+        "astId": 5069,
+        "contract": "contracts/token/Vesting.sol:Vesting",
+        "label": "extraAmounts",
+        "offset": 0,
+        "slot": "6",
+        "type": "t_mapping(t_address,t_uint256)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_contract(IERC20)754": {
+        "encoding": "inplace",
+        "label": "contract IERC20",
+        "numberOfBytes": "20"
+      },
+      "t_mapping(t_address,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_mapping(t_address,t_bytes32)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bytes32)",
+        "numberOfBytes": "32",
+        "value": "t_bytes32"
+      },
+      "t_mapping(t_address,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

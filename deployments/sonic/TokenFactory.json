@@ -1,0 +1,408 @@
+{
+  "address": "0x21A908478C0307742aA535bF5754D43DcB5AD29B",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "Create2EmptyBytecode",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Create2FailedDeployment",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "balance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "needed",
+          "type": "uint256"
+        }
+      ],
+      "name": "Create2InsufficientBalance",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "cliffStarted",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "salt",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "bytecode",
+          "type": "bytes"
+        }
+      ],
+      "name": "computeAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "salt",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "bytecode",
+          "type": "bytes"
+        },
+        {
+          "internalType": "address",
+          "name": "_governance",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_saleContract",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_vestingContractTeam",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_vestingContractTreasury",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_vestingContractRewards",
+          "type": "address"
+        }
+      ],
+      "name": "createToken",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "governance",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "saleContract",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "claimants",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "amounts",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "startRewardsVesting",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "claimants",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "amounts",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "startTeamVesting",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "claimants",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "amounts",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "startTreasuryVesting",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "token",
+      "outputs": [
+        {
+          "internalType": "contract IMYRD",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "vestingContractRewards",
+      "outputs": [
+        {
+          "internalType": "contract IVesting",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "vestingContractTeam",
+      "outputs": [
+        {
+          "internalType": "contract IVesting",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "vestingContractTreasury",
+      "outputs": [
+        {
+          "internalType": "contract IVesting",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "vestingStarted",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x2a4bde82877120e80b276d35e66355ee3b0770256a577d97bfb58455da1a2128",
+  "receipt": {
+    "to": null,
+    "from": "0xbbbbb8C4364eC2ce52c59D2Ed3E56F307E529a94",
+    "contractAddress": "0x21A908478C0307742aA535bF5754D43DcB5AD29B",
+    "transactionIndex": 1,
+    "gasUsed": "1132409",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xb6b4891ddb2894db9101deceda4626e3b3de79b66bd0dc3fbc9db1064283bf75",
+    "transactionHash": "0x2a4bde82877120e80b276d35e66355ee3b0770256a577d97bfb58455da1a2128",
+    "logs": [],
+    "blockNumber": 15038949,
+    "cumulativeGasUsed": "1370660",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "c58a764a72eaf5c3059cf0b59a44410a",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.23+commit.f704f362\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"Create2EmptyBytecode\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"Create2FailedDeployment\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"balance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"needed\",\"type\":\"uint256\"}],\"name\":\"Create2InsufficientBalance\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"cliffStarted\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"salt\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"bytecode\",\"type\":\"bytes\"}],\"name\":\"computeAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"salt\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"bytecode\",\"type\":\"bytes\"},{\"internalType\":\"address\",\"name\":\"_governance\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_saleContract\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_vestingContractTeam\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_vestingContractTreasury\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_vestingContractRewards\",\"type\":\"address\"}],\"name\":\"createToken\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"governance\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"saleContract\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"claimants\",\"type\":\"address[]\"},{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"}],\"name\":\"startRewardsVesting\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"claimants\",\"type\":\"address[]\"},{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"}],\"name\":\"startTeamVesting\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"claimants\",\"type\":\"address[]\"},{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"}],\"name\":\"startTreasuryVesting\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"token\",\"outputs\":[{\"internalType\":\"contract IMYRD\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"vestingContractRewards\",\"outputs\":[{\"internalType\":\"contract IVesting\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"vestingContractTeam\",\"outputs\":[{\"internalType\":\"contract IVesting\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"vestingContractTreasury\",\"outputs\":[{\"internalType\":\"contract IVesting\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"vestingStarted\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"errors\":{\"Create2EmptyBytecode()\":[{\"details\":\"There's no code to deploy.\"}],\"Create2FailedDeployment()\":[{\"details\":\"The deployment failed.\"}],\"Create2InsufficientBalance(uint256,uint256)\":[{\"details\":\"Not enough balance for performing a CREATE2 deploy.\"}]},\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/token/TokenFactory.sol\":\"TokenFactory\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":150},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/IERC20.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev Interface of the ERC20 standard as defined in the EIP.\\n */\\ninterface IERC20 {\\n    /**\\n     * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n     * another (`to`).\\n     *\\n     * Note that `value` may be zero.\\n     */\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n    /**\\n     * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n     * a call to {approve}. `value` is the new allowance.\\n     */\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\n\\n    /**\\n     * @dev Returns the value of tokens in existence.\\n     */\\n    function totalSupply() external view returns (uint256);\\n\\n    /**\\n     * @dev Returns the value of tokens owned by `account`.\\n     */\\n    function balanceOf(address account) external view returns (uint256);\\n\\n    /**\\n     * @dev Moves a `value` amount of tokens from the caller's account to `to`.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transfer(address to, uint256 value) external returns (bool);\\n\\n    /**\\n     * @dev Returns the remaining number of tokens that `spender` will be\\n     * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n     * zero by default.\\n     *\\n     * This value changes when {approve} or {transferFrom} are called.\\n     */\\n    function allowance(address owner, address spender) external view returns (uint256);\\n\\n    /**\\n     * @dev Sets a `value` amount of tokens as the allowance of `spender` over the\\n     * caller's tokens.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n     * that someone may use both the old and the new allowance by unfortunate\\n     * transaction ordering. One possible solution to mitigate this race\\n     * condition is to first reduce the spender's allowance to 0 and set the\\n     * desired value afterwards:\\n     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n     *\\n     * Emits an {Approval} event.\\n     */\\n    function approve(address spender, uint256 value) external returns (bool);\\n\\n    /**\\n     * @dev Moves a `value` amount of tokens from `from` to `to` using the\\n     * allowance mechanism. `value` is then deducted from the caller's\\n     * allowance.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transferFrom(address from, address to, uint256 value) external returns (bool);\\n}\\n\",\"keccak256\":\"0xc6a8ff0ea489379b61faa647490411b80102578440ab9d84e9a957cc12164e70\",\"license\":\"MIT\"},\"@openzeppelin/contracts/utils/Create2.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (utils/Create2.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev Helper to make usage of the `CREATE2` EVM opcode easier and safer.\\n * `CREATE2` can be used to compute in advance the address where a smart\\n * contract will be deployed, which allows for interesting new mechanisms known\\n * as 'counterfactual interactions'.\\n *\\n * See the https://eips.ethereum.org/EIPS/eip-1014#motivation[EIP] for more\\n * information.\\n */\\nlibrary Create2 {\\n    /**\\n     * @dev Not enough balance for performing a CREATE2 deploy.\\n     */\\n    error Create2InsufficientBalance(uint256 balance, uint256 needed);\\n\\n    /**\\n     * @dev There's no code to deploy.\\n     */\\n    error Create2EmptyBytecode();\\n\\n    /**\\n     * @dev The deployment failed.\\n     */\\n    error Create2FailedDeployment();\\n\\n    /**\\n     * @dev Deploys a contract using `CREATE2`. The address where the contract\\n     * will be deployed can be known in advance via {computeAddress}.\\n     *\\n     * The bytecode for a contract can be obtained from Solidity with\\n     * `type(contractName).creationCode`.\\n     *\\n     * Requirements:\\n     *\\n     * - `bytecode` must not be empty.\\n     * - `salt` must have not been used for `bytecode` already.\\n     * - the factory must have a balance of at least `amount`.\\n     * - if `amount` is non-zero, `bytecode` must have a `payable` constructor.\\n     */\\n    function deploy(uint256 amount, bytes32 salt, bytes memory bytecode) internal returns (address addr) {\\n        if (address(this).balance < amount) {\\n            revert Create2InsufficientBalance(address(this).balance, amount);\\n        }\\n        if (bytecode.length == 0) {\\n            revert Create2EmptyBytecode();\\n        }\\n        /// @solidity memory-safe-assembly\\n        assembly {\\n            addr := create2(amount, add(bytecode, 0x20), mload(bytecode), salt)\\n        }\\n        if (addr == address(0)) {\\n            revert Create2FailedDeployment();\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns the address where a contract will be stored if deployed via {deploy}. Any change in the\\n     * `bytecodeHash` or `salt` will result in a new destination address.\\n     */\\n    function computeAddress(bytes32 salt, bytes32 bytecodeHash) internal view returns (address) {\\n        return computeAddress(salt, bytecodeHash, address(this));\\n    }\\n\\n    /**\\n     * @dev Returns the address where a contract will be stored if deployed via {deploy} from a contract located at\\n     * `deployer`. If `deployer` is this contract's address, returns the same value as {computeAddress}.\\n     */\\n    function computeAddress(bytes32 salt, bytes32 bytecodeHash, address deployer) internal pure returns (address addr) {\\n        /// @solidity memory-safe-assembly\\n        assembly {\\n            let ptr := mload(0x40) // Get free memory pointer\\n\\n            // |                   | \\u2193 ptr ...  \\u2193 ptr + 0x0B (start) ...  \\u2193 ptr + 0x20 ...  \\u2193 ptr + 0x40 ...   |\\n            // |-------------------|---------------------------------------------------------------------------|\\n            // | bytecodeHash      |                                                        CCCCCCCCCCCCC...CC |\\n            // | salt              |                                      BBBBBBBBBBBBB...BB                   |\\n            // | deployer          | 000000...0000AAAAAAAAAAAAAAAAAAA...AA                                     |\\n            // | 0xFF              |            FF                                                             |\\n            // |-------------------|---------------------------------------------------------------------------|\\n            // | memory            | 000000...00FFAAAAAAAAAAAAAAAAAAA...AABBBBBBBBBBBBB...BBCCCCCCCCCCCCC...CC |\\n            // | keccak(start, 85) |            \\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191\\u2191 |\\n\\n            mstore(add(ptr, 0x40), bytecodeHash)\\n            mstore(add(ptr, 0x20), salt)\\n            mstore(ptr, deployer) // Right-aligned with 12 preceding garbage bytes\\n            let start := add(ptr, 0x0b) // The hashed data starts at the final garbage byte which we will set to 0xff\\n            mstore8(start, 0xff)\\n            addr := keccak256(start, 85)\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0x2b9807d194b92f1068d868e9587d27037264a9a067c778486f86ae21c61cbd5e\",\"license\":\"MIT\"},\"contracts/interfaces/ISale.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\n\\r\\npragma solidity 0.8.23;\\r\\n\\r\\ninterface ISale {\\r\\n  function setupTokenToSale(address token) external;\\r\\n}\\r\\n\",\"keccak256\":\"0x8a098fd92979cc701232574f1eefbb0b21bed6f49dd847b8a427b89229332543\",\"license\":\"MIT\"},\"contracts/interfaces/IVesting.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.23;\\n\\ninterface IVesting {\\n\\n  function vestingPeriod() external view returns (uint);\\n  function cliffPeriod() external view returns (uint);\\n  function tgePercent() external view returns (uint);\\n\\n  function start(\\n    bool useTokensOnBalance,\\n    address _token,\\n    uint totalAmount,\\n    address[] calldata claimants,\\n    uint[] calldata amounts\\n  ) external;\\n\\n}\\n\",\"keccak256\":\"0xf095d53aa4d31bd9257c1c4d9596ec6ace198c07659135face49e5e631871a20\",\"license\":\"MIT\"},\"contracts/token/TokenFactory.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.23;\\n\\nimport \\\"../interfaces/IVesting.sol\\\";\\nimport \\\"../interfaces/ISale.sol\\\";\\nimport \\\"@openzeppelin/contracts/utils/Create2.sol\\\";\\nimport \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\n\\ninterface IMYRD is IERC20 {\\n  function MAX_SUPPLY() external view returns (uint);\\n\\n  function minter() external view returns (address);\\n\\n  function mint(address to, uint256 amount) external;\\n}\\n\\ncontract TokenFactory {\\n\\n  // ********************** TOKENOMICS **********************\\n\\n  uint private constant PUBLIC_SALE_AMOUNT = 4_000_000e18;\\n//  uint private constant PUBLIC_SALE_CLIFF = 0;\\n//  uint private constant PUBLIC_SALE_VESTING = 0;\\n\\n  uint private constant LIQUIDITY_AMOUNT = 6_000_000e18;\\n//  uint private constant LIQUIDITY_CLIFF = 0;\\n//  uint private constant LIQUIDITY_VESTING = 0;\\n\\n  uint private constant TEAM_AMOUNT = 20_000_000e18;\\n  uint private constant TEAM_CLIFF = 182 days;\\n  uint private constant TEAM_VESTING = 1277 days;\\n\\n  uint private constant TREASURY_AMOUNT = 50_000_000e18;\\n  uint private constant TREASURY_CLIFF = 365 days;\\n  uint private constant TREASURY_VESTING = 1095 days;\\n\\n  uint private constant REWARDS_AMOUNT = 20_000_000e18;\\n  uint private constant REWARDS_CLIFF = 547 days;\\n  uint private constant REWARDS_VESTING = 912 days;\\n\\n  // ********************** VARIABLES **********************\\n\\n  address public governance;\\n  IMYRD public token;\\n  address public saleContract;\\n  uint public cliffStarted;\\n  IVesting public vestingContractTeam;\\n  IVesting public vestingContractTreasury;\\n  IVesting public vestingContractRewards;\\n  // vesting contract => start block. Zero means not started yet.\\n  mapping(address => uint) public vestingStarted;\\n\\n  function computeAddress(bytes32 salt, bytes memory bytecode) external view returns (address) {\\n    return Create2.computeAddress(salt, keccak256(bytecode), address(this));\\n  }\\n\\n  // need to pass immutable deployed vesting contracts to be sure that final total supply is correct\\n  function createToken(\\n    bytes32 salt,\\n    bytes memory bytecode,\\n    address _governance,\\n    address _saleContract,\\n    address _vestingContractTeam,\\n    address _vestingContractTreasury,\\n    address _vestingContractRewards\\n  ) external {\\n    require(\\n      address(token) == address(0)\\n      && governance == address(0)\\n      && address(vestingContractTeam) == address(0)\\n      && address(vestingContractTreasury) == address(0)\\n      && address(vestingContractRewards) == address(0)\\n      , 'created');\\n    require(\\n      _governance != address(0)\\n      && _vestingContractTeam != address(0)\\n      && _vestingContractTreasury != address(0)\\n      && _vestingContractRewards != address(0)\\n      , \\\"empty\\\");\\n\\n    IMYRD _token = IMYRD(Create2.deploy(0, salt, bytecode));\\n    require(_token.MAX_SUPPLY() == PUBLIC_SALE_AMOUNT + LIQUIDITY_AMOUNT + TEAM_AMOUNT + TREASURY_AMOUNT + REWARDS_AMOUNT, \\\"amounts don't match\\\");\\n\\n    governance = _governance;\\n    token = _token;\\n    saleContract = _saleContract;\\n    cliffStarted = block.timestamp;\\n\\n    vestingContractTeam = IVesting(_vestingContractTeam);\\n    require(IVesting(_vestingContractTeam).vestingPeriod() == TEAM_VESTING, 'team wrong vesting');\\n    require(IVesting(_vestingContractTeam).cliffPeriod() == 0, 'team wrong cliff');\\n    require(IVesting(_vestingContractTeam).tgePercent() == 0, 'team wrong tge');\\n\\n    vestingContractTreasury = IVesting(_vestingContractTreasury);\\n    require(IVesting(_vestingContractTreasury).vestingPeriod() == TREASURY_VESTING, 'treasury wrong vesting');\\n    require(IVesting(_vestingContractTreasury).cliffPeriod() == 0, 'treasury wrong cliff');\\n    require(IVesting(_vestingContractTreasury).tgePercent() == 0, 'treasury wrong tge');\\n\\n    vestingContractRewards = IVesting(_vestingContractRewards);\\n    require(IVesting(_vestingContractRewards).vestingPeriod() == REWARDS_VESTING, 'rewards wrong vesting');\\n    require(IVesting(_vestingContractRewards).cliffPeriod() == 0, 'rewards wrong cliff');\\n    require(IVesting(_vestingContractRewards).tgePercent() == 0, 'rewards wrong tge');\\n\\n    require(_token.totalSupply() == 0, \\\"wrong total supply\\\");\\n    require(_token.minter() == address(this), \\\"wrong gov\\\");\\n\\n    _token.mint(_saleContract, PUBLIC_SALE_AMOUNT);\\n    _token.mint(_governance, LIQUIDITY_AMOUNT);\\n\\n    ISale(_saleContract).setupTokenToSale(address(_token));\\n  }\\n\\n  function startTeamVesting(address[] calldata claimants, uint[] calldata amounts) external {\\n    _startVesting(vestingContractTeam, TEAM_CLIFF, TEAM_AMOUNT, claimants, amounts);\\n  }\\n\\n  function startTreasuryVesting(address[] calldata claimants, uint[] calldata amounts) external {\\n    _startVesting(vestingContractTreasury, TREASURY_CLIFF, TREASURY_AMOUNT, claimants, amounts);\\n  }\\n\\n  function startRewardsVesting(address[] calldata claimants, uint[] calldata amounts) external {\\n    _startVesting(vestingContractRewards, REWARDS_CLIFF, REWARDS_AMOUNT, claimants, amounts);\\n  }\\n\\n  function _startVesting(\\n    IVesting vestingContract,\\n    uint cliff,\\n    uint totalAmount,\\n    address[] calldata claimants,\\n    uint[] calldata amounts\\n  ) internal {\\n    require(msg.sender == governance, \\\"governance\\\");\\n    require(vestingStarted[address(vestingContract)] == 0, \\\"started\\\");\\n    require(block.timestamp >= cliffStarted + cliff, \\\"cliff\\\");\\n\\n    vestingStarted[address(vestingContract)] = block.number;\\n\\n    IMYRD _token = IMYRD(token);\\n\\n    _token.mint(address(vestingContract), totalAmount);\\n\\n    IVesting(vestingContract).start(\\n      true,\\n      address(_token),\\n      totalAmount,\\n      claimants,\\n      amounts\\n    );\\n  }\\n\\n}\\n\",\"keccak256\":\"0x8ffae4cdd866d00f4e9ce2c62b30cb2fc1f1f2f7da5dc43c6c7744b5135a804f\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50611385806100206000396000f3fe608060405234801561001057600080fd5b50600436106100bf5760003560e01c80635e78e20a1161007c5780635e78e20a14610155578063624568831461016c578063a7d958d31461017f578063b4d32fae14610192578063ca9ffe94146101b2578063daf6ca30146101c5578063fc0c546a146101d857600080fd5b80630245035b146100c457806309d4723f146100d95780633ddbd2f114610109578063573756081461011c5780635aa6e6751461012f5780635c55994f14610142575b600080fd5b6100d76100d2366004611024565b6101eb565b005b6005546100ec906001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b6004546100ec906001600160a01b031681565b6100d761012a366004611024565b61021b565b6000546100ec906001600160a01b031681565b6100d7610150366004611024565b610244565b61015e60035481565b604051908152602001610100565b6100d761017a36600461114b565b61026e565b6006546100ec906001600160a01b031681565b61015e6101a03660046111f1565b60076020526000908152604090205481565b6100ec6101c036600461120e565b610d78565b6002546100ec906001600160a01b031681565b6001546100ec906001600160a01b031681565b600554610215906001600160a01b03166301e133806a295be96e6406697200000087878787610d95565b50505050565b600454610215906001600160a01b031662eff1006a108b2a2c2802909400000087878787610d95565b600654610215906001600160a01b03166302d124806a108b2a2c2802909400000087878787610d95565b6001546001600160a01b031615801561029057506000546001600160a01b0316155b80156102a557506004546001600160a01b0316155b80156102ba57506005546001600160a01b0316155b80156102cf57506006546001600160a01b0316155b61030a5760405162461bcd60e51b815260206004820152600760248201526618dc99585d195960ca1b60448201526064015b60405180910390fd5b6001600160a01b0385161580159061032a57506001600160a01b03831615155b801561033e57506001600160a01b03821615155b801561035257506001600160a01b03811615155b6103865760405162461bcd60e51b8152602060048201526005602482015264656d70747960d81b6044820152606401610301565b600061039460008989610f27565b90506a108b2a2c280290940000006a295be96e64066972000000816103cf6a04f68ca6d8cd91c60000006a034f086f3b33b684000000611255565b6103d99190611255565b6103e39190611255565b6103ed9190611255565b816001600160a01b03166332cb6b0c6040518163ffffffff1660e01b8152600401602060405180830381865afa15801561042b573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061044f9190611276565b146104925760405162461bcd60e51b81526020600482015260136024820152720c2dadeeadce8e640c8dedc4ee840dac2e8c6d606b1b6044820152606401610301565b600080546001600160a01b038089166001600160a01b03199283161790925560018054848416908316179055600280548884169083161790554260035560048054928716929091168217815560408051633989f72d60e11b815290516306938b809392637313ee5a928082019260209290918290030181865afa15801561051d573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906105419190611276565b146105835760405162461bcd60e51b81526020600482015260126024820152717465616d2077726f6e672076657374696e6760701b6044820152606401610301565b836001600160a01b0316632f6619466040518163ffffffff1660e01b8152600401602060405180830381865afa1580156105c1573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906105e59190611276565b156106255760405162461bcd60e51b815260206004820152601060248201526f3a32b0b6903bb937b7339031b634b33360811b6044820152606401610301565b836001600160a01b031663e2f0f42d6040518163ffffffff1660e01b8152600401602060405180830381865afa158015610663573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906106879190611276565b156106c55760405162461bcd60e51b815260206004820152600e60248201526d7465616d2077726f6e672074676560901b6044820152606401610301565b600580546001600160a01b0319166001600160a01b03851690811790915560408051633989f72d60e11b815290516305a39a809291637313ee5a9160048083019260209291908290030181865afa158015610724573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906107489190611276565b1461078e5760405162461bcd60e51b815260206004820152601660248201527574726561737572792077726f6e672076657374696e6760501b6044820152606401610301565b826001600160a01b0316632f6619466040518163ffffffff1660e01b8152600401602060405180830381865afa1580156107cc573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906107f09190611276565b156108345760405162461bcd60e51b81526020600482015260146024820152733a3932b0b9bab93c903bb937b7339031b634b33360611b6044820152606401610301565b826001600160a01b031663e2f0f42d6040518163ffffffff1660e01b8152600401602060405180830381865afa158015610872573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906108969190611276565b156108d85760405162461bcd60e51b815260206004820152601260248201527174726561737572792077726f6e672074676560701b6044820152606401610301565b600680546001600160a01b0319166001600160a01b03841690811790915560408051633989f72d60e11b815290516304b258009291637313ee5a9160048083019260209291908290030181865afa158015610937573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061095b9190611276565b146109a05760405162461bcd60e51b8152602060048201526015602482015274726577617264732077726f6e672076657374696e6760581b6044820152606401610301565b816001600160a01b0316632f6619466040518163ffffffff1660e01b8152600401602060405180830381865afa1580156109de573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610a029190611276565b15610a455760405162461bcd60e51b81526020600482015260136024820152723932bbb0b93239903bb937b7339031b634b33360691b6044820152606401610301565b816001600160a01b031663e2f0f42d6040518163ffffffff1660e01b8152600401602060405180830381865afa158015610a83573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610aa79190611276565b15610ae85760405162461bcd60e51b8152602060048201526011602482015270726577617264732077726f6e672074676560781b6044820152606401610301565b806001600160a01b03166318160ddd6040518163ffffffff1660e01b8152600401602060405180830381865afa158015610b26573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610b4a9190611276565b15610b8c5760405162461bcd60e51b815260206004820152601260248201527177726f6e6720746f74616c20737570706c7960701b6044820152606401610301565b306001600160a01b0316816001600160a01b031663075461726040518163ffffffff1660e01b8152600401602060405180830381865afa158015610bd4573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610bf8919061128f565b6001600160a01b031614610c3a5760405162461bcd60e51b81526020600482015260096024820152683bb937b7339033b7bb60b91b6044820152606401610301565b6040516340c10f1960e01b81526001600160a01b0386811660048301526a034f086f3b33b68400000060248301528216906340c10f1990604401600060405180830381600087803b158015610c8e57600080fd5b505af1158015610ca2573d6000803e3d6000fd5b50506040516340c10f1960e01b81526001600160a01b0389811660048301526a04f68ca6d8cd91c60000006024830152841692506340c10f199150604401600060405180830381600087803b158015610cfa57600080fd5b505af1158015610d0e573d6000803e3d6000fd5b5050604051634d61b58b60e01b81526001600160a01b03848116600483015288169250634d61b58b91506024015b600060405180830381600087803b158015610d5657600080fd5b505af1158015610d6a573d6000803e3d6000fd5b505050505050505050505050565b6000610d8c83838051906020012030610fae565b90505b92915050565b6000546001600160a01b03163314610ddc5760405162461bcd60e51b815260206004820152600a602482015269676f7665726e616e636560b01b6044820152606401610301565b6001600160a01b03871660009081526007602052604090205415610e2c5760405162461bcd60e51b81526020600482015260076024820152661cdd185c9d195960ca1b6044820152606401610301565b85600354610e3a9190611255565b421015610e715760405162461bcd60e51b815260206004820152600560248201526431b634b33360d91b6044820152606401610301565b6001600160a01b038781166000818152600760205260409081902043905560015490516340c10f1960e01b81526004810192909252602482018890529091169081906340c10f1990604401600060405180830381600087803b158015610ed657600080fd5b505af1158015610eea573d6000803e3d6000fd5b50506040516309208a5360e01b81526001600160a01b038b1692506309208a539150610d3c9060019085908b908b908b908b908b906004016112ac565b600083471015610f535760405163392efb2b60e21b815247600482015260248101859052604401610301565b8151600003610f7557604051631328927760e21b815260040160405180910390fd5b8282516020840186f590506001600160a01b038116610fa757604051633a0ba96160e11b815260040160405180910390fd5b9392505050565b6000604051836040820152846020820152828152600b8101905060ff815360559020949350505050565b60008083601f840112610fea57600080fd5b50813567ffffffffffffffff81111561100257600080fd5b6020830191508360208260051b850101111561101d57600080fd5b9250929050565b6000806000806040858703121561103a57600080fd5b843567ffffffffffffffff8082111561105257600080fd5b61105e88838901610fd8565b9096509450602087013591508082111561107757600080fd5b5061108487828801610fd8565b95989497509550505050565b634e487b7160e01b600052604160045260246000fd5b600082601f8301126110b757600080fd5b813567ffffffffffffffff808211156110d2576110d2611090565b604051601f8301601f19908116603f011681019082821181831017156110fa576110fa611090565b8160405283815286602085880101111561111357600080fd5b836020870160208301376000602085830101528094505050505092915050565b6001600160a01b038116811461114857600080fd5b50565b600080600080600080600060e0888a03121561116657600080fd5b87359650602088013567ffffffffffffffff81111561118457600080fd5b6111908a828b016110a6565b96505060408801356111a181611133565b945060608801356111b181611133565b935060808801356111c181611133565b925060a08801356111d181611133565b915060c08801356111e181611133565b8091505092959891949750929550565b60006020828403121561120357600080fd5b8135610fa781611133565b6000806040838503121561122157600080fd5b82359150602083013567ffffffffffffffff81111561123f57600080fd5b61124b858286016110a6565b9150509250929050565b80820180821115610d8f57634e487b7160e01b600052601160045260246000fd5b60006020828403121561128857600080fd5b5051919050565b6000602082840312156112a157600080fd5b8151610fa781611133565b87151581526001600160a01b038781166020808401919091526040830188905260a060608401819052830186905260009187919060c08501845b8981101561130d5784356112f981611133565b8316825293830193908301906001016112e6565b5085810360808701528681526001600160fb1b0387111561132d57600080fd5b8660051b9350838860208301379092016020019b9a505050505050505050505056fea26469706673582212209dc8e8ef2d9907418d2954d603912e1e5c294c76b494089bb563402b0e9cf90364736f6c63430008170033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100bf5760003560e01c80635e78e20a1161007c5780635e78e20a14610155578063624568831461016c578063a7d958d31461017f578063b4d32fae14610192578063ca9ffe94146101b2578063daf6ca30146101c5578063fc0c546a146101d857600080fd5b80630245035b146100c457806309d4723f146100d95780633ddbd2f114610109578063573756081461011c5780635aa6e6751461012f5780635c55994f14610142575b600080fd5b6100d76100d2366004611024565b6101eb565b005b6005546100ec906001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b6004546100ec906001600160a01b031681565b6100d761012a366004611024565b61021b565b6000546100ec906001600160a01b031681565b6100d7610150366004611024565b610244565b61015e60035481565b604051908152602001610100565b6100d761017a36600461114b565b61026e565b6006546100ec906001600160a01b031681565b61015e6101a03660046111f1565b60076020526000908152604090205481565b6100ec6101c036600461120e565b610d78565b6002546100ec906001600160a01b031681565b6001546100ec906001600160a01b031681565b600554610215906001600160a01b03166301e133806a295be96e6406697200000087878787610d95565b50505050565b600454610215906001600160a01b031662eff1006a108b2a2c2802909400000087878787610d95565b600654610215906001600160a01b03166302d124806a108b2a2c2802909400000087878787610d95565b6001546001600160a01b031615801561029057506000546001600160a01b0316155b80156102a557506004546001600160a01b0316155b80156102ba57506005546001600160a01b0316155b80156102cf57506006546001600160a01b0316155b61030a5760405162461bcd60e51b815260206004820152600760248201526618dc99585d195960ca1b60448201526064015b60405180910390fd5b6001600160a01b0385161580159061032a57506001600160a01b03831615155b801561033e57506001600160a01b03821615155b801561035257506001600160a01b03811615155b6103865760405162461bcd60e51b8152602060048201526005602482015264656d70747960d81b6044820152606401610301565b600061039460008989610f27565b90506a108b2a2c280290940000006a295be96e64066972000000816103cf6a04f68ca6d8cd91c60000006a034f086f3b33b684000000611255565b6103d99190611255565b6103e39190611255565b6103ed9190611255565b816001600160a01b03166332cb6b0c6040518163ffffffff1660e01b8152600401602060405180830381865afa15801561042b573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061044f9190611276565b146104925760405162461bcd60e51b81526020600482015260136024820152720c2dadeeadce8e640c8dedc4ee840dac2e8c6d606b1b6044820152606401610301565b600080546001600160a01b038089166001600160a01b03199283161790925560018054848416908316179055600280548884169083161790554260035560048054928716929091168217815560408051633989f72d60e11b815290516306938b809392637313ee5a928082019260209290918290030181865afa15801561051d573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906105419190611276565b146105835760405162461bcd60e51b81526020600482015260126024820152717465616d2077726f6e672076657374696e6760701b6044820152606401610301565b836001600160a01b0316632f6619466040518163ffffffff1660e01b8152600401602060405180830381865afa1580156105c1573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906105e59190611276565b156106255760405162461bcd60e51b815260206004820152601060248201526f3a32b0b6903bb937b7339031b634b33360811b6044820152606401610301565b836001600160a01b031663e2f0f42d6040518163ffffffff1660e01b8152600401602060405180830381865afa158015610663573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906106879190611276565b156106c55760405162461bcd60e51b815260206004820152600e60248201526d7465616d2077726f6e672074676560901b6044820152606401610301565b600580546001600160a01b0319166001600160a01b03851690811790915560408051633989f72d60e11b815290516305a39a809291637313ee5a9160048083019260209291908290030181865afa158015610724573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906107489190611276565b1461078e5760405162461bcd60e51b815260206004820152601660248201527574726561737572792077726f6e672076657374696e6760501b6044820152606401610301565b826001600160a01b0316632f6619466040518163ffffffff1660e01b8152600401602060405180830381865afa1580156107cc573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906107f09190611276565b156108345760405162461bcd60e51b81526020600482015260146024820152733a3932b0b9bab93c903bb937b7339031b634b33360611b6044820152606401610301565b826001600160a01b031663e2f0f42d6040518163ffffffff1660e01b8152600401602060405180830381865afa158015610872573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906108969190611276565b156108d85760405162461bcd60e51b815260206004820152601260248201527174726561737572792077726f6e672074676560701b6044820152606401610301565b600680546001600160a01b0319166001600160a01b03841690811790915560408051633989f72d60e11b815290516304b258009291637313ee5a9160048083019260209291908290030181865afa158015610937573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061095b9190611276565b146109a05760405162461bcd60e51b8152602060048201526015602482015274726577617264732077726f6e672076657374696e6760581b6044820152606401610301565b816001600160a01b0316632f6619466040518163ffffffff1660e01b8152600401602060405180830381865afa1580156109de573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610a029190611276565b15610a455760405162461bcd60e51b81526020600482015260136024820152723932bbb0b93239903bb937b7339031b634b33360691b6044820152606401610301565b816001600160a01b031663e2f0f42d6040518163ffffffff1660e01b8152600401602060405180830381865afa158015610a83573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610aa79190611276565b15610ae85760405162461bcd60e51b8152602060048201526011602482015270726577617264732077726f6e672074676560781b6044820152606401610301565b806001600160a01b03166318160ddd6040518163ffffffff1660e01b8152600401602060405180830381865afa158015610b26573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610b4a9190611276565b15610b8c5760405162461bcd60e51b815260206004820152601260248201527177726f6e6720746f74616c20737570706c7960701b6044820152606401610301565b306001600160a01b0316816001600160a01b031663075461726040518163ffffffff1660e01b8152600401602060405180830381865afa158015610bd4573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610bf8919061128f565b6001600160a01b031614610c3a5760405162461bcd60e51b81526020600482015260096024820152683bb937b7339033b7bb60b91b6044820152606401610301565b6040516340c10f1960e01b81526001600160a01b0386811660048301526a034f086f3b33b68400000060248301528216906340c10f1990604401600060405180830381600087803b158015610c8e57600080fd5b505af1158015610ca2573d6000803e3d6000fd5b50506040516340c10f1960e01b81526001600160a01b0389811660048301526a04f68ca6d8cd91c60000006024830152841692506340c10f199150604401600060405180830381600087803b158015610cfa57600080fd5b505af1158015610d0e573d6000803e3d6000fd5b5050604051634d61b58b60e01b81526001600160a01b03848116600483015288169250634d61b58b91506024015b600060405180830381600087803b158015610d5657600080fd5b505af1158015610d6a573d6000803e3d6000fd5b505050505050505050505050565b6000610d8c83838051906020012030610fae565b90505b92915050565b6000546001600160a01b03163314610ddc5760405162461bcd60e51b815260206004820152600a602482015269676f7665726e616e636560b01b6044820152606401610301565b6001600160a01b03871660009081526007602052604090205415610e2c5760405162461bcd60e51b81526020600482015260076024820152661cdd185c9d195960ca1b6044820152606401610301565b85600354610e3a9190611255565b421015610e715760405162461bcd60e51b815260206004820152600560248201526431b634b33360d91b6044820152606401610301565b6001600160a01b038781166000818152600760205260409081902043905560015490516340c10f1960e01b81526004810192909252602482018890529091169081906340c10f1990604401600060405180830381600087803b158015610ed657600080fd5b505af1158015610eea573d6000803e3d6000fd5b50506040516309208a5360e01b81526001600160a01b038b1692506309208a539150610d3c9060019085908b908b908b908b908b906004016112ac565b600083471015610f535760405163392efb2b60e21b815247600482015260248101859052604401610301565b8151600003610f7557604051631328927760e21b815260040160405180910390fd5b8282516020840186f590506001600160a01b038116610fa757604051633a0ba96160e11b815260040160405180910390fd5b9392505050565b6000604051836040820152846020820152828152600b8101905060ff815360559020949350505050565b60008083601f840112610fea57600080fd5b50813567ffffffffffffffff81111561100257600080fd5b6020830191508360208260051b850101111561101d57600080fd5b9250929050565b6000806000806040858703121561103a57600080fd5b843567ffffffffffffffff8082111561105257600080fd5b61105e88838901610fd8565b9096509450602087013591508082111561107757600080fd5b5061108487828801610fd8565b95989497509550505050565b634e487b7160e01b600052604160045260246000fd5b600082601f8301126110b757600080fd5b813567ffffffffffffffff808211156110d2576110d2611090565b604051601f8301601f19908116603f011681019082821181831017156110fa576110fa611090565b8160405283815286602085880101111561111357600080fd5b836020870160208301376000602085830101528094505050505092915050565b6001600160a01b038116811461114857600080fd5b50565b600080600080600080600060e0888a03121561116657600080fd5b87359650602088013567ffffffffffffffff81111561118457600080fd5b6111908a828b016110a6565b96505060408801356111a181611133565b945060608801356111b181611133565b935060808801356111c181611133565b925060a08801356111d181611133565b915060c08801356111e181611133565b8091505092959891949750929550565b60006020828403121561120357600080fd5b8135610fa781611133565b6000806040838503121561122157600080fd5b82359150602083013567ffffffffffffffff81111561123f57600080fd5b61124b858286016110a6565b9150509250929050565b80820180821115610d8f57634e487b7160e01b600052601160045260246000fd5b60006020828403121561128857600080fd5b5051919050565b6000602082840312156112a157600080fd5b8151610fa781611133565b87151581526001600160a01b038781166020808401919091526040830188905260a060608401819052830186905260009187919060c08501845b8981101561130d5784356112f981611133565b8316825293830193908301906001016112e6565b5085810360808701528681526001600160fb1b0387111561132d57600080fd5b8660051b9350838860208301379092016020019b9a505050505050505050505056fea26469706673582212209dc8e8ef2d9907418d2954d603912e1e5c294c76b494089bb563402b0e9cf90364736f6c63430008170033",
+  "devdoc": {
+    "errors": {
+      "Create2EmptyBytecode()": [
+        {
+          "details": "There's no code to deploy."
+        }
+      ],
+      "Create2FailedDeployment()": [
+        {
+          "details": "The deployment failed."
+        }
+      ],
+      "Create2InsufficientBalance(uint256,uint256)": [
+        {
+          "details": "Not enough balance for performing a CREATE2 deploy."
+        }
+      ]
+    },
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 4530,
+        "contract": "contracts/token/TokenFactory.sol:TokenFactory",
+        "label": "governance",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 4533,
+        "contract": "contracts/token/TokenFactory.sol:TokenFactory",
+        "label": "token",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_contract(IMYRD)4495"
+      },
+      {
+        "astId": 4535,
+        "contract": "contracts/token/TokenFactory.sol:TokenFactory",
+        "label": "saleContract",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_address"
+      },
+      {
+        "astId": 4537,
+        "contract": "contracts/token/TokenFactory.sol:TokenFactory",
+        "label": "cliffStarted",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 4540,
+        "contract": "contracts/token/TokenFactory.sol:TokenFactory",
+        "label": "vestingContractTeam",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_contract(IVesting)3732"
+      },
+      {
+        "astId": 4543,
+        "contract": "contracts/token/TokenFactory.sol:TokenFactory",
+        "label": "vestingContractTreasury",
+        "offset": 0,
+        "slot": "5",
+        "type": "t_contract(IVesting)3732"
+      },
+      {
+        "astId": 4546,
+        "contract": "contracts/token/TokenFactory.sol:TokenFactory",
+        "label": "vestingContractRewards",
+        "offset": 0,
+        "slot": "6",
+        "type": "t_contract(IVesting)3732"
+      },
+      {
+        "astId": 4550,
+        "contract": "contracts/token/TokenFactory.sol:TokenFactory",
+        "label": "vestingStarted",
+        "offset": 0,
+        "slot": "7",
+        "type": "t_mapping(t_address,t_uint256)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_contract(IMYRD)4495": {
+        "encoding": "inplace",
+        "label": "contract IMYRD",
+        "numberOfBytes": "20"
+      },
+      "t_contract(IVesting)3732": {
+        "encoding": "inplace",
+        "label": "contract IVesting",
+        "numberOfBytes": "20"
+      },
+      "t_mapping(t_address,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

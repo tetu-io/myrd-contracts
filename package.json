@@ -18,7 +18,7 @@
     "anvil": "anvil --silent --hardfork istanbul --disable-block-gas-limit --code-size-limit 1000000",
     "deploy-local": "hardhat deploy --write true --reset",
     "deploy-sonic": "yarn build && hardhat deploy --network sonic --write true && yarn verify-all-sonic",
-    "verify-all-sonic": "hardhat run scripts/verify.ts --network matic && hardhat etherscan-verify --solc-input --network sonic"
+    "verify-all-sonic": "hardhat etherscan-verify --solc-input --api-url https://api.sonicscan.org --network sonic"
   },
   "keywords": [
     "solidity",

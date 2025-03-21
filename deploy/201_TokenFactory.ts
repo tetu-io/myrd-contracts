@@ -52,23 +52,29 @@ const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
     let salt = ethers.randomBytes(32);
 
     if(argv.salt && argv.salt !== '') {
-      salt = ethers.getBytesCopy(argv.salt);
+      const  a = JSON.parse('[' + (argv.salt).toString() + ']')
+      console.log('SALT pure array:', a);
+      salt = Uint8Array.from(a);
     }
 
 
     // skip generate for tests
     if (hre.network.name !== 'hardhat') {
       while (true) {
-        salt = ethers.randomBytes(32);
         const address = ethers.getCreate2Address(await factory.getAddress(), salt, ethers.keccak256(bytecode));
         console.log('Try Address:', address);
         if (address.startsWith(TOKEN_PREFIX)) {
           break;
         }
+        salt = ethers.randomBytes(32);
       }
     }
 
     console.log('SALT:', salt.toString());
+
+    if (!ethers.getCreate2Address(await factory.getAddress(), salt, ethers.keccak256(bytecode)).startsWith(TOKEN_PREFIX)) {
+      throw new Error('Invalid salt');
+    }
 
     const sale = await getDeployedContractByName('Sale');
     const vestingTeam = await getDeployedContractByName('VestingTeam');
