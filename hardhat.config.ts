@@ -27,14 +27,18 @@ const argv = require('yargs/yargs')()
     networkScanKey: {
       type: "string",
     },
+    networkScanKeySonic: {
+      type: "string",
+    },
     privateKey: {
       type: "string",
       default: "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80" // random account
     },
-    ethRpcUrl: {
+    sonicRpcUrl: {
       type: "string",
+      default: "https://rpc.soniclabs.com"
     },
-    ethForkBlock: {
+    sonicForkBlock: {
       type: "number",
       default: 0
     },
@@ -61,10 +65,10 @@ export default {
       blockGasLimit: 999_000_000,
       forking: !!argv.hardhatChainId && argv.hardhatChainId !== 31337 ? {
         url:
-          argv.hardhatChainId === 1 ? argv.ethRpcUrl :
+          argv.hardhatChainId === 146 ? argv.sonicRpcUrl :
                 undefined,
         blockNumber:
-          argv.hardhatChainId === 1 ? argv.ethForkBlock || undefined : undefined,
+          argv.hardhatChainId === 146 ? argv.sonicForkBlock || undefined : undefined,
       } : undefined,
       accounts: {
         mnemonic: "test test test test test test test test test test test junk",
@@ -80,13 +84,14 @@ export default {
       //   }
       // },
     },
-    eth: {
-      url: argv.ethRpcUrl || '',
-      chainId: 1,
+    sonic: {
+      chainId: 146,
+      url: argv.sonicRpcUrl,
       accounts: [argv.privateKey],
+      timeout: 99999,
       verify: {
         etherscan: {
-          apiKey: argv.networkScanKey
+          apiKey: argv.networkScanKeySonic
         }
       }
     },
@@ -108,15 +113,6 @@ export default {
           }
         }
       },
-      { // for Balancer
-        version: "0.7.6",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 150,
-          }
-        },
-      }
     ]
   },
   paths: {
@@ -149,18 +145,4 @@ export default {
     pretty: false,
   },
   namedAccounts: deployAddresses,
-  warnings: {
-    '@balancer-labs/v2-solidity-utils/contracts/**/*': {
-      default: 'off',
-    },
-    '@balancer-labs/v2-vault/contracts/**/*': {
-      default: 'off',
-    },
-    'contracts/test/**/*': {
-      default: 'off',
-    },
-    '@balancer-labs/v2-pool-utils/contracts/**/*': {
-      default: 'off',
-    },
-  }
 };
