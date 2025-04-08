@@ -10,4 +10,6 @@ interface IAppErrors {
   error NotGauge();
   error IncorrectArrayLength();
   error IncorrectZeroArgument();
+  error IncorrectZeroAddress();
+  error AlreadySet();
 }

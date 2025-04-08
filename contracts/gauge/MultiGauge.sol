@@ -5,8 +5,9 @@ import "../interfaces/IGauge.sol";
 import "../proxy/Controllable.sol";
 import "./StakelessMultiPoolBase.sol";
 import {IXMyrd} from "../interfaces/IXMyrd.sol";
+import {IAppErrors} from "../interfaces/IAppErrors.sol";
 
-/// @title Stakeless pool for vaults without ve integration
+/// @title Stakeless pool for xMyrd
 /// @author belbix
 contract MultiGauge is StakelessMultiPoolBase, IGauge {
 
@@ -20,8 +21,7 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
   //region ---------------------- Data types
   /// @custom:storage-location erc7201:myrd.MultiGauge
   struct MainStorage {
-    /// @dev Staking token => whitelist status
-    mapping(address => bool) stakingTokens;
+    address xMyrd;
     uint activePeriod;
   }
 
@@ -31,20 +31,24 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
 
   function init(
     address controller_,
+    address xMyrd_,
     address _defaultRewardToken
   ) external initializer {
     __MultiPool_init(controller_, _defaultRewardToken, 7 days);
+    _S().xMyrd = xMyrd_;
   }
   //endregion ---------------------- Init
 
   //region ---------------------- Operator actions
-
-  /// @dev Allowed contracts can whitelist token. Removing is forbidden.
+  /// @notice Allowed contracts can whitelist token. Removing is forbidden.
+  /// @dev Only one staking token (xMyrd) is allowed
   function addStakingToken(address token) external onlyAllowedContracts {
-    _S().stakingTokens[token] = true;
+    if (token != address(0)) {
+      if (_S().xMyrd != address(0)) revert IAppErrors.AlreadySet();
+      _S().xMyrd = token;
+    }
     emit AddStakingToken(token);
   }
-
   /// @notice Update active period. Can be called only once per week. Call IXMyrd.rebase()
   function updatePeriod() external returns (uint newPeriod) {
     MainStorage storage $ = _S();
@@ -53,9 +57,9 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
     $.activePeriod = _activePeriod;
 
     newPeriod = _activePeriod;
-    address _xmyrd = $.xMyrd;
-    if (_xmyrd != address(0)) {
-      IXMyrd(_xmyrd).rebase();
+    address _xMyrd = $.xMyrd;
+    if (_xMyrd != address(0)) {
+      IXMyrd(_xMyrd).rebase();
     }
   }
   //endregion ---------------------- Operator actions
@@ -134,7 +138,7 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
 
   //region ---------------------- Logic override
   function isStakeToken(address token) public view override returns (bool) {
-    return _S().stakingTokens[token];
+    return _S().xMyrd == token;
   }
   //endregion ---------------------- Logic override
 
@@ -152,6 +156,10 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
 
   function activePeriod() external view returns (uint) {
     return _S().activePeriod;
+  }
+
+  function xMyrd() external view returns (address) {
+    return _S().xMyrd;
   }
 
   //endregion ---------------------- Views

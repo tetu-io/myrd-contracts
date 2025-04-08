@@ -99,10 +99,11 @@ contract XMyrd is Controllable, ERC20Upgradeable, IXMyrd {
             $.pendingRebase = 0;
 
             /// @dev approve Myrd transferring to voteModule
-            IERC20($.myrd).approve(_gauge, _pendingRebase);
+            address _myrd = $.myrd;
+            IERC20(_myrd).approve(_gauge, _pendingRebase);
 
             /// @dev notify the Myrd rebase
-            IGauge(_gauge).notifyRewardAmount(_pendingRebase);
+            IGauge(_gauge).notifyRewardAmount(_myrd, _myrd, _pendingRebase);
 
             emit Rebase(msg.sender, _pendingRebase);
         }
@@ -162,7 +163,7 @@ contract XMyrd is Controllable, ERC20Upgradeable, IXMyrd {
         _mint(msg.sender, amount_);
 
         /// @dev Refresh user balance in the gauge
-        IGauge(_S().gauge).handleBalanceChange();
+        IGauge(_S().gauge).handleBalanceChange(msg.sender);
 
         /// @dev emit an event for conversion
         emit Enter(msg.sender, amount_);
@@ -190,7 +191,7 @@ contract XMyrd is Controllable, ERC20Upgradeable, IXMyrd {
         IERC20($.myrd).transfer(msg.sender, exitAmount);
 
         /// @dev Refresh user balance in the gauge
-        IGauge(_S().gauge).handleBalanceChange();
+        IGauge(_S().gauge).handleBalanceChange(msg.sender);
 
         /// @dev emit actual exited amount
         emit InstantExit(msg.sender, exitAmount);
@@ -215,7 +216,7 @@ contract XMyrd is Controllable, ERC20Upgradeable, IXMyrd {
         $.vestInfo[msg.sender].push(VestPosition(amount_, block.timestamp, block.timestamp + MAX_VEST, vestLength));
 
         /// @dev Refresh user balance in the gauge
-        IGauge(_S().gauge).handleBalanceChange();
+        IGauge(_S().gauge).handleBalanceChange(msg.sender);
 
         emit NewVest(msg.sender, vestLength, amount_);
     }
@@ -225,7 +226,7 @@ contract XMyrd is Controllable, ERC20Upgradeable, IXMyrd {
         MainStorage storage $ = _S();
 
         VestPosition storage _vest = $.vestInfo[msg.sender][vestID_];
-        require(_vest.amount != 0, NO_VEST());
+        if (_vest.amount == 0) revert NO_VEST();
 
         /// @dev store amount in the vest and start time
         uint _amount = _vest.amount;
@@ -240,7 +241,7 @@ contract XMyrd is Controllable, ERC20Upgradeable, IXMyrd {
             _mint(msg.sender, _amount);
 
             /// @dev Refresh user balance in the gauge
-            IGauge(_S().gauge).handleBalanceChange();
+            IGauge(_S().gauge).handleBalanceChange(msg.sender);
 
             emit CancelVesting(msg.sender, vestID_, _amount);
         } else if (_vest.maxEnd <= block.timestamp) {
@@ -315,11 +316,11 @@ contract XMyrd is Controllable, ERC20Upgradeable, IXMyrd {
 
     //region ------------------------ Hooks to override
 
-    function _update(address from, address to, uint value) internal override {
-        require(_isExempted(from, to), NOT_WHITELISTED(from, to));
+    function _beforeTokenTransfer(address from, address to, uint value) internal override {
+        if (!_isExempted(from, to)) revert NOT_WHITELISTED(from, to);
 
         /// @dev call parent function
-        super._update(from, to, value);
+        super._beforeTokenTransfer(from, to, value);
     }
     //endregion ------------------------ Hooks to override
 
