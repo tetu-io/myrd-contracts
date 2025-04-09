@@ -31,13 +31,13 @@ contract XMyrd is Controllable, ERC20Upgradeable, IXMyrd {
     /// @inheritdoc IXMyrd
     uint public constant MAX_VEST = 180 days;
 
-    // keccak256(abi.encode(uint256(keccak256("erc7201:myrd.XMyrd")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 private constant XMYRD_STORAGE_LOCATION = 0x0; // todo myrd.XMyrd
+    // keccak256(abi.encode(uint256(keccak256("erc7201:myrd.xmyrd")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 internal constant XMYRD_STORAGE_LOCATION = 0x3360234b2e57bd420b529b1bdb21eef818dd320d27a6cf7a914ed8817dbac400; // myrd.xmyrd
     //endregion ------------------------ Constants
 
     //region ------------------------ Data types
 
-    /// @custom:storage-location erc7201:stability.XMyrd.sol
+    /// @custom:storage-location erc7201:myrd.XMyrd
     struct MainStorage {
         /// @notice Myrd address
         address myrd;
@@ -60,7 +60,7 @@ contract XMyrd is Controllable, ERC20Upgradeable, IXMyrd {
 
     function initialize(address controller_, address myrd_, address gauge_) external initializer {
         __Controllable_init(controller_);
-        __ERC20_init("xMyrd", "xMyrd");
+        __ERC20_init("xMyrd token", "XMYRD");
         MainStorage storage $ = _S();
         $.myrd = myrd_;
         $.gauge = gauge_;

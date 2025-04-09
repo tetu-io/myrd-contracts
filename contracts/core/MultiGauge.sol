@@ -4,8 +4,8 @@ pragma solidity 0.8.23;
 import "../interfaces/IGauge.sol";
 import "../proxy/Controllable.sol";
 import "./StakelessMultiPoolBase.sol";
-import {IXMyrd} from "../interfaces/IXMyrd.sol";
-import {IAppErrors} from "../interfaces/IAppErrors.sol";
+import "../interfaces/IXMyrd.sol";
+import "../interfaces/IAppErrors.sol";
 
 /// @title Stakeless pool for xMyrd
 /// @author belbix
@@ -15,7 +15,7 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
 
   /// @dev Version of this contract. Adjust manually on each code modification.
   string public constant VERSION = "1.0.0";
-  bytes32 private constant MULTI_GAUGE_STORAGE_LOCATION = 0x0; // todo myrd.MultiGauge
+  bytes32 internal constant MULTI_GAUGE_STORAGE_LOCATION = 0x635411329e3c391c04fb987a9e61aac0efad3b5dc95c142c0ec572a72e788100; // myrd.MultiGauge
   //endregion ---------------------- Constants
 
   //region ---------------------- Data types
@@ -126,7 +126,7 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
   }
 
   function _deposit(address stakingToken, address account, uint amount) internal {
-    _registerBalanceIncreasing(stakingToken, account, amount);
+  _registerBalanceIncreasing(stakingToken, account, amount);
     emit Deposit(stakingToken, account, amount);
   }
 

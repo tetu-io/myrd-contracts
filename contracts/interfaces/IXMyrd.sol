@@ -55,7 +55,7 @@ interface IXMyrd {
     /// @notice Set exemption status for to address
     function setExemptionTo(address[] calldata exemptee, bool[] calldata exempt) external;
 
-    /// @notice Function called by the [TODO: RevenueRouter] to send the rebases once a week
+    /// @notice Function called by the gauge to send the rebases once a week
     function rebase() external;
 
 
@@ -76,7 +76,7 @@ interface IXMyrd {
     /// @notice Myrd address
     function myrd() external view returns (address);
 
-    /// @notice Revenue distributor contract TODO
+    /// @notice Gauge address
     function gauge() external view returns (address);
 
     /// @notice returns info on a user's vests

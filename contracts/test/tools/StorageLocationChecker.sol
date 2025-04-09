@@ -19,4 +19,14 @@ contract StorageLocationChecker is IAppErrors {
     return ControllerLib.CONTROLLER_STORAGE_LOCATION;
   }
 
+  function getXMyrdStorageLocation() external pure returns(bytes32) {
+    return keccak256(abi.encode(uint256(keccak256("myrd.xmyrd")) - 1)) & ~bytes32(uint256(0xff));
+  }
+  // we cannot implement getXMyrdLibStorage because there is no XMyrdLib
+
+  function getMultiGaugeStorageLocation() external pure returns(bytes32) {
+    return keccak256(abi.encode(uint256(keccak256("myrd.MultiGauge")) - 1)) & ~bytes32(uint256(0xff));
+  }
+  // we cannot implement getMultiGaugeLibStorage because there is no MultiGaugeLib
+
 }
