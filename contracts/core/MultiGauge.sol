@@ -7,8 +7,7 @@ import "./StakelessMultiPoolBase.sol";
 import "../interfaces/IXMyrd.sol";
 import "../interfaces/IAppErrors.sol";
 
-/// @title Stakeless pool for xMyrd
-/// @author belbix
+/// @title Stakeless pool for single staking token (xMyrd)
 contract MultiGauge is StakelessMultiPoolBase, IGauge {
 
   //region ---------------------- Constants
@@ -49,8 +48,11 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
     }
     emit AddStakingToken(token);
   }
+
   /// @notice Update active period. Can be called only once per week. Call IXMyrd.rebase()
   function updatePeriod() external returns (uint newPeriod) {
+    // no restrictions for msg.sender - anybody can call this function
+
     MainStorage storage $ = _S();
     uint _activePeriod = getPeriod();
     if ($.activePeriod >= _activePeriod) revert WaitForNewPeriod();
