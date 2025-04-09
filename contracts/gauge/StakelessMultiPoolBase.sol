@@ -6,7 +6,7 @@ import "../openzeppelin/SafeERC20.sol";
 import "../openzeppelin/ReentrancyGuard.sol";
 import "../openzeppelin/Initializable.sol";
 import "../interfaces/IMultiPool.sol";
-import "../openzeppelin/IERC20.sol";
+import "../interfaces/IERC20.sol";
 import "../proxy/Controllable.sol";
 
 /// @title Abstract stakeless pool for multiple rewards.
