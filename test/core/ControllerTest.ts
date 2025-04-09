@@ -2,7 +2,7 @@ import {parseUnits} from "ethers";
 import {SignerWithAddress} from "@nomicfoundation/hardhat-ethers/signers";
 import {
   Controller,
-  Controller__factory,
+  Controller__factory, ControllerToUpgrade__factory, IProxyControlled__factory,
   MockToken,
   StorageLocationChecker,
   StorageLocationChecker__factory
@@ -11,10 +11,9 @@ import {TimeUtils} from "../utils/TimeUtils";
 import {ethers} from "hardhat";
 import {expect} from "chai";
 import {Deploy} from "../../scripts/deploy/Deploy";
+import {DeployUtils} from "../utils/DeployUtils";
 
 describe('ControllerTest', function() {
-  const INIT_PAY_AMOUNT = parseUnits("1000000000000000000");
-
   let snapshotBefore: string;
   let snapshot: string;
 
@@ -23,8 +22,6 @@ describe('ControllerTest', function() {
   let signer: SignerWithAddress;
   let governance: SignerWithAddress;
   let user1: SignerWithAddress;
-  let user2: SignerWithAddress;
-  let user3: SignerWithAddress;
   let storageLocationChecker: StorageLocationChecker;
   let controller: Controller;
 
@@ -32,7 +29,7 @@ describe('ControllerTest', function() {
 
   before(async function () {
     snapshotBefore = await TimeUtils.snapshot();
-    [signer, governance, user1, user2, user3] = await ethers.getSigners();
+    [signer, governance, user1] = await ethers.getSigners();
 
     deployer = new Deploy(governance);
     storageLocationChecker = StorageLocationChecker__factory.connect(await (await deployer.deployContract('StorageLocationChecker')).getAddress(), signer);
@@ -53,7 +50,7 @@ describe('ControllerTest', function() {
     await TimeUtils.rollback(snapshot);
   });
 
-  describe("misc", () => {
+  describe("Storage and init", () => {
     it("check CONTROLLER_STORAGE_LOCATION constant", async () => {
       const location = await storageLocationChecker.getControllerStorageLocation();
       console.log(location);
@@ -69,6 +66,90 @@ describe('ControllerTest', function() {
     });
     it("should revert if call init second time", async () => {
       await expect(controller.init(governance)).revertedWithCustomError(controller, "InvalidInitialization");
+    });
+  });
+
+  describe("view", () => {
+    it("governance should return expected value", async () => {
+      expect((await controller.governance()).toLowerCase()).eq(governance.address.toLowerCase());
+    });
+    it("isController should return expected value", async () => {
+      expect(await controller.isController(controller)).eq(true);
+    });
+  });
+
+  describe("changeDeployer", () => {
+    it("should return correct deployers", async () => {
+      const deployer1 = ethers.Wallet.createRandom();
+      const deployer2 = ethers.Wallet.createRandom();
+
+      expect(await controller.isDeployer(deployer1)).eq(false);
+      expect(await controller.isDeployer(deployer2)).eq(false);
+
+      await controller.connect(governance).changeDeployer(deployer1, false);
+      await controller.connect(governance).changeDeployer(deployer2, true);
+
+      expect(await controller.isDeployer(deployer1)).eq(true);
+      expect(await controller.isDeployer(deployer2)).eq(false);
+
+      await controller.connect(governance).changeDeployer(deployer2, false);
+
+      expect(await controller.isDeployer(deployer1)).eq(true);
+      expect(await controller.isDeployer(deployer2)).eq(true);
+
+      await controller.connect(governance).changeDeployer(deployer1, true);
+      await controller.connect(governance).changeDeployer(deployer2, true);
+
+      expect(await controller.isDeployer(deployer1)).eq(false);
+      expect(await controller.isDeployer(deployer2)).eq(false);
+    });
+
+    it("should revert if not governance", async () => {
+      await expect(
+        controller.connect(user1).changeDeployer(user1, true)
+      ).revertedWithCustomError(controller, "NotGovernance");
+    });
+  });
+
+  describe("updateProxies", () => {
+    it("should update controller implementation", async () => {
+      // set some data in the controller
+      const deployer1 = await DeployUtils.impersonate(ethers.Wallet.createRandom().address);
+      await controller.connect(governance).changeDeployer(deployer1, false);
+
+      expect((await controller.governance()).toLowerCase()).eq(governance.address.toLowerCase());
+      expect(await controller.isDeployer(deployer1)).eq(true);
+
+      const proxy = await IProxyControlled__factory.connect(await controller.getAddress(), signer);
+      const oldImpl = await proxy.implementation();
+
+      // deploy "new controller implementation"
+      const newImpl = await (await deployer.deployContract('ControllerToUpgrade')).getAddress();
+
+      // update controller itself
+      await controller.connect(deployer1).updateProxies([await controller.getAddress()], newImpl);
+
+      // ensure that we can read all data from the controller as before
+      expect((await controller.governance()).toLowerCase()).eq(governance.address.toLowerCase());
+      expect(await controller.isDeployer(deployer1)).eq(true);
+
+      const proxy2 = await IProxyControlled__factory.connect(await controller.getAddress(), signer);
+      expect((await proxy2.implementation()).toLowerCase()).eq(newImpl.toLowerCase());
+      expect((await proxy2.implementation()).toLowerCase()).not.eq(oldImpl.toLowerCase());
+
+      // ensure that we can read new properties from the controller
+      expect(
+        await ControllerToUpgrade__factory.connect(await controller.getAddress(), signer).NEW_CONSTANT()
+      ).eq("1");
+    });
+
+    it("should revert if not deployer", async () => {
+      // deploy "new controller implementation"
+      const newImpl = await (await deployer.deployContract('ControllerToUpgrade')).getAddress();
+
+      await expect(
+        controller.connect(user1).updateProxies([await controller.getAddress()], newImpl)
+      ).revertedWithCustomError(controller, "NotDeployer");
     });
   });
 });

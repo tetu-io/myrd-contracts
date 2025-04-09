@@ -20,7 +20,7 @@ library ControllerLib {
 
   //region ------------------------ Restrictions
   function onlyGovernance() internal view {
-    if (!_isGovernance(msg.sender)) revert IAppErrors.NotGovernance();
+      if (!_isGovernance(msg.sender)) revert IAppErrors.NotGovernance();
   }
 
   function onlyDeployer() internal view {
@@ -49,13 +49,13 @@ library ControllerLib {
     }
   }
 
-  function changeDeployer(bool remove) internal {
+  function changeDeployer(address adr, bool remove) internal {
     onlyGovernance();
 
     if (remove) {
-      delete _S().deployers[msg.sender];
+      delete _S().deployers[adr];
     } else {
-      _S().deployers[msg.sender] = true;
+      _S().deployers[adr] = true;
     }
   }
   //endregion ------------------------ Logic

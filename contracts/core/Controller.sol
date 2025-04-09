@@ -10,6 +10,7 @@ contract Controller is Controllable, IController {
   string public constant VERSION = "1.0.0";
 
   function init(address governance_) external initializer {
+    __Controllable_init(address(this));
     ControllerLib.init(governance_);
   }
 
@@ -25,7 +26,7 @@ contract Controller is Controllable, IController {
     ControllerLib.updateProxies(proxies, newLogic);
   }
 
-  function changeDeployer(bool remove) external {
-    ControllerLib.changeDeployer(remove);
+  function changeDeployer(address adr, bool remove) external {
+    ControllerLib.changeDeployer(adr, remove);
   }
 }
