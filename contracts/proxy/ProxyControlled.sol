@@ -35,4 +35,11 @@ contract ProxyControlled is UpgradeableProxy, IProxyControlled {
   function implementation() external override view returns (address) {
     return _implementation();
   }
+
+  /// @dev Fallback function that delegates calls to the address returned by `_implementation()`. Will run if call data
+  /// is empty.
+  //slither-disable-next-line locked-ether
+  receive() external payable virtual {
+    _fallback();
+  }
 }

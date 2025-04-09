@@ -316,11 +316,11 @@ contract XMyrd is Controllable, ERC20Upgradeable, IXMyrd {
 
     //region ------------------------ Hooks to override
 
-    function _beforeTokenTransfer(address from, address to, uint value) internal override {
+    function _update(address from, address to, uint value) internal override {
         if (!_isExempted(from, to)) revert NOT_WHITELISTED(from, to);
 
         /// @dev call parent function
-        super._beforeTokenTransfer(from, to, value);
+        super._update(from, to, value);
     }
     //endregion ------------------------ Hooks to override
 
