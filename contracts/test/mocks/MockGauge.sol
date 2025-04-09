@@ -25,7 +25,7 @@ contract MockGauge is IGauge {
     address stakingToken,
     address account,
     address[] memory tokens
-  ) external override {
+  ) external view override {
     for (uint i = 0; i < tokens.length; i++) {
       // Simulate reward logic
       _rewards[stakingToken][account][tokens[i]];
@@ -43,7 +43,7 @@ contract MockGauge is IGauge {
   function getAllRewards(
     address stakingToken,
     address account
-  ) external override {
+  ) external view override {
     _allRewards[stakingToken][account];
   }
 
@@ -86,7 +86,7 @@ contract MockGauge is IGauge {
   function getAllRewardsForTokens(
     address[] memory stakingTokens,
     address account
-  ) external override {
+  ) external view override {
     for (uint i = 0; i < stakingTokens.length; i++) {
       _allRewards[stakingTokens[i]][account];
     }
