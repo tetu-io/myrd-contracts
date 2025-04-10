@@ -15,6 +15,7 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
   /// @dev Version of this contract. Adjust manually on each code modification.
   string public constant VERSION = "1.0.0";
   bytes32 internal constant MULTI_GAUGE_STORAGE_LOCATION = 0x635411329e3c391c04fb987a9e61aac0efad3b5dc95c142c0ec572a72e788100; // myrd.MultiGauge
+  uint public REWARDS_PERIOD = 7 days;
   //endregion ---------------------- Constants
 
   //region ---------------------- Data types
@@ -31,7 +32,7 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
   /// @param xMyrd_ is sole staking token
   /// @param myrd_ is default reward token
   function init(address controller_, address xMyrd_, address myrd_) external initializer {
-    __MultiPool_init(controller_, myrd_, 7 days);
+    __MultiPool_init(controller_, myrd_, REWARDS_PERIOD);
 
     if(xMyrd_ == address(0)) revert IAppErrors.ZeroAddress();
     _S().xMyrd = xMyrd_;
@@ -47,7 +48,7 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
 
   /// @notice Update active period. Can be called only once per week. Call IXMyrd.rebase()
   /// @param amount_ Amount of MYRD-rewards for next period = amount_ + penalty received from xMyrd
-  function updatePeriod(uint amount_) external returns (uint newPeriod) {
+  function updatePeriod(uint amount_) external {
     // no restrictions for msg.sender - anybody can call this function
 
     MainStorage storage $ = _S();
@@ -55,7 +56,6 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
     if ($.activePeriod >= _activePeriod) revert WaitForNewPeriod();
 
     $.activePeriod = _activePeriod;
-    newPeriod = _activePeriod;
 
     address _xMyrd = $.xMyrd;
     if (_xMyrd != address(0)) {
@@ -117,7 +117,7 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
   }
 
   function _deposit(address stakingToken, address account, uint amount) internal {
-  _registerBalanceIncreasing(stakingToken, account, amount);
+    _registerBalanceIncreasing(stakingToken, account, amount);
     emit Deposit(stakingToken, account, amount);
   }
 
@@ -148,7 +148,7 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
   //region ---------------------- Views
 
   function getPeriod() public view returns (uint) {
-    return (block.timestamp / 1 weeks);
+    return (block.timestamp / REWARDS_PERIOD);
   }
 
   function activePeriod() external view returns (uint) {

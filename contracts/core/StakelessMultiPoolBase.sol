@@ -312,6 +312,14 @@ abstract contract StakelessMultiPoolBase is ReentrancyGuard, IMultiPool, Control
   //                         NOTIFY
   // *************************************************************
 
+  /// @notice Notifies the contract about a new reward amount.
+  /// @param stakingToken The address of the staking token for which the reward is being notified.
+  /// @param rewardToken The address of the reward token being added.
+  /// @param amount The amount of the reward that should be transferred from the msg.sender.
+  /// @param transferRewards A boolean indicating whether the rewards should be transferred to the contract.
+  /// @param balanceBefore The balance of the reward token in the contract before the transfer.
+  /// It's calculated outside to have possibility to get additional amounts of the rewards from other sources
+  /// before calling {_notifyRewardAmount}. Total added rewards amount is calculated by balance changing.
   function _notifyRewardAmount(
     address stakingToken,
     address rewardToken,
@@ -319,7 +327,6 @@ abstract contract StakelessMultiPoolBase is ReentrancyGuard, IMultiPool, Control
     bool transferRewards,
     uint balanceBefore
   ) internal virtual {
-    require(amount > 0, "Zero amount");
     require(defaultRewardToken == rewardToken || isRewardToken[stakingToken][rewardToken], "Token not allowed");
 
     _updateReward(stakingToken, rewardToken, address(0));
@@ -329,10 +336,12 @@ abstract contract StakelessMultiPoolBase is ReentrancyGuard, IMultiPool, Control
       if (amount != 0) {
         IERC20(rewardToken).safeTransferFrom(msg.sender, address(this), amount);
       }
-
-      // refresh amount if token was taxable OR balance was changed from balanceBefore in other way
-      amount = IERC20(rewardToken).balanceOf(address(this)) - balanceBefore;
     }
+
+    // refresh amount if token was taxable OR balance was changed from balanceBefore in other way
+    amount = IERC20(rewardToken).balanceOf(address(this)) - balanceBefore;
+    require(amount > 0, "Zero amount");
+
     // if transferRewards=false need to wisely use it in implementation!
 
     if (block.timestamp >= periodFinish[stakingToken][rewardToken]) {

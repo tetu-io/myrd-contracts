@@ -1,9 +1,7 @@
 import {SignerWithAddress} from "@nomicfoundation/hardhat-ethers/signers";
 import {
   Controller,
-  Controller__factory, MockGauge,
-  MockGauge__factory,
-  MockToken, MultiGauge, MultiGauge__factory, StorageLocationChecker, StorageLocationChecker__factory,
+  Controller__factory, MockToken, MultiGauge, MultiGauge__factory, StorageLocationChecker, StorageLocationChecker__factory,
   XMyrd,
   XMyrd__factory, XMyrdMock, XMyrdMock__factory
 } from "../../typechain";
@@ -12,11 +10,13 @@ import {ethers} from "hardhat";
 import {DeployerUtils} from "../../scripts/deploy/DeployerUtils";
 import {expect} from "chai";
 import {Deploy} from "../../scripts/deploy/Deploy";
-import {parseUnits} from "ethers";
+import {Misc} from "../../scripts/Misc";
+import {DeployUtils} from "../utils/DeployUtils";
+import {formatUnits, parseUnits} from "ethers";
 
 describe('GaugeTest', function() {
   let snapshotBefore: string;
-  let snapshot: string;
+  let snapshotEach: string;
 
   let deployer: Deploy;
 
@@ -31,6 +31,7 @@ describe('GaugeTest', function() {
   let xmyrd: XMyrd;
   let myrd: MockToken;
   let gauge: MultiGauge;
+  let usdc: MockToken;
 
   before(async function () {
     snapshotBefore = await TimeUtils.snapshot();
@@ -40,6 +41,7 @@ describe('GaugeTest', function() {
     controller = Controller__factory.connect(await deployer.deployProxyForTests('Controller'), signer);
     xmyrd = XMyrd__factory.connect(await deployer.deployProxyForTests('XMyrd'), signer); // todo use mock
     myrd = await DeployerUtils.deployMockToken(signer, 'MYRD', 18, false);
+    usdc = await DeployerUtils.deployMockToken(signer, 'USDC', 6, false);
     gauge = MultiGauge__factory.connect(await deployer.deployProxyForTests("MultiGauge"), signer);
     storageLocationChecker = StorageLocationChecker__factory.connect(await (await deployer.deployContract('StorageLocationChecker')).getAddress(), signer);
 
@@ -53,11 +55,11 @@ describe('GaugeTest', function() {
   });
 
   beforeEach(async function () {
-    snapshot = await TimeUtils.snapshot();
+    snapshotEach = await TimeUtils.snapshot();
   });
 
   afterEach(async function () {
-    await TimeUtils.rollback(snapshot);
+    await TimeUtils.rollback(snapshotEach);
   });
 
   describe("Storage and init", () => {
@@ -78,23 +80,11 @@ describe('GaugeTest', function() {
   });
 
   describe("addStakingToken", () => {
-    it("should allow to set xmyrd once", async () => {
-      await gauge.init(controller, ethers.ZeroAddress, myrd);
-      expect((await gauge.xMyrd()).toLowerCase()).eq(ethers.ZeroAddress);
-      await gauge.connect(governance).addStakingToken(xmyrd);
-      expect((await gauge.xMyrd()).toLowerCase()).eq((await xmyrd.getAddress()).toLowerCase());
-      expect(await gauge.isStakeToken(xmyrd)).eq(true);
-    });
     it("should not allow to change staking token", async () => {
       await gauge.init(controller, xmyrd, myrd);
       expect(await gauge.isStakeToken(xmyrd)).eq(true);
       expect((await gauge.xMyrd()).toLowerCase()).eq((await xmyrd.getAddress()).toLowerCase());
       await expect(gauge.connect(governance).addStakingToken(xmyrd)).revertedWithCustomError(gauge, "AlreadySet");
-    });
-    it("should revert if not governance", async () => {
-      await gauge.init(controller, ethers.ZeroAddress, myrd);
-      expect((await gauge.xMyrd()).toLowerCase()).eq(ethers.ZeroAddress);
-      await expect(gauge.connect(user1).addStakingToken(xmyrd)).rejectedWith("Not allowed");
     });
   });
 
@@ -113,48 +103,476 @@ describe('GaugeTest', function() {
 
     before(async function () {
       snapshot1 = await TimeUtils.snapshot();
-      xmyrdMock = XMyrdMock__factory.connect(await (await deployer.deployContract('XMyrdMock', "x", "x")).getAddress(), signer);
+      xmyrdMock = XMyrdMock__factory.connect(await (
+        await deployer.deployContract('XMyrdMock', myrd, gauge)
+      ).getAddress(), signer);
+      await gauge.init(controller, xmyrdMock, myrd);
     });
 
     after(async function () {
       await TimeUtils.rollback(snapshot1);
     });
 
-    it("should update period and call rebase", async () => {
-      await gauge.init(controller, xmyrdMock, myrd);
+    interface IParams {
+      amount: bigint;
+      penalties: bigint;
+      timePassedSincePeriodStartSeconds?: number;
+      balanceSigner?: bigint;
+      useInitialUpdate?: boolean;
+    }
 
-      expect(await gauge.activePeriod()).eq(0n);
-      expect(await xmyrdMock.isRebaseCalled()).eq(false);
+    interface IResults {
+      periodBefore: number;
+      periodAfter: number;
+      activePeriod: number;
 
+      gaugeMyrdBalance: bigint;
+      signerMyrdBalance: bigint;
+      xmyrdMyrdBalance: bigint;
+
+      rewardRate: bigint;
+      lastUpdateTime: number;
+      periodFinish: number;
+      blockTimestamp: number;
+    }
+
+    async function makeTest(p: IParams): Promise<IResults> {
       // --------------- at first let's move to the board of the period
       const period0 = Number(await gauge.getPeriod());
       const delta = (period0 + 1) * 7 * 24 * 60 * 60 - Math.floor(Date.now() / 1000);
 
       await TimeUtils.advanceBlocksOnTs(delta);
-      const period1 = Number(await gauge.getPeriod());
-      expect(period1).eq(period0 + 1);
 
-      // --------------- update period first time
-      await gauge.updatePeriod();
-      expect(await xmyrdMock.isRebaseCalled()).eq(true);
+      if (p.useInitialUpdate) {
+        await gauge.updatePeriod(0n);
+      }
 
-      const activePeriod1 = await gauge.activePeriod();
-      expect(activePeriod1).eq(period1);
+      const periodBefore = Number(await gauge.getPeriod());
+      await TimeUtils.advanceBlocksOnTs(p.timePassedSincePeriodStartSeconds ?? 7 * 24 * 60 * 60);
+      const periodAfter = Number(await gauge.getPeriod());
 
-      // --------------- move 3 days ahead
-      await TimeUtils.advanceBlocksOnTs(3 * 24 * 60 * 60); // 3 days
-      expect(await gauge.getPeriod()).eq(period1);
+      // --------------- prepare initial balances
+      if (p.penalties != 0n) {
+        await myrd.mint(xmyrdMock, p.penalties);
+      }
 
-      await expect(gauge.updatePeriod()).revertedWithCustomError(gauge, "WaitForNewPeriod");
+      if (p.balanceSigner ?? p.amount != 0n) {
+        await myrd.mint(signer, p.balanceSigner ?? p.amount);
+      }
+      await myrd.connect(signer).approve(gauge, Misc.MAX_UINT);
 
-      // --------------- move 4 days ahead (1 week in total)
-      await TimeUtils.advanceBlocksOnTs(4 * 24 * 60 * 60);
-      expect(await gauge.getPeriod()).eq(period1 + 1);
+      // --------------- updatePeriod
+      const tx = await gauge.connect(signer).updatePeriod(p.amount);
+      const cr = await tx.wait();
+      const blockTimestamp = (await ethers.provider.getBlock(cr?.blockNumber ?? 0))?.timestamp;
 
-      await gauge.updatePeriod();
+      return {
+        periodBefore,
+        periodAfter,
+        activePeriod: Number(await gauge.activePeriod()),
+        gaugeMyrdBalance: await myrd.balanceOf(gauge),
+        signerMyrdBalance: await myrd.balanceOf(signer),
+        xmyrdMyrdBalance: await myrd.balanceOf(xmyrdMock),
+        rewardRate: await gauge.rewardRate(xmyrdMock, myrd),
+        lastUpdateTime: Number(await gauge.lastUpdateTime(xmyrdMock, myrd)),
+        periodFinish: Number(await gauge.periodFinish(xmyrdMock, myrd)),
+        blockTimestamp: blockTimestamp ?? 0,
+      }
+    }
 
-      expect(await gauge.activePeriod()).eq(activePeriod1 + 1n);
+    it("should return expected values if no penalties, no amount", async () => {
+      const ret = await makeTest({
+        amount: 0n,
+        penalties: 0n,
+        balanceSigner: 1n,
+      });
 
+      expect(ret.periodBefore).eq(ret.periodAfter - 1);
+      expect(ret.activePeriod).eq(ret.periodAfter);
+
+      expect(ret.gaugeMyrdBalance).eq(0n);
+      expect(ret.signerMyrdBalance).eq(1n);
+      expect(ret.xmyrdMyrdBalance).eq(0n);
     });
+
+    it("should return expected values if penalties only", async () => {
+      const ret = await makeTest({
+        amount: 0n,
+        penalties: 2n,
+        balanceSigner: 1n,
+      });
+      console.log(ret);
+
+      expect(ret.periodBefore).eq(ret.periodAfter - 1);
+      expect(ret.activePeriod).eq(ret.periodAfter);
+
+      expect(ret.gaugeMyrdBalance).eq(2n);
+      expect(ret.signerMyrdBalance).eq(1n);
+      expect(ret.xmyrdMyrdBalance).eq(0n);
+
+      // see _notifyRewardAmount implementation
+      expect(ret.rewardRate).eq(2n * 10n**27n / (7n * 24n * 60n * 60n));
+      expect(ret.lastUpdateTime).eq(ret.blockTimestamp);
+      expect(ret.periodFinish).eq(ret.blockTimestamp + 7 * 24 * 60 * 60);
+    });
+
+    it("should return expected values if amount only", async () => {
+      const ret = await makeTest({
+        amount: 2n,
+        penalties: 0n,
+        balanceSigner: 2n,
+      });
+
+      expect(ret.periodBefore).eq(ret.periodAfter - 1);
+      expect(ret.activePeriod).eq(ret.periodAfter);
+
+      expect(ret.gaugeMyrdBalance).eq(2n);
+      expect(ret.signerMyrdBalance).eq(0n);
+      expect(ret.xmyrdMyrdBalance).eq(0n);
+
+      // see _notifyRewardAmount implementation
+      expect(ret.rewardRate).eq(2n * 10n**27n / (7n * 24n * 60n * 60n));
+      expect(ret.lastUpdateTime).eq(ret.blockTimestamp);
+      expect(ret.periodFinish).eq(ret.blockTimestamp + 7 * 24 * 60 * 60);
+    });
+
+    it("should return expected values if penalties + amount", async () => {
+      const ret = await makeTest({
+        amount: 2n,
+        penalties: 3n,
+        balanceSigner: 2n,
+      });
+
+      expect(ret.periodBefore).eq(ret.periodAfter - 1);
+      expect(ret.activePeriod).eq(ret.periodAfter);
+
+      expect(ret.gaugeMyrdBalance).eq(5n);
+      expect(ret.signerMyrdBalance).eq(0n);
+      expect(ret.xmyrdMyrdBalance).eq(0n);
+
+      // see _notifyRewardAmount implementation
+      expect(ret.rewardRate).eq(5n * 10n**27n / (7n * 24n * 60n * 60n));
+      expect(ret.lastUpdateTime).eq(ret.blockTimestamp);
+      expect(ret.periodFinish).eq(ret.blockTimestamp + 7 * 24 * 60 * 60);
+    });
+
+    it("should revert if new period is not started", async () => {
+      await expect(makeTest({
+        amount: 1n,
+        penalties: 0n,
+        useInitialUpdate: true,
+        timePassedSincePeriodStartSeconds: 3 * 24 * 60 * 60, // 3 days of 7 required
+      })).revertedWithCustomError(gauge, "WaitForNewPeriod");
+    });
+  });
+
+  describe("notifyRewardAmount", () => {
+    let snapshot1: string;
+    let xmyrdMock: XMyrdMock;
+
+    before(async function () {
+      snapshot1 = await TimeUtils.snapshot();
+      xmyrdMock = XMyrdMock__factory.connect(await (
+        await deployer.deployContract('XMyrdMock', myrd, gauge)
+      ).getAddress(), signer);
+      await gauge.init(controller, xmyrdMock, myrd);
+    });
+
+    after(async function () {
+      await TimeUtils.rollback(snapshot1);
+    });
+
+    interface IParams {
+      useMyrdToken: boolean;
+      amount: bigint;
+      balanceXMyrd?: bigint;
+      balanceSigner?: bigint;
+      dontAllowRewardToken?: boolean;
+    }
+
+    interface IResults {
+      gaugeTokenBalance: bigint;
+      signerTokenBalance: bigint;
+      xmyrdMyrdBalance: bigint;
+
+      rewardRate: bigint;
+      lastUpdateTime: number;
+      periodFinish: number;
+      blockTimestamp: number;
+    }
+
+    async function makeTest(p: IParams): Promise<IResults> {
+      // --------------- at first let's move to the board of the period
+      const period0 = Number(await gauge.getPeriod());
+      const delta = (period0 + 1) * 7 * 24 * 60 * 60 - Math.floor(Date.now() / 1000);
+
+      await TimeUtils.advanceBlocksOnTs(delta);
+
+      // --------------- prepare reward token
+      const rewardToken = p.useMyrdToken ? myrd : usdc;
+      if (! p.useMyrdToken && !p.dontAllowRewardToken) {
+        await gauge.connect(governance).registerRewardToken(xmyrdMock, rewardToken);
+      }
+
+      // --------------- prepare initial balances
+      if (p.balanceXMyrd) {
+        await myrd.mint(xmyrdMock, p.balanceXMyrd);
+      }
+
+      if (p.balanceSigner ?? p.amount != 0n) {
+        await rewardToken.mint(signer, p.balanceSigner ?? p.amount);
+      }
+      await rewardToken.connect(signer).approve(gauge, Misc.MAX_UINT);
+
+      // --------------- updatePeriod
+      const tx = await gauge.connect(signer).notifyRewardAmount(rewardToken, p.amount);
+      const cr = await tx.wait();
+      const blockTimestamp = (await ethers.provider.getBlock(cr?.blockNumber ?? 0))?.timestamp;
+
+      return {
+        gaugeTokenBalance: await rewardToken.balanceOf(gauge),
+        signerTokenBalance: await rewardToken.balanceOf(signer),
+        xmyrdMyrdBalance: await myrd.balanceOf(xmyrdMock),
+        rewardRate: await gauge.rewardRate(xmyrdMock, rewardToken),
+        lastUpdateTime: Number(await gauge.lastUpdateTime(xmyrdMock, rewardToken)),
+        periodFinish: Number(await gauge.periodFinish(xmyrdMock, rewardToken)),
+        blockTimestamp: blockTimestamp ?? 0,
+      }
+    }
+
+    it("should return expected values if reward token is USDC", async () => {
+      const ret = await makeTest({
+        useMyrdToken: false,
+        amount: 2n,
+        balanceSigner: 77n,
+        balanceXMyrd: 5n,
+      });
+
+      expect(ret.gaugeTokenBalance).eq(2n);
+      expect(ret.signerTokenBalance).eq(77n - 2n);
+      expect(ret.xmyrdMyrdBalance).eq(5n, "rebase wasn't called");
+
+      // see _notifyRewardAmount implementation
+      expect(ret.rewardRate).eq(2n * 10n**27n / (7n * 24n * 60n * 60n));
+      expect(ret.lastUpdateTime).eq(ret.blockTimestamp);
+      expect(ret.periodFinish).eq(ret.blockTimestamp + 7 * 24 * 60 * 60);
+    });
+
+    it("should revert if myrd token", async () => {
+      await expect(makeTest({useMyrdToken: true, amount: 1n})).revertedWithCustomError(gauge, "ShouldUseUpdatePeriod");
+    });
+  });
+
+  describe("handleBalanceChange", () => {
+    let snapshot1: string;
+    let xmyrdMock: XMyrdMock;
+
+    before(async function () {
+      snapshot1 = await TimeUtils.snapshot();
+      xmyrdMock = XMyrdMock__factory.connect(await (
+        await deployer.deployContract('XMyrdMock', myrd, gauge)
+      ).getAddress(), signer);
+      await gauge.init(controller, xmyrdMock, myrd);
+    });
+
+    after(async function () {
+      await TimeUtils.rollback(snapshot1);
+    });
+
+    interface IState {
+      totalSupply: bigint;
+      balanceOf: bigint;
+      derivedBalance: bigint;
+      derivedSupply: bigint;
+    }
+
+    interface IParams {
+      xMyrdBalance0: bigint;
+      xMyrdBalance1: bigint;
+      xMyrdBalanceAccount2?: bigint;
+
+      senderIsNotXMyrd?: boolean;
+    }
+
+    interface IResults {
+      state0: IState;
+      state1: IState;
+    }
+
+    async function getState(account: string): Promise<IState> {
+      return {
+        balanceOf: await gauge.balanceOf(xmyrdMock, account),
+        derivedBalance: await gauge.derivedBalance(xmyrdMock, account),
+        derivedSupply: await gauge.derivedSupply(xmyrdMock),
+        totalSupply: await gauge.totalSupply(xmyrdMock),
+      }
+    }
+
+    async function makeTest(p: IParams): Promise<IResults> {
+      const account = ethers.Wallet.createRandom().address;
+      const account2 = ethers.Wallet.createRandom().address;
+
+      const signer = p.senderIsNotXMyrd
+        ? user1
+        : await DeployUtils.impersonate(await xmyrdMock.getAddress());
+
+      // --------------- account 2
+      if (p.xMyrdBalanceAccount2) {
+        await xmyrdMock.mint(account2, p.xMyrdBalanceAccount2);
+        await gauge.connect(signer).handleBalanceChange(account2);
+      }
+
+      // --------------- first handleBalanceChange
+      await xmyrdMock.mint(account, p.xMyrdBalance0);
+      await gauge.connect(signer).handleBalanceChange(account);
+      const state0 = await getState(account);
+
+      // --------------- second handleBalanceChange
+      if (p.xMyrdBalance1 > p.xMyrdBalance0) {
+        await xmyrdMock.mint(account, p.xMyrdBalance1 - p.xMyrdBalance0);
+      } else {
+        await xmyrdMock["burn(address,uint256)"](account, p.xMyrdBalance0 - p.xMyrdBalance1);
+      }
+
+      await gauge.connect(signer).handleBalanceChange(account);
+      const state1 = await getState(account);
+
+      return {state0, state1}
+    }
+
+    it("should return expected values on balance increasing", async () => {
+      const AMOUNT_ACCOUNT_2 = 1n;
+      const AMOUNT1 = 5n;
+      const AMOUNT2 = 10n;
+      const r = await makeTest({
+        xMyrdBalance0: AMOUNT1,
+        xMyrdBalance1: AMOUNT2,
+        xMyrdBalanceAccount2: AMOUNT_ACCOUNT_2
+      });
+
+      expect(r.state0.totalSupply).eq(AMOUNT1 + AMOUNT_ACCOUNT_2);
+      expect(r.state0.derivedSupply).eq(AMOUNT1 + AMOUNT_ACCOUNT_2);
+
+      expect(r.state0.balanceOf).eq(AMOUNT1);
+      expect(r.state0.derivedBalance).eq(AMOUNT1);
+
+      expect(r.state1.totalSupply).eq(AMOUNT2 + AMOUNT_ACCOUNT_2);
+      expect(r.state1.derivedSupply).eq(AMOUNT2 + AMOUNT_ACCOUNT_2);
+
+      expect(r.state1.balanceOf).eq(AMOUNT2);
+      expect(r.state1.derivedBalance).eq(AMOUNT2);
+    });
+
+    it("should return expected values on balance increasing", async () => {
+      const AMOUNT_ACCOUNT_2 = 1n;
+      const AMOUNT1 = 10n;
+      const AMOUNT2 = 5n;
+      const r = await makeTest({
+        xMyrdBalance0: AMOUNT1,
+        xMyrdBalance1: AMOUNT2,
+        xMyrdBalanceAccount2: AMOUNT_ACCOUNT_2
+      });
+
+      expect(r.state0.totalSupply).eq(AMOUNT1 + AMOUNT_ACCOUNT_2);
+      expect(r.state0.derivedSupply).eq(AMOUNT1 + AMOUNT_ACCOUNT_2);
+
+      expect(r.state0.balanceOf).eq(AMOUNT1);
+      expect(r.state0.derivedBalance).eq(AMOUNT1);
+
+      expect(r.state1.totalSupply).eq(AMOUNT2 + AMOUNT_ACCOUNT_2);
+      expect(r.state1.derivedSupply).eq(AMOUNT2 + AMOUNT_ACCOUNT_2);
+
+      expect(r.state1.balanceOf).eq(AMOUNT2);
+      expect(r.state1.derivedBalance).eq(AMOUNT2);
+    });
+  });
+
+  describe("getAllRewards", () => {
+    it("should receive all rewards if period is passed", async () => {
+      const PENALTIES_AMOUNT_MYRD = parseUnits("500");
+      const REWARDS_USDC = parseUnits("100", 6);
+      const XMYRD_AMOUNT = parseUnits("2000");
+      const ADDITIONAL_AMOUNT_MYRD = parseUnits("7000");
+
+      // -------------------- let's use mocked xmyrd with predefined penalties amount
+      const xmyrdMock = XMyrdMock__factory.connect(await (await deployer.deployContract('XMyrdMock', myrd, gauge)).getAddress(), signer);
+      await gauge.init(controller, xmyrdMock, myrd);
+      await myrd.mint(xmyrdMock, PENALTIES_AMOUNT_MYRD);
+
+      // -------------------- register USDC as reward token and provide rewards amount
+      await gauge.connect(governance).registerRewardToken(xmyrdMock, usdc);
+      await usdc.mint(user1, REWARDS_USDC);
+      await usdc.connect(user1).approve(gauge, Misc.MAX_UINT);
+      await gauge.connect(user1).notifyRewardAmount(usdc, REWARDS_USDC);
+
+      // -------------------- signer receives xmyrd and automatically stakes them
+      const xmyrdAsSigner = await DeployUtils.impersonate(await xmyrdMock.getAddress());
+      await xmyrdMock.mint(signer, XMYRD_AMOUNT);
+      await gauge.connect(xmyrdAsSigner).handleBalanceChange(signer.getAddress());
+
+      // -------------------- provide additional MYRD-rewards
+      await myrd.mint(user1, ADDITIONAL_AMOUNT_MYRD);
+      await myrd.connect(user1).approve(gauge, Misc.MAX_UINT);
+      await gauge.connect(user1).updatePeriod(ADDITIONAL_AMOUNT_MYRD);
+
+      // -------------------- advance to the end of the period
+      await TimeUtils.advanceBlocksOnTs(7 * 24 * 60 * 60 + 1000);
+
+      // -------------------- claim rewards
+      await expect(gauge.connect(user1).getAllRewards(signer)).rejectedWith("Not allowed");
+      await gauge.connect(signer).getAllRewards(signer);
+
+      expect(+formatUnits(await myrd.balanceOf(signer))).approximately(
+        +formatUnits(ADDITIONAL_AMOUNT_MYRD + PENALTIES_AMOUNT_MYRD),
+        1e-8
+      );
+      expect(+formatUnits(await usdc.balanceOf(signer), 6)).approximately(
+        +formatUnits(REWARDS_USDC, 6),
+        1e-3
+      );
+    })
+    it("should receive selected rewards if 1/3 of the period is passed", async () => {
+      const PENALTIES_AMOUNT_MYRD = parseUnits("5");
+      const REWARDS_USDC = parseUnits("100", 6);
+      const XMYRD_AMOUNT = parseUnits("20");
+      const ADDITIONAL_AMOUNT_MYRD = parseUnits("70");
+
+      // -------------------- let's use mocked xmyrd with predefined penalties amount
+      const xmyrdMock = XMyrdMock__factory.connect(await (await deployer.deployContract('XMyrdMock', myrd, gauge)).getAddress(), signer);
+      await gauge.init(controller, xmyrdMock, myrd);
+      await myrd.mint(xmyrdMock, PENALTIES_AMOUNT_MYRD);
+
+      // -------------------- register USDC as reward token and provide rewards amount
+      await gauge.connect(governance).registerRewardToken(xmyrdMock, usdc);
+      await usdc.mint(user1, REWARDS_USDC);
+      await usdc.connect(user1).approve(gauge, Misc.MAX_UINT);
+      await gauge.connect(user1).notifyRewardAmount(usdc, REWARDS_USDC);
+
+      // -------------------- signer receives xmyrd and automatically stakes them
+      const xmyrdAsSigner = await DeployUtils.impersonate(await xmyrdMock.getAddress());
+      await xmyrdMock.mint(signer, XMYRD_AMOUNT);
+      await gauge.connect(xmyrdAsSigner).handleBalanceChange(signer.getAddress());
+
+      // -------------------- provide additional MYRD-rewards
+      await myrd.mint(user1, ADDITIONAL_AMOUNT_MYRD);
+      await myrd.connect(user1).approve(gauge, Misc.MAX_UINT);
+      await gauge.connect(user1).updatePeriod(ADDITIONAL_AMOUNT_MYRD);
+
+      // -------------------- advance on 1/3
+      await TimeUtils.advanceBlocksOnTs(7 * 24 * 60 * 60 / 3);
+
+      // -------------------- claim rewards
+      await expect(gauge.connect(user1).getReward(signer, [myrd, usdc])).rejectedWith("Not allowed");
+      await gauge.connect(signer).getReward(signer, [myrd, usdc]);
+
+      expect(+formatUnits(await myrd.balanceOf(signer))).approximately(
+        +formatUnits(ADDITIONAL_AMOUNT_MYRD + PENALTIES_AMOUNT_MYRD) / 3,
+        0.001
+      );
+      expect(+formatUnits(await usdc.balanceOf(signer), 6)).approximately(
+        +formatUnits(REWARDS_USDC, 6) / 3,
+        0.001
+      );
+    })
   });
 });

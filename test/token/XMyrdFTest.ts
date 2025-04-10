@@ -278,8 +278,4 @@ describe('XMyrdFTest', function() {
 // todo
     });
   });
-
-  describe("Complex functional test with multiple users and multiple reward tokens", () => {
-// todo
-  });
 });
