@@ -2,6 +2,9 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { ethers } from 'hardhat';
 import { Libraries } from 'hardhat-deploy/types';
 import { formatUnits, Provider } from 'ethers';
+import {ProxyControlled__factory} from "../typechain";
+import {CoreAddresses} from "../scripts/addresses/CoreAddresses";
+import {DeploymentsExtension} from "hardhat-deploy/dist/types";
 
 
 // tslint:disable-next-line:no-var-requires
@@ -98,4 +101,46 @@ export async function deployAndUpdateIfNecessary(
     await updateCallback(newDeploy.address);
   }
 
+}
+
+export async function isNeedUpdateProxyImplementation(proxy: string, logic: string) {
+  if (!proxy || proxy.trim() === '') {
+    return false;
+  }
+  const curImpl = await ProxyControlled__factory.connect(proxy, ethers.provider).implementation();
+  const isNeedUpdate = curImpl.toLowerCase() !== logic.toLowerCase();
+  if (isNeedUpdate) {
+    console.log('>>> Proxy implementation changed!', proxy, curImpl, logic);
+  }
+  return isNeedUpdate;
+}
+
+export async function isNeedUpdateProxyImplementationByName(ctrName: string, logic: string) {
+  const proxy = await getDeployedContractByName(ctrName, false);
+  return isNeedUpdateProxyImplementation(proxy, logic);
+}
+
+export async function getDeployedCore(revertIfNotFound = false) {
+  return new CoreAddresses(
+    await getDeployedContractByName('TokenFactory', revertIfNotFound),
+    await getDeployedContractByName('Controller', revertIfNotFound),
+    await getDeployedContractByName('Gauge', revertIfNotFound),
+    await getDeployedContractByName('XMyrd', revertIfNotFound),
+  );
+}
+
+export async function deployOneInstanceProxy(
+  hre: HardhatRuntimeEnvironment,
+  deployments: DeploymentsExtension,
+  deployer: string,
+  name: string,
+) {
+  return deployments.deploy(name + 'Proxy', {
+    contract: 'ProxyControlled',
+    from: deployer,
+    args: [await getDeployedContractByName(name)],
+    log: true,
+    skipIfAlreadyDeployed: true,
+    ...(await txParams(hre, ethers.provider)),
+  });
 }

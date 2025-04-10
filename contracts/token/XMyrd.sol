@@ -91,14 +91,12 @@ contract XMyrd is Controllable, ERC20Upgradeable, IXMyrd {
             /// @dev if the rebase is greater than the Basis
             period > $.lastDistributedPeriod && _pendingRebase >= BASIS
         ) {
-            /// @dev PvP rebase notified to the Gauge contract to stream to xMyrd
-            /// @dev fetch the current period from gauge
             $.lastDistributedPeriod = period;
 
             /// @dev zero it out
             $.pendingRebase = 0;
 
-            /// @dev Transfer Myrd to the gauge
+            /// @dev Transfer MYRD to the gauge
             /// @dev Assume that the gauge expects such transfer and monitors changing of MYRD-balance
             IERC20($.myrd).transfer(_gauge, _pendingRebase);
 

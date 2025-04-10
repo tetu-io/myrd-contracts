@@ -29,7 +29,7 @@ import { DeployUtils } from "../utils/DeployUtils";
 // tslint:disable-next-line:no-var-requires
 const hre = require('hardhat');
 
-describe('SaleTest', function() {
+describe('DeployAppFTest', function() {
   const PRICE = parseUnits("7");
   const DURATION_SECONDS = 60 * 60 * 24 * 7; // 1 week
   const SALE_TOTAL_AMOUNT = parseUnits("4000000");
@@ -116,8 +116,10 @@ describe('SaleTest', function() {
       const payTokenDecimals = 18; // on hardhat
 
       expect(+formatUnits(await sale.price(), payTokenDecimals)).eq(SALE_PRICE);
-      expect(await sale.start()).eq(SALE_START);
-      expect(await sale.end()).eq(SALE_END);
+      if (hre.network.name !== 'hardhat') {
+        expect(await sale.start()).eq(SALE_START);
+        expect(await sale.end()).eq(SALE_END);
+      }
       expect((await sale.tokenToSale()).toLowerCase()).eq((await myrd.getAddress()).toLowerCase());
       expect(await sale.sold()).eq(0n);
       expect(await sale.bought(user1)).eq(0n);

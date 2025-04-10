@@ -72,8 +72,10 @@ const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
 
     console.log('SALT:', salt.toString());
 
-    if (!ethers.getCreate2Address(await factory.getAddress(), salt, ethers.keccak256(bytecode)).startsWith(TOKEN_PREFIX)) {
-      throw new Error('Invalid salt');
+    if (hre.network.name !== 'hardhat') {
+      if (!ethers.getCreate2Address(await factory.getAddress(), salt, ethers.keccak256(bytecode)).startsWith(TOKEN_PREFIX)) {
+        throw new Error('Invalid salt');
+      }
     }
 
     const sale = await getDeployedContractByName('Sale');

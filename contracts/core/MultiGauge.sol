@@ -15,7 +15,7 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
   /// @dev Version of this contract. Adjust manually on each code modification.
   string public constant VERSION = "1.0.0";
   bytes32 internal constant MULTI_GAUGE_STORAGE_LOCATION = 0x635411329e3c391c04fb987a9e61aac0efad3b5dc95c142c0ec572a72e788100; // myrd.MultiGauge
-  uint public REWARDS_PERIOD = 7 days;
+  uint public constant REWARDS_PERIOD = 7 days;
   //endregion ---------------------- Constants
 
   //region ---------------------- Data types
