@@ -1,25 +1,27 @@
 import {SignerWithAddress} from "@nomicfoundation/hardhat-ethers/signers";
 import {
   Controller,
-  Controller__factory,
+  Controller__factory, IController__factory,
   MockGauge,
   MockGauge__factory,
   MockToken,
   MultiGauge,
   MultiGauge__factory,
   MYRD,
-  MYRD__factory,
+  MYRD__factory, Sale__factory,
   StorageLocationChecker,
-  StorageLocationChecker__factory,
+  StorageLocationChecker__factory, TokenFactory, TokenFactory__factory, Vesting__factory,
   XMyrd,
   XMyrd__factory
 } from "../../typechain";
 import {TimeUtils} from "../utils/TimeUtils";
-import {ethers} from "hardhat";
+import hre, {ethers} from "hardhat";
 import {DeployerUtils} from "../../scripts/deploy/DeployerUtils";
 import {expect} from "chai";
 import {Deploy} from "../../scripts/deploy/Deploy";
 import {formatUnits, parseUnits} from "ethers";
+import {getDeployedContractByName} from "../../deploy_helpers/deploy-helpers";
+import {DeployUtils} from "../utils/DeployUtils";
 
 describe('GaugeFTest', function() {
   let snapshotBefore: string;
@@ -39,24 +41,30 @@ describe('GaugeFTest', function() {
   let gauge: MultiGauge;
   let wethMock: MockToken;
   let usdcMock: MockToken;
+  let tokenFactory: TokenFactory;
 
   before(async function () {
     snapshotBefore = await TimeUtils.snapshot();
-    [signer, governance, user1, user2, user3] = await ethers.getSigners();
+    [signer, user1, user2, user3] = await ethers.getSigners();
 
-    deployer = new Deploy(governance);
-    controller = Controller__factory.connect(await deployer.deployProxyForTests('Controller'), signer);
-    xmyrd = XMyrd__factory.connect(await deployer.deployProxyForTests('XMyrd'), signer);
-    myrd = MYRD__factory.connect(await (await DeployerUtils.deployContract(signer, 'MYRD')).getAddress(), signer);
-    gauge = MultiGauge__factory.connect(await deployer.deployProxyForTests('MultiGauge'), signer);
 
-    wethMock = await DeployerUtils.deployMockToken(signer, 'WETH', 18, false);
-    usdcMock = await DeployerUtils.deployMockToken(signer, 'USDC', 6, false);
+    await hre.deployments.fixture([
+      "AllCoreProxies",
+      "TokenFactory",
+      "Vesting",
+      "Sale",
+      "MYRD",
+    ]);
 
-    await controller.init(governance);
-    await xmyrd.initialize(controller, myrd, gauge);
-    await gauge.init(controller, xmyrd, usdcMock);
+    // ------------------------ get deployed addresses
+    const tokenFactoryTemp = TokenFactory__factory.connect(await getDeployedContractByName("TokenFactory", true), user1);
+    const gov = await DeployUtils.impersonate(await tokenFactoryTemp.governance());
+    tokenFactory = TokenFactory__factory.connect(await getDeployedContractByName("TokenFactory", true), gov);
+    myrd = MYRD__factory.connect(await tokenFactory.token(), gov);
 
+    controller = Controller__factory.connect(await getDeployedContractByName("ControllerProxy", true), gov);
+    xmyrd = XMyrd__factory.connect(await getDeployedContractByName("XMyrdProxy", true), gov);
+    gauge = MultiGauge__factory.connect(await getDeployedContractByName("MultiGaugeProxy", true), gov);
   });
 
   after(async function () {
@@ -71,7 +79,22 @@ describe('GaugeFTest', function() {
     await TimeUtils.rollback(snapshot);
   });
 
-  describe("Normal uses cases", () => {
+  describe("Check initialization of deployed proxy contracts", () => {
+    it("should return expected values", async () => {
+      expect((await controller.governance()).toLowerCase()).eq(signer.address.toLowerCase());
 
+      expect((await gauge.controller()).toLowerCase()).eq((await controller.getAddress()).toLowerCase());
+      expect((await gauge.xMyrd()).toLowerCase()).eq((await xmyrd.getAddress()).toLowerCase());
+
+      expect((await xmyrd.controller()).toLowerCase()).eq((await controller.getAddress()).toLowerCase());
+      expect((await xmyrd.gauge()).toLowerCase()).eq((await gauge.getAddress()).toLowerCase());
+      expect((await xmyrd.myrd()).toLowerCase()).eq((await tokenFactory.token()).toLowerCase());
+    });
+  });
+
+  describe("Normal uses cases", () => {
+    it("should return expected values", async () => {
+      // todo
+    });
   });
 });

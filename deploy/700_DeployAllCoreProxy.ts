@@ -31,7 +31,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const gauge = (await deployOneInstanceProxy(hre, deployments, deployer, 'MultiGauge')).address;
 
   // ------------------ initialize xmyrd and gauge
-  await Misc.runAndWait2(XMyrd__factory.connect(xmyrd, signer).initialize.populateTransaction(controller.address, xmyrd, gauge));
+  await Misc.runAndWait2(XMyrd__factory.connect(xmyrd, signer).initialize.populateTransaction(controller.address, myrd, gauge));
   await Misc.runAndWait2(MultiGauge__factory.connect(gauge, signer).init.populateTransaction(controller.address, xmyrd, myrd));
 
   // ------------------ create core

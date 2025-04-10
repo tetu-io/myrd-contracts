@@ -62,7 +62,7 @@ describe('GaugeTest', function() {
     await TimeUtils.rollback(snapshotEach);
   });
 
-  describe("Storage and init", () => {
+  describe("Storage", () => {
     it("check MULTI_GAUGE_STORAGE_LOCATION constant", async () => {
       const location = await storageLocationChecker.getMultiGaugeStorageLocation();
       console.log(location);
@@ -73,9 +73,16 @@ describe('GaugeTest', function() {
       expect(location).eq("0x635411329e3c391c04fb987a9e61aac0efad3b5dc95c142c0ec572a72e788100");
     });
     // we don't test getXMyrdLibStorage because there is no XMyrdLib
+  });
+
+  describe("Init", () => {
     it("should revert if call init second time", async () => {
       await gauge.init(controller, xmyrd, myrd);
       await expect(gauge.init(governance, xmyrd, myrd)).revertedWithCustomError(controller, "InvalidInitialization");
+    });
+    it("should revert if try to use zero myrd or zero xmyrd", async () => {
+      await expect(gauge.init(governance, xmyrd, ethers.ZeroAddress)).rejectedWith("Zero default reward token");
+      await expect(gauge.init(governance, ethers.ZeroAddress, myrd)).revertedWithCustomError(gauge, "ZeroAddress");
     });
   });
 
@@ -288,6 +295,7 @@ describe('GaugeTest', function() {
       balanceXMyrd?: bigint;
       balanceSigner?: bigint;
       dontAllowRewardToken?: boolean;
+      registerByDeployer?: boolean;
     }
 
     interface IResults {
@@ -311,7 +319,13 @@ describe('GaugeTest', function() {
       // --------------- prepare reward token
       const rewardToken = p.useMyrdToken ? myrd : usdc;
       if (! p.useMyrdToken && !p.dontAllowRewardToken) {
-        await gauge.connect(governance).registerRewardToken(xmyrdMock, rewardToken);
+        if (p.registerByDeployer) {
+          const deployer = await DeployUtils.impersonate(ethers.Wallet.createRandom().address);
+          await controller.connect(governance).changeDeployer(deployer, false);
+          await gauge.connect(deployer).registerRewardToken(xmyrdMock, rewardToken);
+        } else {
+          await gauge.connect(governance).registerRewardToken(xmyrdMock, rewardToken);
+        }
       }
 
       // --------------- prepare initial balances
@@ -358,8 +372,35 @@ describe('GaugeTest', function() {
       expect(ret.periodFinish).eq(ret.blockTimestamp + 7 * 24 * 60 * 60);
     });
 
+    it("reward token should be registered by deployer", async () => {
+      const ret = await makeTest({
+        useMyrdToken: false,
+        amount: 2n,
+        balanceSigner: 77n,
+        balanceXMyrd: 5n,
+        registerByDeployer: true
+      });
+
+      expect(ret.gaugeTokenBalance).eq(2n);
+      expect(ret.signerTokenBalance).eq(77n - 2n);
+      expect(ret.xmyrdMyrdBalance).eq(5n, "rebase wasn't called");
+
+      // see _notifyRewardAmount implementation
+      expect(ret.rewardRate).eq(2n * 10n**27n / (7n * 24n * 60n * 60n));
+      expect(ret.lastUpdateTime).eq(ret.blockTimestamp);
+      expect(ret.periodFinish).eq(ret.blockTimestamp + 7 * 24 * 60 * 60);
+    });
+
     it("should revert if myrd token", async () => {
       await expect(makeTest({useMyrdToken: true, amount: 1n})).revertedWithCustomError(gauge, "ShouldUseUpdatePeriod");
+    });
+
+    it("should revert if reward token not allowed", async () => {
+      await expect(makeTest({useMyrdToken: false, amount: 1n, dontAllowRewardToken: true})).rejectedWith("Token not allowed");
+    });
+
+    it("should revert if zero amount", async () => {
+      await expect(makeTest({useMyrdToken: false, amount: 0n})).rejectedWith("Zero amount");
     });
   });
 
@@ -484,6 +525,34 @@ describe('GaugeTest', function() {
 
       expect(r.state1.balanceOf).eq(AMOUNT2);
       expect(r.state1.derivedBalance).eq(AMOUNT2);
+    });
+
+    it("should not change values if balance is not changed", async () => {
+      const AMOUNT_ACCOUNT_2 = 1n;
+      const AMOUNT = 10n;
+      const r = await makeTest({
+        xMyrdBalance0: AMOUNT,
+        xMyrdBalance1: AMOUNT,
+        xMyrdBalanceAccount2: AMOUNT_ACCOUNT_2
+      });
+
+      expect(r.state0.totalSupply).eq(AMOUNT + AMOUNT_ACCOUNT_2);
+      expect(r.state0.derivedSupply).eq(AMOUNT + AMOUNT_ACCOUNT_2);
+
+      expect(r.state0.balanceOf).eq(AMOUNT);
+      expect(r.state0.derivedBalance).eq(AMOUNT);
+
+      expect(r.state1.totalSupply).eq(r.state0.totalSupply);
+      expect(r.state1.derivedSupply).eq(r.state0.derivedSupply);
+
+      expect(r.state1.balanceOf).eq(r.state0.balanceOf);
+      expect(r.state1.derivedBalance).eq(r.state0.derivedBalance);
+    });
+
+    it("should revert if called from not xmyrd", async () => {
+      await expect(
+        makeTest({xMyrdBalance0: 1n, xMyrdBalance1: 2n, senderIsNotXMyrd: true})
+      ).revertedWithCustomError(gauge, "WrongStakingToken");
     });
   });
 

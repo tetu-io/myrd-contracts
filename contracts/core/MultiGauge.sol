@@ -42,7 +42,7 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
   //region ---------------------- Operator actions
   /// @notice Allowed contracts can whitelist token. Removing is forbidden.
   /// @dev Only one staking token (xMyrd) is allowed in the current implementation, it's already set in the constructor
-  function addStakingToken(address) external view onlyAllowedContracts {
+  function addStakingToken(address) external pure /* onlyAllowedContracts */ {
     revert IAppErrors.AlreadySet();
   }
 
@@ -58,24 +58,22 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
     $.activePeriod = _activePeriod;
 
     address _xMyrd = $.xMyrd;
-    if (_xMyrd != address(0)) {
-      // get MYRD balance before calling rebase()
-      address _myrd = defaultRewardToken;
-      uint balanceBefore = IERC20(_myrd).balanceOf(address(this));
+    // get MYRD balance before calling rebase()
+    address _myrd = defaultRewardToken;
+    uint balanceBefore = IERC20(_myrd).balanceOf(address(this));
 
-      // receive penalties from xMyrd (if any)
-      // xMyrd will transfer penalties directly to this contract
-      IXMyrd(_xMyrd).rebase();
+    // receive penalties from xMyrd (if any)
+    // xMyrd will transfer penalties directly to this contract
+    IXMyrd(_xMyrd).rebase();
 
-      // notify reward amount if necessary
-      uint balanceAfter = IERC20(_myrd).balanceOf(address(this));
-      if (
-        balanceAfter > balanceBefore // penalties received
-        || amount_ != 0 // additional amount provided
-      ) {
-        // received penalties will be added to the amount_ inside _notifyRewardAmount
-        _notifyRewardAmount(_S().xMyrd, _myrd, amount_, true, balanceBefore);
-      }
+    // notify reward amount if necessary
+    uint balanceAfter = IERC20(_myrd).balanceOf(address(this));
+    if (
+      balanceAfter > balanceBefore // penalties received
+      || amount_ != 0 // additional amount provided
+    ) {
+      // received penalties will be added to the amount_ inside _notifyRewardAmount
+      _notifyRewardAmount(_S().xMyrd, _myrd, amount_, true, balanceBefore);
     }
   }
   //endregion ---------------------- Operator actions
