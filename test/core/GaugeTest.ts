@@ -75,7 +75,7 @@ describe('GaugeTest', function() {
     // we don't test getXMyrdLibStorage because there is no XMyrdLib
   });
 
-  describe("Init", () => {
+  describe("init", () => {
     it("should revert if call init second time", async () => {
       await gauge.init(controller, xmyrd, myrd);
       await expect(gauge.init(governance, xmyrd, myrd)).revertedWithCustomError(controller, "InvalidInitialization");
