@@ -5,4 +5,5 @@ interface IController {
 
   function governance() external view returns (address);
 
+  function isDeployer(address adr) external view returns (bool);
 }

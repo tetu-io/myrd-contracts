@@ -1,21 +1,18 @@
-// SPDX-License-Identifier: BUSL-1.1
-
-pragma solidity 0.8.17;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.23;
 
 import "../openzeppelin/Math.sol";
 import "../openzeppelin/SafeERC20.sol";
 import "../openzeppelin/ReentrancyGuard.sol";
 import "../openzeppelin/Initializable.sol";
-import "../tools/TetuERC165.sol";
 import "../interfaces/IMultiPool.sol";
 import "../interfaces/IERC20.sol";
-import "../lib/InterfaceIds.sol";
-import "../proxy/ControllableV3.sol";
+import "../proxy/Controllable.sol";
 
 /// @title Abstract stakeless pool for multiple rewards.
 ///        Universal pool for different purposes, cover the most popular use cases.
 /// @author belbix
-abstract contract StakelessMultiPoolBase is TetuERC165, ReentrancyGuard, IMultiPool, ControllableV3 {
+abstract contract StakelessMultiPoolBase is ReentrancyGuard, IMultiPool, Controllable {
   using SafeERC20 for IERC20;
 
   // *************************************************************
@@ -83,14 +80,12 @@ abstract contract StakelessMultiPoolBase is TetuERC165, ReentrancyGuard, IMultiP
   //                        INIT
   // *************************************************************
 
-  function __MultiPool_init(
-    address controller_,
-    address _defaultRewardToken,
-    uint _duration
-  ) internal onlyInitializing {
+  function __MultiPool_init(address controller_, address _defaultRewardToken, uint _duration) internal onlyInitializing {
     __Controllable_init(controller_);
-    _requireERC20(_defaultRewardToken);
+
+    require(_defaultRewardToken != address(0), "Zero default reward token");
     defaultRewardToken = _defaultRewardToken;
+
     require(_duration != 0, "wrong duration");
     duration = _duration;
   }
@@ -101,10 +96,7 @@ abstract contract StakelessMultiPoolBase is TetuERC165, ReentrancyGuard, IMultiP
 
   modifier onlyAllowedContracts() {
     IController _controller = IController(controller());
-    require(
-      msg.sender == _controller.governance()
-      || msg.sender == _controller.forwarder()
-    , "Not allowed");
+    require(msg.sender == _controller.governance() || _controller.isDeployer(msg.sender), "Not allowed");
     _;
   }
 
@@ -163,11 +155,6 @@ abstract contract StakelessMultiPoolBase is TetuERC165, ReentrancyGuard, IMultiP
     + rewards[stakingToken][rewardToken][account];
   }
 
-  /// @dev See {IERC165-supportsInterface}.
-  function supportsInterface(bytes4 interfaceId) public view virtual override(ControllableV3, TetuERC165) returns (bool) {
-    return interfaceId == InterfaceIds.I_MULTI_POOL || super.supportsInterface(interfaceId);
-  }
-
   // *************************************************************
   //                  OPERATOR ACTIONS
   // *************************************************************
@@ -175,7 +162,7 @@ abstract contract StakelessMultiPoolBase is TetuERC165, ReentrancyGuard, IMultiP
   /// @dev Whitelist reward token for staking token. Only operator can do it.
   function registerRewardToken(address stakeToken, address rewardToken) external override onlyAllowedContracts {
     require(rewardTokens[stakeToken].length < _MAX_REWARD_TOKENS, "Too many reward tokens");
-    require(!isRewardToken[stakeToken][rewardToken], "Already registered");
+    require(!isRewardToken[stakeToken][rewardToken] && rewardToken != defaultRewardToken, "Already registered");
     isRewardToken[stakeToken][rewardToken] = true;
     rewardTokens[stakeToken].push(rewardToken);
   }

@@ -11,21 +11,9 @@ interface IGauge {
   event Withdraw(address indexed stakingToken, address indexed account, uint amount, bool full);
 
 
-  function getReward(
-    address stakingToken,
-    address account,
-    address[] memory tokens
-  ) external;
+  function getReward(address account, address[] memory tokens) external;
 
-  function getAllRewards(
-    address stakingToken,
-    address account
-  ) external;
-
-  function getAllRewardsForTokens(
-    address[] memory stakingTokens,
-    address account
-  ) external;
+  function getAllRewards(address account) external;
 
   function handleBalanceChange(address account) external;
 

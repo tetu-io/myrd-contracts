@@ -68,25 +68,12 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
 
   //region ---------------------- Claim
 
-  function getReward(
-    address stakingToken,
-    address account,
-    address[] memory tokens
-  ) external {
-    _getReward(stakingToken, account, tokens);
+  function getReward(address account, address[] memory tokens) external {
+    _getReward(_S().xMyrd, account, tokens, account);
   }
 
-  function getAllRewards(
-    address stakingToken,
-    address account
-  ) external {
-    _getAllRewards(stakingToken, account);
-  }
-
-  function _getAllRewards(
-    address stakingToken,
-    address account
-  ) internal {
+  function getAllRewards(address account) external {
+    address stakingToken = _S().xMyrd;
     address[] storage rts = rewardTokens[stakingToken];
     uint length = rts.length;
     address[] memory tokens = new address[](length + 1);
@@ -94,21 +81,9 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
       tokens[i] = rts[i];
     }
     tokens[length] = defaultRewardToken;
-    _getReward(stakingToken, account, tokens);
-  }
-
-  function getAllRewardsForTokens(
-    address[] memory _stakingTokens,
-    address account
-  ) external {
-    for (uint i; i < _stakingTokens.length; i++) {
-      _getAllRewards(_stakingTokens[i], account);
-    }
-  }
-
-  function _getReward(address stakingToken, address account, address[] memory tokens) internal {
     _getReward(stakingToken, account, tokens, account);
   }
+
   //endregion ---------------------- Claim
 
   //region ---------------------- Virtual deposit/withdraw

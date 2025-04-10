@@ -4,47 +4,30 @@ pragma solidity 0.8.23;
 import "../../interfaces/IGauge.sol";
 
 contract MockGauge is IGauge {
-  mapping(address => mapping(address => mapping(address => uint))) private _rewards;
-  mapping(address => mapping(address => uint)) private _allRewards;
+  mapping(address => mapping(address => uint)) private _rewards;
+  mapping(address => uint) private _allRewards;
   mapping(address => uint) private _periods;
   mapping(address => bool) private _stakingTokens;
   mapping(address => mapping(address => mapping(uint => bool))) private _notifyRewardAmountCalls;
   mapping(address => bool) private _handleBalanceChangeCalls;
 
 
-  function setReward(
-    address stakingToken,
-    address account,
-    address token,
-    uint amount
-  ) external {
-    _rewards[stakingToken][account][token] = amount;
+  function setReward(address account, address token, uint amount) external {
+    _rewards[account][token] = amount;
   }
 
-  function getReward(
-    address stakingToken,
-    address account,
-    address[] memory tokens
-  ) external view override {
+  function getReward(address account, address[] memory tokens) external view override {
     for (uint i = 0; i < tokens.length; i++) {
-      // Simulate reward logic
-      _rewards[stakingToken][account][tokens[i]];
+      _rewards[account][tokens[i]];
     }
   }
 
-  function setAllRewards(
-    address stakingToken,
-    address account,
-    uint amount
-  ) external {
-    _allRewards[stakingToken][account] = amount;
+  function setAllRewards(address account, uint amount) external {
+    _allRewards[account] = amount;
   }
 
-  function getAllRewards(
-    address stakingToken,
-    address account
-  ) external view override {
-    _allRewards[stakingToken][account];
+  function getAllRewards(address account) external view override {
+    _allRewards[account];
   }
 
   function setPeriod(address stakingToken, uint period) external {
@@ -81,14 +64,5 @@ contract MockGauge is IGauge {
 
   function isHandleBalanceChangeCalled(address account) external view returns (bool) {
     return _handleBalanceChangeCalls[account];
-  }
-
-  function getAllRewardsForTokens(
-    address[] memory stakingTokens,
-    address account
-  ) external view override {
-    for (uint i = 0; i < stakingTokens.length; i++) {
-      _allRewards[stakingTokens[i]][account];
-    }
   }
 }
