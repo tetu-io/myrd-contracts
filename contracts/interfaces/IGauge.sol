@@ -17,7 +17,7 @@ interface IGauge {
 
   function handleBalanceChange(address account) external;
 
-  function notifyRewardAmount(address stakingToken, address token, uint amount) external;
+  function notifyRewardAmount(address token, uint amount) external;
 
   function addStakingToken(address token) external;
 

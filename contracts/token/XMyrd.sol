@@ -98,12 +98,9 @@ contract XMyrd is Controllable, ERC20Upgradeable, IXMyrd {
             /// @dev zero it out
             $.pendingRebase = 0;
 
-            /// @dev approve Myrd transferring to voteModule
-            address _myrd = $.myrd;
-            IERC20(_myrd).approve(_gauge, _pendingRebase);
-
-            /// @dev notify the Myrd rebase
-            IGauge(_gauge).notifyRewardAmount(_myrd, _myrd, _pendingRebase);
+            /// @dev Transfer Myrd to the gauge
+            /// @dev Assume that the gauge expects such transfer and monitors changing of MYRD-balance
+            IERC20($.myrd).transfer(_gauge, _pendingRebase);
 
             emit Rebase(msg.sender, _pendingRebase);
         }

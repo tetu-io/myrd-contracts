@@ -316,7 +316,8 @@ abstract contract StakelessMultiPoolBase is ReentrancyGuard, IMultiPool, Control
     address stakingToken,
     address rewardToken,
     uint amount,
-    bool transferRewards
+    bool transferRewards,
+    uint balanceBefore
   ) internal virtual {
     require(amount > 0, "Zero amount");
     require(defaultRewardToken == rewardToken || isRewardToken[stakingToken][rewardToken], "Token not allowed");
@@ -325,9 +326,11 @@ abstract contract StakelessMultiPoolBase is ReentrancyGuard, IMultiPool, Control
     uint _duration = duration;
 
     if (transferRewards) {
-      uint balanceBefore = IERC20(rewardToken).balanceOf(address(this));
-      IERC20(rewardToken).safeTransferFrom(msg.sender, address(this), amount);
-      // refresh amount if token was taxable
+      if (amount != 0) {
+        IERC20(rewardToken).safeTransferFrom(msg.sender, address(this), amount);
+      }
+
+      // refresh amount if token was taxable OR balance was changed from balanceBefore in other way
       amount = IERC20(rewardToken).balanceOf(address(this)) - balanceBefore;
     }
     // if transferRewards=false need to wisely use it in implementation!

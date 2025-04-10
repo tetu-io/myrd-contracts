@@ -12,4 +12,8 @@ interface IAppErrors {
   error IncorrectZeroArgument();
   error IncorrectZeroAddress();
   error AlreadySet();
+  error ZeroAddress();
+
+  /// @notice Direct call of notifyRewardAmount for MYRD is not allowed, call updatePeriod(additionalMyrdAmount) instead
+  error ShouldUseUpdatePeriod();
 }

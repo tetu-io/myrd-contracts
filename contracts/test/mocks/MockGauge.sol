@@ -8,7 +8,7 @@ contract MockGauge is IGauge {
   mapping(address => uint) private _allRewards;
   mapping(address => uint) private _periods;
   mapping(address => bool) private _stakingTokens;
-  mapping(address => mapping(address => mapping(uint => bool))) private _notifyRewardAmountCalls;
+  mapping(address => mapping(uint => bool)) private _notifyRewardAmountCalls;
   mapping(address => bool) private _handleBalanceChangeCalls;
 
 
@@ -42,24 +42,16 @@ contract MockGauge is IGauge {
     _stakingTokens[token] = true;
   }
 
-  function notifyRewardAmount(
-    address stakingToken,
-    address token,
-    uint amount
-  ) external override {
-    _notifyRewardAmountCalls[stakingToken][token][amount] = true;
+  function notifyRewardAmount(address token, uint amount) external override {
+    _notifyRewardAmountCalls[token][amount] = true;
   }
 
   function handleBalanceChange(address account) external override {
     _handleBalanceChangeCalls[account] = true;
   }
 
-  function isNotifyRewardAmountCalled(
-    address stakingToken,
-    address token,
-    uint amount
-  ) external view returns (bool) {
-    return _notifyRewardAmountCalls[stakingToken][token][amount];
+  function isNotifyRewardAmountCalled(address token, uint amount) external view returns (bool) {
+    return _notifyRewardAmountCalls[token][amount];
   }
 
   function isHandleBalanceChangeCalled(address account) external view returns (bool) {

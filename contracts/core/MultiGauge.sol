@@ -28,40 +28,54 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
 
   //region ---------------------- Init
 
-  function init(
-    address controller_,
-    address xMyrd_,
-    address _defaultRewardToken
-  ) external initializer {
-    __MultiPool_init(controller_, _defaultRewardToken, 7 days);
+  /// @param xMyrd_ is sole staking token
+  /// @param myrd_ is default reward token
+  function init(address controller_, address xMyrd_, address myrd_) external initializer {
+    __MultiPool_init(controller_, myrd_, 7 days);
+
+    if(xMyrd_ == address(0)) revert IAppErrors.ZeroAddress();
     _S().xMyrd = xMyrd_;
   }
   //endregion ---------------------- Init
 
   //region ---------------------- Operator actions
   /// @notice Allowed contracts can whitelist token. Removing is forbidden.
-  /// @dev Only one staking token (xMyrd) is allowed
-  function addStakingToken(address token) external onlyAllowedContracts {
-    if (token != address(0)) {
-      if (_S().xMyrd != address(0)) revert IAppErrors.AlreadySet();
-      _S().xMyrd = token;
-    }
-    emit AddStakingToken(token);
+  /// @dev Only one staking token (xMyrd) is allowed in the current implementation, it's already set in the constructor
+  function addStakingToken(address) external view onlyAllowedContracts {
+    revert IAppErrors.AlreadySet();
   }
 
   /// @notice Update active period. Can be called only once per week. Call IXMyrd.rebase()
-  function updatePeriod() external returns (uint newPeriod) {
+  /// @param amount_ Amount of MYRD-rewards for next period = amount_ + penalty received from xMyrd
+  function updatePeriod(uint amount_) external returns (uint newPeriod) {
     // no restrictions for msg.sender - anybody can call this function
 
     MainStorage storage $ = _S();
     uint _activePeriod = getPeriod();
     if ($.activePeriod >= _activePeriod) revert WaitForNewPeriod();
-    $.activePeriod = _activePeriod;
 
+    $.activePeriod = _activePeriod;
     newPeriod = _activePeriod;
+
     address _xMyrd = $.xMyrd;
     if (_xMyrd != address(0)) {
+      // get MYRD balance before calling rebase()
+      address _myrd = defaultRewardToken;
+      uint balanceBefore = IERC20(_myrd).balanceOf(address(this));
+
+      // receive penalties from xMyrd (if any)
+      // xMyrd will transfer penalties directly to this contract
       IXMyrd(_xMyrd).rebase();
+
+      // notify reward amount if necessary
+      uint balanceAfter = IERC20(_myrd).balanceOf(address(this));
+      if (
+        balanceAfter > balanceBefore // penalties received
+        || amount_ != 0 // additional amount provided
+      ) {
+        // received penalties will be added to the amount_ inside _notifyRewardAmount
+        _notifyRewardAmount(_S().xMyrd, _myrd, amount_, true, balanceBefore);
+      }
     }
   }
   //endregion ---------------------- Operator actions
@@ -120,8 +134,14 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
   //endregion ---------------------- Logic override
 
   //region ---------------------- Actions
-  function notifyRewardAmount(address stakingToken, address token, uint amount) external nonReentrant {
-    _notifyRewardAmount(stakingToken, token, amount, true);
+  function notifyRewardAmount(address token, uint amount) external nonReentrant {
+    // default reward token is MYRD
+    // it's processed in special way through updatePeriod only
+    // because amount of rewards is combined from penalties and provided additional amount
+    if (token == defaultRewardToken) revert IAppErrors.ShouldUseUpdatePeriod();
+
+    uint balanceBefore = IERC20(token).balanceOf(address(this));
+    _notifyRewardAmount(_S().xMyrd, token, amount, true, balanceBefore);
   }
   //endregion ---------------------- Actions
 
