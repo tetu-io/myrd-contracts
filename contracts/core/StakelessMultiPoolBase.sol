@@ -1,18 +1,21 @@
-// SPDX-License-Identifier: MIT
-pragma solidity 0.8.23;
+// SPDX-License-Identifier: BUSL-1.1
+
+pragma solidity 0.8.17;
 
 import "../openzeppelin/Math.sol";
 import "../openzeppelin/SafeERC20.sol";
 import "../openzeppelin/ReentrancyGuard.sol";
 import "../openzeppelin/Initializable.sol";
+import "../tools/TetuERC165.sol";
 import "../interfaces/IMultiPool.sol";
 import "../interfaces/IERC20.sol";
-import "../proxy/Controllable.sol";
+import "../lib/InterfaceIds.sol";
+import "../proxy/ControllableV3.sol";
 
 /// @title Abstract stakeless pool for multiple rewards.
 ///        Universal pool for different purposes, cover the most popular use cases.
 /// @author belbix
-abstract contract StakelessMultiPoolBase is ReentrancyGuard, IMultiPool, Controllable {
+abstract contract StakelessMultiPoolBase is TetuERC165, ReentrancyGuard, IMultiPool, ControllableV3 {
   using SafeERC20 for IERC20;
 
   // *************************************************************
@@ -80,8 +83,13 @@ abstract contract StakelessMultiPoolBase is ReentrancyGuard, IMultiPool, Control
   //                        INIT
   // *************************************************************
 
-  function __MultiPool_init(address controller_, address _defaultRewardToken, uint _duration) internal onlyInitializing {
+  function __MultiPool_init(
+    address controller_,
+    address _defaultRewardToken,
+    uint _duration
+  ) internal onlyInitializing {
     __Controllable_init(controller_);
+    _requireERC20(_defaultRewardToken);
     defaultRewardToken = _defaultRewardToken;
     require(_duration != 0, "wrong duration");
     duration = _duration;
@@ -93,7 +101,10 @@ abstract contract StakelessMultiPoolBase is ReentrancyGuard, IMultiPool, Control
 
   modifier onlyAllowedContracts() {
     IController _controller = IController(controller());
-    require(msg.sender == _controller.governance(), "Not allowed");
+    require(
+      msg.sender == _controller.governance()
+      || msg.sender == _controller.forwarder()
+    , "Not allowed");
     _;
   }
 
@@ -150,6 +161,11 @@ abstract contract StakelessMultiPoolBase is ReentrancyGuard, IMultiPool, Control
     * (rewardPerToken(stakingToken, rewardToken) - userRewardPerTokenPaid[stakingToken][rewardToken][account])
     / _PRECISION
     + rewards[stakingToken][rewardToken][account];
+  }
+
+  /// @dev See {IERC165-supportsInterface}.
+  function supportsInterface(bytes4 interfaceId) public view virtual override(ControllableV3, TetuERC165) returns (bool) {
+    return interfaceId == InterfaceIds.I_MULTI_POOL || super.supportsInterface(interfaceId);
   }
 
   // *************************************************************
