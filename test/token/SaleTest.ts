@@ -48,6 +48,10 @@ describe('SaleTest', function() {
     await TimeUtils.rollback(snapshot);
   });
 
+  async function getNowInSeconds() : Promise<number> {
+    return (await ethers.provider.getBlock("latest"))?.timestamp ?? 0;
+  }
+
   describe("Normal case", () => {
     let snapshot1: string;
     let sale: Sale;
@@ -58,8 +62,8 @@ describe('SaleTest', function() {
         governance,
         payToken,
         PRICE,
-        Math.floor(new Date().getTime() / 1000 + START_DELAY), // now + 1 hour
-        Math.floor(new Date().getTime() / 1000 + START_DELAY + DURATION_SECONDS),
+        (await getNowInSeconds() + START_DELAY), // now + 1 hour
+        (await getNowInSeconds() + START_DELAY + DURATION_SECONDS),
       ]) as Sale;
 
       await tokenToSale.mint(sale, SALE_TOTAL_AMOUNT);
@@ -246,8 +250,8 @@ describe('SaleTest', function() {
         governance,
         payToken,
         PRICE,
-        Math.floor(new Date().getTime() / 1000 + START_DELAY), // now + 1 hour
-        Math.floor(new Date().getTime() / 1000 + START_DELAY + DURATION_SECONDS),
+        (await getNowInSeconds() + START_DELAY), // now + 1 hour
+        (await getNowInSeconds() + START_DELAY + DURATION_SECONDS),
       ]) as Sale;
 
       expect((await sale.tokenToSale()).toLowerCase()).eq(ethers.ZeroAddress);
@@ -266,8 +270,8 @@ describe('SaleTest', function() {
 
   describe("constructor", () => {
     it("should revert if data is incorrect", async () => {
-      const start = Math.floor(new Date().getTime() / 1000 + START_DELAY); // now + 1 hour
-      const end = Math.floor(new Date().getTime() / 1000 + START_DELAY + 24*60*60 + 1);
+      const start = (await getNowInSeconds() + START_DELAY); // now + 1 hour
+      const end = (await getNowInSeconds() + START_DELAY + 24*60*60 + 1);
       await expect(DeployerUtils.deployContract(owner, 'Sale', ...[ethers.ZeroAddress, payToken, PRICE, start, end])).rejectedWith("zero gov");
       await expect(DeployerUtils.deployContract(owner, 'Sale', ...[governance, ethers.ZeroAddress, PRICE, start, end])).rejectedWith("zero pay");
       await expect(DeployerUtils.deployContract(owner, 'Sale', ...[governance, payToken, 0n, start, end])).rejectedWith("zero price");
