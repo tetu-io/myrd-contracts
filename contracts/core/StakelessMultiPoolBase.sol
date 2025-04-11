@@ -11,7 +11,7 @@ import "../proxy/Controllable.sol";
 
 /// @title Abstract stakeless pool for multiple rewards.
 ///        Universal pool for different purposes, cover the most popular use cases.
-/// @author belbix
+/// @author belbix, modified by dvpublic
 abstract contract StakelessMultiPoolBase is ReentrancyGuard, IMultiPool, Controllable {
   using SafeERC20 for IERC20;
 
@@ -168,7 +168,7 @@ abstract contract StakelessMultiPoolBase is ReentrancyGuard, IMultiPool, Control
   }
 
   /// @dev Remove from whitelist reward token for staking token. Only operator can do it.
-  ///      We assume that the first token can not be removed.
+  ///      We assume that default token can not be removed.
   function removeRewardToken(address stakeToken, address rewardToken) external override onlyAllowedContracts {
     require(periodFinish[stakeToken][rewardToken] < block.timestamp, "Rewards not ended");
     require(isRewardToken[stakeToken][rewardToken], "Not reward token");

@@ -12,7 +12,7 @@ contract StorageLocationChecker is IAppErrors {
   }
 
   function getControllerStorageLocation() external pure returns(bytes32) {
-    return keccak256(abi.encode(uint256(keccak256("myrd.controller")) - 1)) & ~bytes32(uint256(0xff));
+    return keccak256(abi.encode(uint256(keccak256("erc7201:myrd.Controller")) - 1)) & ~bytes32(uint256(0xff));
   }
 
   function getControllerLibStorage() external pure returns(bytes32 storageName) {
@@ -20,12 +20,12 @@ contract StorageLocationChecker is IAppErrors {
   }
 
   function getXMyrdStorageLocation() external pure returns(bytes32) {
-    return keccak256(abi.encode(uint256(keccak256("myrd.xmyrd")) - 1)) & ~bytes32(uint256(0xff));
+    return keccak256(abi.encode(uint256(keccak256("erc7201:myrd.XMyrd")) - 1)) & ~bytes32(uint256(0xff));
   }
   // we cannot implement getXMyrdLibStorage because there is no XMyrdLib
 
   function getMultiGaugeStorageLocation() external pure returns(bytes32) {
-    return keccak256(abi.encode(uint256(keccak256("myrd.MultiGauge")) - 1)) & ~bytes32(uint256(0xff));
+    return keccak256(abi.encode(uint256(keccak256("erc7201:myrd.MultiGauge")) - 1)) & ~bytes32(uint256(0xff));
   }
   // we cannot implement getMultiGaugeLibStorage because there is no MultiGaugeLib
 

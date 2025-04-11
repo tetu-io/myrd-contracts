@@ -18,12 +18,16 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // ------------------ get token factory and (already deployed) MYRD
   const tokenFactory = await getDeployedContractByName('TokenFactory');
   const myrd = await TokenFactory__factory.connect(tokenFactory, signer).token();
+  const governance = await TokenFactory__factory.connect(tokenFactory, signer).governance();
+  if (governance === ethers.ZeroAddress) throw new Error('TokenFactory not initialized');
 
   // ------------------ deploy and initialize controller
   const controller = await deployOneInstanceProxy(hre, deployments, deployer, 'Controller');
   const c = Controller__factory.connect(controller.address, signer);
   if ((await Controller__factory.connect(controller.address, signer).controller()) === ethers.ZeroAddress) {
-    await Misc.runAndWait2(Controller__factory.connect(controller.address, signer).init.populateTransaction(deployer));
+    await Misc.runAndWait2(Controller__factory.connect(controller.address, signer).init.populateTransaction(
+      governance // use governance from TokenFactory
+    ));
   }
 
   // ------------------ deploy proxies for xmyrd and gauge

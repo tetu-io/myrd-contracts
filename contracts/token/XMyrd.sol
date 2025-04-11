@@ -3,11 +3,11 @@ pragma solidity ^0.8.23;
 
 import "../openzeppelin/ERC20Upgradeable.sol";
 import "../openzeppelin/EnumerableSet.sol";
-import {Controllable} from "../proxy/Controllable.sol";
-import {IControllable} from "../interfaces/IControllable.sol";
-import {IXMyrd} from "../interfaces/IXMyrd.sol";
-import {IAppErrors} from "../interfaces/IAppErrors.sol";
-import {IGauge} from "../interfaces/IGauge.sol";
+import "../proxy/Controllable.sol";
+import "../interfaces/IControllable.sol";
+import "../interfaces/IXMyrd.sol";
+import "../interfaces/IAppErrors.sol";
+import "../interfaces/IGauge.sol";
 
 /// @title xMyrd token
 /// Inspired by XSTBL from Stability codebase
@@ -31,8 +31,8 @@ contract XMyrd is Controllable, ERC20Upgradeable, IXMyrd {
     /// @inheritdoc IXMyrd
     uint public constant MAX_VEST = 180 days;
 
-    // keccak256(abi.encode(uint256(keccak256("erc7201:myrd.xmyrd")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 internal constant XMYRD_STORAGE_LOCATION = 0x3360234b2e57bd420b529b1bdb21eef818dd320d27a6cf7a914ed8817dbac400; // myrd.xmyrd
+    // keccak256(abi.encode(uint256(keccak256("erc7201:myrd.XMyrd")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 internal constant XMYRD_STORAGE_LOCATION = 0xf0ecfc0ccecc6975572b37fa830af6559e5857b63ecd7cc8ae9394138d3fd700; // erc7201:myrd.XMyrd
     //endregion ------------------------ Constants
 
     //region ------------------------ Data types

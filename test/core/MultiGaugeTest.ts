@@ -14,7 +14,7 @@ import {Misc} from "../../scripts/Misc";
 import {DeployUtils} from "../utils/DeployUtils";
 import {formatUnits, parseUnits} from "ethers";
 
-describe('GaugeTest', function() {
+describe('MultiGaugeTest', function() {
   let snapshotBefore: string;
   let snapshotEach: string;
 
@@ -24,8 +24,6 @@ describe('GaugeTest', function() {
   let governance: SignerWithAddress;
   let storageLocationChecker: StorageLocationChecker;
   let user1: SignerWithAddress;
-  let user2: SignerWithAddress;
-  let user3: SignerWithAddress;
 
   let controller: Controller;
   let xmyrd: XMyrd;
@@ -35,7 +33,7 @@ describe('GaugeTest', function() {
 
   before(async function () {
     snapshotBefore = await TimeUtils.snapshot();
-    [signer, governance, user1, user2, user3] = await ethers.getSigners();
+    [signer, governance, user1] = await ethers.getSigners();
 
     deployer = new Deploy(governance);
     controller = Controller__factory.connect(await deployer.deployProxyForTests('Controller'), signer);
@@ -66,11 +64,11 @@ describe('GaugeTest', function() {
     it("check MULTI_GAUGE_STORAGE_LOCATION constant", async () => {
       const location = await storageLocationChecker.getMultiGaugeStorageLocation();
       console.log(location);
-      expect(location).eq("0x635411329e3c391c04fb987a9e61aac0efad3b5dc95c142c0ec572a72e788100");
+      expect(location).eq("0x56fe937432a4b636174f357965a052660eeb836d7a87be456fd784604b733000");
     });
     it("check MULTI_GAUGE_STORAGE_LOCATION calculations", async () => {
-      const location = await storageLocationChecker.getStorageLocation("myrd.MultiGauge");
-      expect(location).eq("0x635411329e3c391c04fb987a9e61aac0efad3b5dc95c142c0ec572a72e788100");
+      const location = await storageLocationChecker.getStorageLocation("erc7201:myrd.MultiGauge");
+      expect(location).eq("0x56fe937432a4b636174f357965a052660eeb836d7a87be456fd784604b733000");
     });
     // we don't test getXMyrdLibStorage because there is no XMyrdLib
   });
@@ -643,5 +641,40 @@ describe('GaugeTest', function() {
         0.001
       );
     })
+  });
+
+  describe("registerRewardToken", () => {
+    it("shouldn't allow to register more than 10 tokens", async () => {
+      await gauge.init(controller, xmyrd, myrd);
+
+      const _MAX_REWARD_TOKENS = 10;
+      for (let i = 0; i < _MAX_REWARD_TOKENS; i++) {
+        const token = await DeployerUtils.deployMockToken(signer, `T${i}`, 18, false);
+        await gauge.connect(governance).registerRewardToken(xmyrd, token);
+      }
+      const token11 = await DeployerUtils.deployMockToken(signer, `T${_MAX_REWARD_TOKENS}`, 18, false);
+      await expect(gauge.connect(governance).registerRewardToken(xmyrd, token11)).rejectedWith("Too many reward tokens");
+    });
+    it("should allow to remove all reward token", async () => {
+      await gauge.init(controller, xmyrd, myrd);
+
+      const COUNT = 2;
+      const tokens: MockToken[] = [];
+      for (let i = 0; i < COUNT; i++) {
+        const token = await DeployerUtils.deployMockToken(signer, `T${i}`, 18, false);
+        await gauge.connect(governance).registerRewardToken(xmyrd, token);
+        tokens.push(token);
+      }
+
+      expect(await gauge.rewardTokensLength(xmyrd)).eq(COUNT);
+
+      for (let i = 0; i < COUNT; i++) {
+        const token = tokens[i];
+        await gauge.connect(governance).removeRewardToken(xmyrd, token);
+      }
+
+      expect(await gauge.rewardTokensLength(xmyrd)).eq(0);
+    });
+
   });
 });

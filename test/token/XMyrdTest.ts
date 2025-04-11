@@ -1,7 +1,7 @@
 import {SignerWithAddress} from "@nomicfoundation/hardhat-ethers/signers";
 import {
   Controller,
-  Controller__factory, MockGauge,
+  Controller__factory, ControllerToUpgrade__factory, IProxyControlled__factory, MockGauge,
   MockGauge__factory,
   MockToken, StorageLocationChecker, StorageLocationChecker__factory,
   XMyrd,
@@ -13,6 +13,7 @@ import {DeployerUtils} from "../../scripts/deploy/DeployerUtils";
 import {expect} from "chai";
 import {Deploy} from "../../scripts/deploy/Deploy";
 import {parseUnits} from "ethers";
+import {DeployUtils} from "../utils/DeployUtils";
 
 describe('XMyrdTest', function() {
   let snapshotBefore: string;
@@ -25,7 +26,6 @@ describe('XMyrdTest', function() {
   let storageLocationChecker: StorageLocationChecker;
   let user1: SignerWithAddress;
   let user2: SignerWithAddress;
-  let user3: SignerWithAddress;
 
   let controller: Controller;
   let xmyrd: XMyrd;
@@ -34,7 +34,7 @@ describe('XMyrdTest', function() {
 
   before(async function () {
     snapshotBefore = await TimeUtils.snapshot();
-    [signer, governance, user1, user2, user3] = await ethers.getSigners();
+    [signer, governance, user1, user2] = await ethers.getSigners();
 
     deployer = new Deploy(governance);
     controller = Controller__factory.connect(await deployer.deployProxyForTests('Controller'), signer);
@@ -63,11 +63,11 @@ describe('XMyrdTest', function() {
     it("check XMYRD_STORAGE_LOCATION constant", async () => {
       const location = await storageLocationChecker.getXMyrdStorageLocation();
       console.log(location);
-      expect(location).eq("0x3360234b2e57bd420b529b1bdb21eef818dd320d27a6cf7a914ed8817dbac400");
+      expect(location).eq("0xf0ecfc0ccecc6975572b37fa830af6559e5857b63ecd7cc8ae9394138d3fd700");
     });
     it("check XMYRD_STORAGE_LOCATION calculations", async () => {
-      const location = await storageLocationChecker.getStorageLocation("myrd.xmyrd");
-      expect(location).eq("0x3360234b2e57bd420b529b1bdb21eef818dd320d27a6cf7a914ed8817dbac400");
+      const location = await storageLocationChecker.getStorageLocation("erc7201:myrd.XMyrd");
+      expect(location).eq("0xf0ecfc0ccecc6975572b37fa830af6559e5857b63ecd7cc8ae9394138d3fd700");
     });
     // we don't test getXMyrdLibStorage because there is no XMyrdLib
     it("should revert if call init second time", async () => {
@@ -203,5 +203,30 @@ describe('XMyrdTest', function() {
 
   });
 
+  describe("updateProxies", () => {
+    it("should update controller implementation", async () => {
+      // set deployer controller
+      const deployer1 = await DeployUtils.impersonate(ethers.Wallet.createRandom().address);
+      await controller.connect(governance).changeDeployer(deployer1, false);
 
+      expect((await controller.governance()).toLowerCase()).eq(governance.address.toLowerCase());
+      expect(await controller.isDeployer(deployer1)).eq(true);
+
+      const proxy = await IProxyControlled__factory.connect(await xmyrd.getAddress(), signer);
+      const oldImpl = await proxy.implementation();
+
+      // deploy "new XMyrd implementation"
+      const newImpl = await (await deployer.deployContract('XMyrd')).getAddress();
+
+      // update xmyrd proxy
+      await controller.connect(deployer1).updateProxies([await xmyrd.getAddress()], newImpl);
+
+      // ensure that we can read all data from the xmyrd as before
+      expect((await xmyrd.controller()).toLowerCase()).eq((await controller.getAddress()).toLowerCase());
+
+      const proxy2 = await IProxyControlled__factory.connect(await xmyrd.getAddress(), signer);
+      expect((await proxy2.implementation()).toLowerCase()).eq(newImpl.toLowerCase());
+      expect((await proxy2.implementation()).toLowerCase()).not.eq(oldImpl.toLowerCase());
+    });
+  });
 });

@@ -5,10 +5,10 @@ import "../interfaces/IAppErrors.sol";
 import "../interfaces/IProxyControlled.sol";
 
 library ControllerLib {
-  /// @dev keccak256(abi.encode(uint256(keccak256("myrd.controller")) - 1)) & ~bytes32(uint256(0xff))
-  bytes32 internal constant CONTROLLER_STORAGE_LOCATION = 0x57c91c9d2d1b16abfafd64a2fd64e4c5a29df6dd57817b6005a3cfaeabe23d00; // myrd.controller
+  /// @dev keccak256(abi.encode(uint256(keccak256("erc7201:myrd.Controller")) - 1)) & ~bytes32(uint256(0xff))
+  bytes32 internal constant CONTROLLER_STORAGE_LOCATION = 0x4c6450c977215891cc3be3fa519a5e16bed895db738a774c07512a1e9245d300; // erc7201:myrd.Controller
 
-  /// @custom:storage-location erc7201:myrd.controller
+  /// @custom:storage-location erc7201:myrd.Controller
   struct MainStorage {
     address governance;
     mapping(address => bool) deployers;

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
-import "../interfaces/IGauge.sol";
-import "../proxy/Controllable.sol";
 import "./StakelessMultiPoolBase.sol";
+import "../interfaces/IGauge.sol";
 import "../interfaces/IXMyrd.sol";
 import "../interfaces/IAppErrors.sol";
+import "../proxy/Controllable.sol";
 
 /// @title Stakeless pool for single staking token (xMyrd)
 contract MultiGauge is StakelessMultiPoolBase, IGauge {
@@ -14,14 +14,20 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
 
   /// @dev Version of this contract. Adjust manually on each code modification.
   string public constant VERSION = "1.0.0";
-  bytes32 internal constant MULTI_GAUGE_STORAGE_LOCATION = 0x635411329e3c391c04fb987a9e61aac0efad3b5dc95c142c0ec572a72e788100; // myrd.MultiGauge
+
+  // keccak256(abi.encode(uint256(keccak256("erc7201:myrd.MultiGauge")) - 1)) & ~bytes32(uint256(0xff))
+  bytes32 internal constant MULTI_GAUGE_STORAGE_LOCATION = 0x56fe937432a4b636174f357965a052660eeb836d7a87be456fd784604b733000; // erc7201:myrd.MultiGauge
+
   uint public constant REWARDS_PERIOD = 7 days;
   //endregion ---------------------- Constants
 
   //region ---------------------- Data types
   /// @custom:storage-location erc7201:myrd.MultiGauge
   struct MainStorage {
+    /// @notice XMyrd - the sole staking token
     address xMyrd;
+
+    /// @notice Current active period (a week number)
     uint activePeriod;
   }
 

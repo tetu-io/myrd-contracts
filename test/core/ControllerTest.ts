@@ -54,15 +54,15 @@ describe('ControllerTest', function() {
     it("check CONTROLLER_STORAGE_LOCATION constant", async () => {
       const location = await storageLocationChecker.getControllerStorageLocation();
       console.log(location);
-      expect(location).eq("0x57c91c9d2d1b16abfafd64a2fd64e4c5a29df6dd57817b6005a3cfaeabe23d00");
+      expect(location).eq("0x4c6450c977215891cc3be3fa519a5e16bed895db738a774c07512a1e9245d300");
     });
     it("check CONTROLLER_STORAGE_LOCATION calculations", async () => {
-      const location = await storageLocationChecker.getStorageLocation("myrd.controller");
-      expect(location).eq("0x57c91c9d2d1b16abfafd64a2fd64e4c5a29df6dd57817b6005a3cfaeabe23d00");
+      const location = await storageLocationChecker.getStorageLocation("erc7201:myrd.Controller");
+      expect(location).eq("0x4c6450c977215891cc3be3fa519a5e16bed895db738a774c07512a1e9245d300");
     });
     it("check getControllerLibStorage", async () => {
       const location = await storageLocationChecker.getControllerLibStorage();
-      expect(location).eq(BigInt("0x57c91c9d2d1b16abfafd64a2fd64e4c5a29df6dd57817b6005a3cfaeabe23d00"));
+      expect(location).eq(BigInt("0x4c6450c977215891cc3be3fa519a5e16bed895db738a774c07512a1e9245d300"));
     });
     it("should revert if call init second time", async () => {
       await expect(controller.init(governance)).revertedWithCustomError(controller, "InvalidInitialization");
@@ -75,6 +75,9 @@ describe('ControllerTest', function() {
     });
     it("isController should return expected value", async () => {
       expect(await controller.isController(controller)).eq(true);
+    });
+    it("governance is deployer", async () => {
+      expect(await controller.isDeployer(await controller.governance())).eq(true);
     });
   });
 

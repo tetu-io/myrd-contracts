@@ -2,15 +2,11 @@ import {SignerWithAddress} from "@nomicfoundation/hardhat-ethers/signers";
 import {
   Controller,
   Controller__factory,
-  MockGauge,
-  MockGauge__factory,
   MockToken,
   MultiGauge,
   MultiGauge__factory,
   MYRD,
   MYRD__factory,
-  StorageLocationChecker,
-  StorageLocationChecker__factory,
   XMyrd,
   XMyrd__factory
 } from "../../typechain";
