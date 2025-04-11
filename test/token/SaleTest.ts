@@ -275,7 +275,7 @@ describe('SaleTest', function() {
       await expect(DeployerUtils.deployContract(owner, 'Sale', ...[ethers.ZeroAddress, payToken, PRICE, start, end])).rejectedWith("zero gov");
       await expect(DeployerUtils.deployContract(owner, 'Sale', ...[governance, ethers.ZeroAddress, PRICE, start, end])).rejectedWith("zero pay");
       await expect(DeployerUtils.deployContract(owner, 'Sale', ...[governance, payToken, 0n, start, end])).rejectedWith("zero price");
-      await expect(DeployerUtils.deployContract(owner, 'Sale', ...[governance, payToken, PRICE, Math.floor(new Date().getTime() / 1000 - 1), end])).rejectedWith("incorrect start");
+      await expect(DeployerUtils.deployContract(owner, 'Sale', ...[governance, payToken, PRICE, Math.floor(await getNowInSeconds() - 1), end])).rejectedWith("incorrect start");
       await expect(DeployerUtils.deployContract(owner, 'Sale', ...[governance, payToken, PRICE, start, start + 24*60*60])).rejectedWith("incorrect end", "< 1 day");
       const sale = await DeployerUtils.deployContract(owner, 'Sale', ...[governance, payToken, PRICE, start, end]) as Sale;
 
