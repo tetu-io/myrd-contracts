@@ -59,7 +59,7 @@ const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
 
 
     // skip generate for tests
-    if (hre.network.name !== 'hardhat') {
+    if (hre.network.name !== 'hardhat' && hre.network.name !== 'nebula_testnet') {
       while (true) {
         const address = ethers.getCreate2Address(await factory.getAddress(), salt, ethers.keccak256(bytecode));
         console.log('Try Address:', address);
@@ -72,8 +72,10 @@ const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
 
     console.log('SALT:', salt.toString());
 
-    if (!ethers.getCreate2Address(await factory.getAddress(), salt, ethers.keccak256(bytecode)).startsWith(TOKEN_PREFIX)) {
-      throw new Error('Invalid salt');
+    if (hre.network.name !== 'hardhat' && hre.network.name !== 'nebula_testnet') {
+      if (!ethers.getCreate2Address(await factory.getAddress(), salt, ethers.keccak256(bytecode)).startsWith(TOKEN_PREFIX)) {
+        throw new Error('Invalid salt');
+      }
     }
 
     const sale = await getDeployedContractByName('Sale');

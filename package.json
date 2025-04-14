@@ -18,7 +18,9 @@
     "anvil": "anvil --silent --hardfork istanbul --disable-block-gas-limit --code-size-limit 1000000",
     "deploy-local": "hardhat deploy --write true --reset",
     "deploy-sonic": "yarn build && hardhat deploy --network sonic --write true && yarn verify-all-sonic",
-    "verify-all-sonic": "hardhat etherscan-verify --solc-input --api-url https://api.sonicscan.org --network sonic"
+    "deploy-nebula": "yarn build && hardhat deploy --network nebula_testnet --write true && yarn verify-all-nebula-testnet",
+    "verify-all-sonic": "hardhat etherscan-verify --solc-input --api-url https://api.sonicscan.org --network sonic",
+    "verify-all-nebula-testnet": "hardhat etherscan-verify --solc-input --api-url https://lanky-ill-funny-testnet.explorer.testnet.skalenodes.com/ --network nebula_testnet"
   },
   "keywords": [
     "solidity",
@@ -40,7 +42,7 @@
     "@nomicfoundation/hardhat-ethers": "^3.0.5",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.10",
     "@nomicfoundation/hardhat-verify": "^2.0.3",
-    "@openzeppelin/contracts": "^5.0.1",
+    "@openzeppelin/contracts": "^5.3.0",
     "@typechain/ethers-v6": "^0.5.1",
     "@typechain/hardhat": "^9.1.0",
     "@types/chai": "^4.2.0",
