@@ -19,7 +19,7 @@ const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
       await Misc.runAndWait2(controller.updateProxies.populateTransaction([await controller.getAddress()], logicAdr));
     },
     undefined,
-    async logic => isNeedUpdateProxyImplementationByName('ControllerProxy', logic),
+    async logic => isNeedUpdateProxyImplementationByName(CONTRACT_NAME + 'Proxy', logic),
   );
 };
 export default func;

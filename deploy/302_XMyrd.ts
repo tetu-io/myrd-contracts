@@ -20,12 +20,11 @@ const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
       await Misc.runAndWait2(controller.updateProxies.populateTransaction([proxy], logicAdr));
     },
     undefined,
-    async logic => isNeedUpdateProxyImplementationByName('XMyrdProxy', logic),
+    async logic => isNeedUpdateProxyImplementationByName(CONTRACT_NAME + 'Proxy', logic),
   );
 
 };
 export default func;
 func.tags = [CONTRACT_NAME];
 func.dependencies = [
-  "Controller",
 ];

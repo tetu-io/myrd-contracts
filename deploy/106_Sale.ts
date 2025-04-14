@@ -14,10 +14,10 @@ const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
   const { deployer, GOVERNANCE, PAY_TOKEN } = await getNamedAccounts();
 
-  const saleStart = hre.network.name !== 'hardhat'
+  const saleStart = hre.network.name !== 'hardhat' && hre.network.name !== 'nebula_testnet'
     ? SALE_START
     : Math.floor(new Date(new Date().setDate(new Date().getDate() + 1)).getTime() / 1000); // now + 1 day
-  const saleEnd = hre.network.name !== 'hardhat'
+  const saleEnd = hre.network.name !== 'hardhat' && hre.network.name !== 'nebula_testnet'
     ? SALE_END
     : Math.floor(new Date(new Date().setDate(new Date().getDate() + 4)).getTime() / 1000); // start + 3 days
 

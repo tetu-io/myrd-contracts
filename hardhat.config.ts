@@ -46,6 +46,9 @@ const argv = require('yargs/yargs')()
       type: 'boolean',
       default: false,
     },
+    nebulaTestnetRpcUrl: {
+      type: "string",
+    },
   }).argv;
 
 task('deploy1', 'Deploy contract', async function(args, hre, runSuper) {
@@ -66,9 +69,14 @@ export default {
       forking: !!argv.hardhatChainId && argv.hardhatChainId !== 31337 ? {
         url:
           argv.hardhatChainId === 146 ? argv.sonicRpcUrl :
+            argv.hardhatChainId === 37084624 ? argv.nebulaTestnetRpcUrl :
             undefined,
         blockNumber:
-          argv.hardhatChainId === 146 ? argv.sonicForkBlock || undefined : undefined,
+          argv.hardhatChainId === 146
+            ? argv.sonicForkBlock || undefined
+            : argv.hardhatChainId === 37084624
+              ? argv.nebulaTestnetForkBlock !== 0 ? argv.nebulaTestnetForkBlock : undefined
+              : undefined
       } : undefined,
       accounts: {
         mnemonic: 'test test test test test test test test test test test junk',
@@ -95,10 +103,16 @@ export default {
         },
       },
     },
+    nebula_testnet: {
+      chainId: 37084624,
+      url: argv.nebulaTestnetRpcUrl || 'https://testnet.skalenodes.com/v1/lanky-ill-funny-testnet',
+      accounts: [argv.privateKey],
+    },
   },
   etherscan: {
     apiKey: {
       sonic: argv.networkScanKeySonic,
+      nebula_testnet: 'any',
     },
     customChains: [
       {
@@ -108,6 +122,14 @@ export default {
           apiURL: 'https://api.sonicscan.org/api',
           browserURL: 'https://sonicscan.org',
         },
+      },
+      {
+        network: "nebula_testnet",
+        chainId: 37084624,
+        urls: {
+          apiURL: "https://lanky-ill-funny-testnet.explorer.testnet.skalenodes.com/api",
+          browserURL: "https://lanky-ill-funny-testnet.explorer.testnet.skalenodes.com"
+        }
       },
     ],
   },

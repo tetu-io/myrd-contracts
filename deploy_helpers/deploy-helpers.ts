@@ -123,9 +123,9 @@ export async function isNeedUpdateProxyImplementationByName(ctrName: string, log
 export async function getDeployedCore(revertIfNotFound = false) {
   return new CoreAddresses(
     await getDeployedContractByName('TokenFactory', revertIfNotFound),
-    await getDeployedContractByName('Controller', revertIfNotFound),
-    await getDeployedContractByName('Gauge', revertIfNotFound),
-    await getDeployedContractByName('XMyrd', revertIfNotFound),
+    await getDeployedContractByName('ControllerProxy', revertIfNotFound),
+    await getDeployedContractByName('MultiGaugeProxy', revertIfNotFound),
+    await getDeployedContractByName('XMyrdProxy', revertIfNotFound),
   );
 }
 
