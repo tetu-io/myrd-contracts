@@ -8,6 +8,7 @@ contract XMyrdMock is MockToken {
   address myrd;
   address gauge;
   bool private rebaseCalled;
+  mapping(address => uint) private _enterForCalled;
 
   constructor(address myrd_, address gauge_) MockToken("x", "y") {
     myrd = myrd_;
@@ -28,5 +29,13 @@ contract XMyrdMock is MockToken {
 
   function isRebaseCalled() external view returns (bool) {
     return rebaseCalled;
+  }
+
+  function enterFor(uint amount_, address receiver) external {
+    _enterForCalled[receiver] += amount_;
+  }
+
+  function enterForAmount(address receiver) external view returns (uint) {
+    return _enterForCalled[receiver];
   }
 }

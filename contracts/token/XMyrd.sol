@@ -165,6 +165,28 @@ contract XMyrd is Controllable, ERC20Upgradeable, IXMyrd {
     }
 
     /// @inheritdoc IXMyrd
+    function enterFor(uint amount_, address receiver) external {
+        /// @dev ensure the amount_ is > 0
+        if (amount_ == 0) revert IAppErrors.IncorrectZeroArgument();
+
+        /// @dev ensure the receiver is not 0
+        if (receiver == address(0)) revert IAppErrors.IncorrectZeroAddress();
+
+        /// @dev transfer from the caller to this address
+        // slither-disable-next-line unchecked-transfer
+        IERC20(myrd()).transferFrom(msg.sender, address(this), amount_);
+
+        /// @dev mint the xMyrd to the caller
+        _mint(receiver, amount_);
+
+        /// @dev Refresh user balance in the gauge
+        IGauge(_S().gauge).handleBalanceChange(receiver);
+
+        /// @dev emit an event for conversion
+        emit Enter(receiver, amount_);
+    }
+
+    /// @inheritdoc IXMyrd
     function exit(uint amount_) external returns (uint exitedAmount) {
         /// @dev cannot exit a 0 amount
         if (amount_ == 0) revert IAppErrors.IncorrectZeroArgument();

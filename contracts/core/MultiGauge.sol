@@ -102,6 +102,66 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
     _getReward(stakingToken, account, tokens, account);
   }
 
+  /// @notice Claim rewards for the account
+  /// @dev Implementation is similar to original one but it has additional logic for MYRD token
+  function _getReward(address stakingToken, address account, address[] memory rewardTokens_, address recipient) internal /* nonReentrant */ override {
+    address myrd = defaultRewardToken;
+    uint len = rewardTokens_.length;
+
+    // let's count not MYRD tokens
+    uint count = 0;
+    for (uint i = 0; i < len; i++) {
+      if (rewardTokens_[i] != myrd) count++;
+    }
+
+    // create list of only not MYRD tokens
+    address[] memory rewardTokensNoMyrd = count == 0
+      ? rewardTokens_
+      : _getRewardsTokensWithoutMyrd(rewardTokens_, count, myrd);
+
+    if (count != 0) {
+      // call original implementation (with nonReentrant) for all not-MYRD reward tokens
+      super._getReward(stakingToken, account, rewardTokensNoMyrd, recipient);
+    }
+
+    if (len != count) {
+      // MYRD token should be processed, let's do it separately
+
+      // -------- same code as in original implementation
+      address newRecipient = rewardsRedirect[recipient];
+      if (newRecipient != address(0)) {
+        recipient = newRecipient;
+      }
+      require(recipient == msg.sender, "Not allowed");
+      _updateDerivedBalance(stakingToken, account);
+      _updateReward(stakingToken, myrd, account);
+
+      uint _reward = rewards[stakingToken][myrd][account];
+      if (_reward != 0) {
+        rewards[stakingToken][myrd][account] = 0;
+
+        // -------- special behavior for MYRD token: we transfer xMyrd to the recipient instead MYRD
+        IERC20(myrd).approve(stakingToken, _reward);
+        IXMyrd(stakingToken).enterFor(_reward, recipient);
+      }
+
+      emit ClaimRewards(account, stakingToken, myrd, _reward, recipient);
+    }
+  }
+
+  /// @param count Pre-calculated count of not-myrd tokens
+  function _getRewardsTokensWithoutMyrd(address[] memory rewardTokens_, uint count, address myrd) internal pure returns (address[] memory) {
+    address[] memory result = new address[](count);
+    uint j = 0;
+    uint len = rewardTokens_.length;
+    for (uint i = 0; i < len; i++) {
+      if (rewardTokens_[i] != myrd) {
+        result[j++] = rewardTokens_[i];
+      }
+    }
+    return result;
+  }
+
   //endregion ---------------------- Claim
 
   //region ---------------------- Virtual deposit/withdraw
