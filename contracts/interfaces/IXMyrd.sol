@@ -39,6 +39,9 @@ interface IXMyrd {
     /// @dev Mints xMyrd for each Myrd
     function enter(uint amount_) external;
 
+    /// @dev Mints xMyrd for each Myrd and put the xMyrd on balance of the given recipient
+    function enterFor(uint amount_, address recipient) external;
+
     /// @dev Exit instantly with a penalty
     /// @param amount_ Amount of xMyrd to exit
     function exit(uint amount_) external returns (uint exitedAmount);

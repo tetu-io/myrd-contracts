@@ -109,6 +109,54 @@ describe('XMyrdFTest', function() {
     });
   });
 
+  describe("EnterFor", () => {
+    const AMOUNT = 10_000n;
+    let snapshot1: string;
+    before(async function () {
+      snapshot1 = await TimeUtils.snapshot();
+
+      // -------------- provide myrd to user1, user2, user3
+      await myrd.mint(user1, AMOUNT);
+      await myrd.mint(user2, AMOUNT);
+      await myrd.mint(user3, AMOUNT);
+
+      await myrd.connect(user1).approve(xmyrd, AMOUNT);
+      await myrd.connect(user2).approve(xmyrd, AMOUNT);
+      await myrd.connect(user3).approve(xmyrd, AMOUNT);
+    });
+    after(async function () {
+      await TimeUtils.rollback(snapshot1);
+    });
+
+    it("should wrap myrd to xmyrd", async () => {
+      const recipient = ethers.Wallet.createRandom().address;
+      const totalSupplyBefore = await xmyrd.totalSupply();
+      expect(await xmyrd.balanceOf(user1)).eq(0);
+      expect(await myrd.balanceOf(user1)).eq(AMOUNT);
+      expect(await gauge.balanceOf(xmyrd, user1)).eq(0);
+
+      await xmyrd.connect(user1).enterFor(AMOUNT, recipient);
+      const totalSupplyAfter = await xmyrd.totalSupply();
+
+      expect(await xmyrd.balanceOf(user1)).eq(0);
+      expect(await xmyrd.balanceOf(recipient)).eq(AMOUNT);
+      expect(await myrd.balanceOf(user1)).eq(0);
+      expect(await myrd.balanceOf(xmyrd)).eq(AMOUNT);
+
+      expect(await gauge.balanceOf(xmyrd, user1)).eq(0n);
+      expect(await gauge.balanceOf(xmyrd, recipient)).eq(AMOUNT);
+
+      expect(totalSupplyAfter - totalSupplyBefore).eq(AMOUNT);
+    });
+
+    it("should revert if try to wrap zero amount", async () => {
+      await expect(xmyrd.connect(user1).enterFor(0, ethers.Wallet.createRandom().address)).revertedWithCustomError(xmyrd, "IncorrectZeroArgument");
+    });
+    it("should revert if try to user zero token", async () => {
+      await expect(xmyrd.connect(user1).enterFor(1n, ethers.ZeroAddress)).revertedWithCustomError(xmyrd, "IncorrectZeroAddress");
+    });
+  });
+
   describe("Instant exit", () => {
     const AMOUNT = parseUnits("100");
     let snapshot1: string;

@@ -589,7 +589,7 @@ describe('MultiGaugeTest', function() {
       await expect(gauge.connect(user1).getAllRewards(signer)).rejectedWith("Not allowed");
       await gauge.connect(signer).getAllRewards(signer);
 
-      expect(+formatUnits(await myrd.balanceOf(signer))).approximately(
+      expect(+formatUnits(await xmyrdMock.enterForAmount(signer))).approximately(
         +formatUnits(ADDITIONAL_AMOUNT_MYRD + PENALTIES_AMOUNT_MYRD),
         1e-8
       );
@@ -628,17 +628,37 @@ describe('MultiGaugeTest', function() {
       // -------------------- advance on 1/3
       await TimeUtils.advanceBlocksOnTs(7 * 24 * 60 * 60 / 3);
 
-      // -------------------- claim rewards
+      // -------------------- claim rewards: MYRD and USDC simultaneously
+      await expect(gauge.connect(user1).getReward(signer, [usdc])).rejectedWith("Not allowed");
+      await expect(gauge.connect(user1).getReward(signer, [myrd])).rejectedWith("Not allowed");
       await expect(gauge.connect(user1).getReward(signer, [myrd, usdc])).rejectedWith("Not allowed");
-      await gauge.connect(signer).getReward(signer, [myrd, usdc]);
+      await gauge.connect(signer).getReward(signer, [myrd, myrd, myrd, usdc]);
 
-      expect(+formatUnits(await myrd.balanceOf(signer))).approximately(
-        +formatUnits(ADDITIONAL_AMOUNT_MYRD + PENALTIES_AMOUNT_MYRD) / 3,
+      expect(+formatUnits(await xmyrdMock.enterForAmount(signer))).approximately(
+        +formatUnits((ADDITIONAL_AMOUNT_MYRD + PENALTIES_AMOUNT_MYRD) / 3n),
         0.001
       );
       expect(+formatUnits(await usdc.balanceOf(signer), 6)).approximately(
         +formatUnits(REWARDS_USDC, 6) / 3,
-        0.001
+        0.01
+      );
+
+      // -------------------- advance on 2/3 to finalize the period
+      await TimeUtils.advanceBlocksOnTs(7 * 24 * 60 * 60 * 2 / 3);
+
+      // -------------------- provide additional USDC
+      await usdc.mint(user1, REWARDS_USDC);
+      await gauge.connect(user1).notifyRewardAmount(usdc, REWARDS_USDC);
+
+      // -------------------- advance on 1 period
+      await TimeUtils.advanceBlocksOnTs(7 * 24 * 60 * 60);
+
+      // -------------------- claim MYRD only and pass it several times
+      await gauge.connect(signer).getReward(signer, [usdc]);
+
+      expect(+formatUnits(await usdc.balanceOf(signer), 6)).approximately(
+        +formatUnits(REWARDS_USDC, 6) * 2,
+        0.01
       );
     })
   });
