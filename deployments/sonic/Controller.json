@@ -1,0 +1,410 @@
+{
+  "address": "0x2E9D1087aA553a27dbdD2220A9F79Dc28F271464",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "InvalidInitialization",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotDeployer",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotGovernance",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotInitializing",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "controller",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "ts",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "block",
+          "type": "uint256"
+        }
+      ],
+      "name": "ContractInitialized",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "version",
+          "type": "uint64"
+        }
+      ],
+      "name": "Initialized",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "oldLogic",
+          "type": "address"
+        }
+      ],
+      "name": "RevisionIncreased",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "CONTROLLABLE_VERSION",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "VERSION",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "adr",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "remove",
+          "type": "bool"
+        }
+      ],
+      "name": "changeDeployer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "controller",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "created",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "createdBlock",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "governance",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "oldLogic",
+          "type": "address"
+        }
+      ],
+      "name": "increaseRevision",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "governance_",
+          "type": "address"
+        }
+      ],
+      "name": "init",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "value_",
+          "type": "address"
+        }
+      ],
+      "name": "isController",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "adr",
+          "type": "address"
+        }
+      ],
+      "name": "isDeployer",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "value_",
+          "type": "address"
+        }
+      ],
+      "name": "isGovernance",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "previousImplementation",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "revision",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "proxies",
+          "type": "address[]"
+        },
+        {
+          "internalType": "address",
+          "name": "newLogic",
+          "type": "address"
+        }
+      ],
+      "name": "updateProxies",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xe100e632ba2bbc74e48367c4a5b90e7f4e2067d4d25acb314c21e53fd86f4e90",
+  "receipt": {
+    "to": null,
+    "from": "0xbbbbb8C4364eC2ce52c59D2Ed3E56F307E529a94",
+    "contractAddress": "0x2E9D1087aA553a27dbdD2220A9F79Dc28F271464",
+    "transactionIndex": 0,
+    "gasUsed": "761074",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000800000000000000000000000080000000000000000000011000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x3ef150aa86333a5a0d45d3c5d30c89bf554d9aa015e844b31b501487446daafb",
+    "transactionHash": "0xe100e632ba2bbc74e48367c4a5b90e7f4e2067d4d25acb314c21e53fd86f4e90",
+    "logs": [
+      {
+        "transactionIndex": 0,
+        "blockNumber": 21050807,
+        "transactionHash": "0xe100e632ba2bbc74e48367c4a5b90e7f4e2067d4d25acb314c21e53fd86f4e90",
+        "address": "0x2E9D1087aA553a27dbdD2220A9F79Dc28F271464",
+        "topics": [
+          "0xc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d2"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "logIndex": 0,
+        "blockHash": "0x3ef150aa86333a5a0d45d3c5d30c89bf554d9aa015e844b31b501487446daafb"
+      }
+    ],
+    "blockNumber": 21050807,
+    "cumulativeGasUsed": "761074",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "f25b95755413e96c8a180219e748c24d",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.23+commit.f704f362\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"InvalidInitialization\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotDeployer\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotGovernance\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotInitializing\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"controller\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"ts\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"block\",\"type\":\"uint256\"}],\"name\":\"ContractInitialized\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint64\",\"name\":\"version\",\"type\":\"uint64\"}],\"name\":\"Initialized\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"oldLogic\",\"type\":\"address\"}],\"name\":\"RevisionIncreased\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"CONTROLLABLE_VERSION\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"VERSION\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"adr\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"remove\",\"type\":\"bool\"}],\"name\":\"changeDeployer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"controller\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"created\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"createdBlock\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"governance\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"oldLogic\",\"type\":\"address\"}],\"name\":\"increaseRevision\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"governance_\",\"type\":\"address\"}],\"name\":\"init\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"value_\",\"type\":\"address\"}],\"name\":\"isController\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"adr\",\"type\":\"address\"}],\"name\":\"isDeployer\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"value_\",\"type\":\"address\"}],\"name\":\"isGovernance\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"previousImplementation\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"revision\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"proxies\",\"type\":\"address[]\"},{\"internalType\":\"address\",\"name\":\"newLogic\",\"type\":\"address\"}],\"name\":\"updateProxies\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"errors\":{\"InvalidInitialization()\":[{\"details\":\"The contract is already initialized.\"}],\"NotInitializing()\":[{\"details\":\"The contract is not initializing.\"}]},\"events\":{\"Initialized(uint64)\":{\"details\":\"Triggered when the contract has been initialized or reinitialized.\"}},\"kind\":\"dev\",\"methods\":{\"created()\":{\"returns\":{\"_0\":\"Creation timestamp\"}},\"createdBlock()\":{\"returns\":{\"_0\":\"Creation block number\"}},\"increaseRevision(address)\":{\"details\":\"Revision should be increased on each contract upgrade\"},\"isController(address)\":{\"details\":\"Return true if given address is controller\"},\"previousImplementation()\":{\"details\":\"Previous logic implementation\"},\"revision()\":{\"details\":\"Contract upgrade counter\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"CONTROLLABLE_VERSION()\":{\"notice\":\"Version of the contract\"},\"controller()\":{\"notice\":\"Return controller address saved in the contract slot\"},\"created()\":{\"notice\":\"Return creation timestamp\"},\"createdBlock()\":{\"notice\":\"Return creation block number\"},\"isGovernance(address)\":{\"notice\":\"Return true if given address is setup as governance in Controller\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/core/Controller.sol\":\"Controller\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":150},\"remappings\":[]},\"sources\":{\"contracts/core/Controller.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.23;\\n\\nimport \\\"../interfaces/IAppErrors.sol\\\";\\nimport \\\"../interfaces/IProxyControlled.sol\\\";\\nimport \\\"../lib/ControllerLib.sol\\\";\\nimport \\\"../proxy/Controllable.sol\\\";\\n\\ncontract Controller is Controllable, IController {\\n  string public constant VERSION = \\\"1.0.0\\\";\\n\\n  function init(address governance_) external initializer {\\n    __Controllable_init(address(this));\\n    ControllerLib.init(governance_);\\n  }\\n\\n  function governance() external view returns (address) {\\n    return ControllerLib.governance();\\n  }\\n\\n  function isDeployer(address adr) external view returns (bool) {\\n    return ControllerLib.isDeployer(adr);\\n  }\\n\\n  function updateProxies(address[] memory proxies, address newLogic) external {\\n    ControllerLib.updateProxies(proxies, newLogic);\\n  }\\n\\n  function changeDeployer(address adr, bool remove) external {\\n    ControllerLib.changeDeployer(adr, remove);\\n  }\\n}\",\"keccak256\":\"0x6ca5d6ed127b5fc01391066af5bc19689630a6d2762c36d9595a57922c2e073b\",\"license\":\"MIT\"},\"contracts/interfaces/IAppErrors.sol\":{\"content\":\"// SPDX-License-Identifier: BUSL-1.1\\npragma solidity 0.8.23;\\n\\n/// @notice All errors of the app\\ninterface IAppErrors {\\n  error NotController();\\n  error NotDeployer();\\n  error NotGovernance();\\n  error NotOwner();\\n  error NotGauge();\\n  error IncorrectArrayLength();\\n  error IncorrectZeroArgument();\\n  error IncorrectZeroAddress();\\n  error AlreadySet();\\n  error ZeroAddress();\\n\\n  /// @notice Direct call of notifyRewardAmount for MYRD is not allowed, call updatePeriod(additionalMyrdAmount) instead\\n  error ShouldUseUpdatePeriod();\\n}\",\"keccak256\":\"0x4cbf31cf0eb03df35cb3afb88602bba111a4ccb9d52b71febc17e59ff892dacd\",\"license\":\"BUSL-1.1\"},\"contracts/interfaces/IControllable.sol\":{\"content\":\"// SPDX-License-Identifier: BUSL-1.1\\n\\npragma solidity 0.8.23;\\n\\ninterface IControllable {\\n\\n  function VERSION() external pure returns (string memory);\\n\\n  function revision() external view returns (uint);\\n\\n  function previousImplementation() external view returns (address);\\n\\n  function isController(address contract_) external view returns (bool);\\n\\n  function isGovernance(address contract_) external view returns (bool);\\n\\n  function created() external view returns (uint256);\\n\\n  function createdBlock() external view returns (uint256);\\n\\n  function controller() external view returns (address);\\n\\n  function increaseRevision(address oldLogic) external;\\n\\n}\\n\",\"keccak256\":\"0x296b634c46b5d178b2408523fcf569ed370e20a719b7b3f2183b278631b94f65\",\"license\":\"BUSL-1.1\"},\"contracts/interfaces/IController.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.23;\\n\\ninterface IController {\\n\\n  function governance() external view returns (address);\\n\\n  function isDeployer(address adr) external view returns (bool);\\n}\\n\",\"keccak256\":\"0x665674ae80ce3a596d5ab7479191562922e88032de3c149952005e4d8f370886\",\"license\":\"MIT\"},\"contracts/interfaces/IProxyControlled.sol\":{\"content\":\"// SPDX-License-Identifier: BUSL-1.1\\n\\npragma solidity 0.8.23;\\n\\ninterface IProxyControlled {\\n\\n  function upgrade(address newImplementation_) external;\\n\\n  function implementation() external view returns (address);\\n\\n}\\n\",\"keccak256\":\"0xfeb4690babcbc0bc349e9bb62d6f48be9f53fb1ede347805d1c386b5b3b3defe\",\"license\":\"BUSL-1.1\"},\"contracts/lib/ControllerLib.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.23;\\n\\nimport \\\"../interfaces/IAppErrors.sol\\\";\\nimport \\\"../interfaces/IProxyControlled.sol\\\";\\n\\nlibrary ControllerLib {\\n  /// @dev keccak256(abi.encode(uint256(keccak256(\\\"erc7201:myrd.Controller\\\")) - 1)) & ~bytes32(uint256(0xff))\\n  bytes32 internal constant CONTROLLER_STORAGE_LOCATION = 0x4c6450c977215891cc3be3fa519a5e16bed895db738a774c07512a1e9245d300; // erc7201:myrd.Controller\\n\\n  /// @custom:storage-location erc7201:myrd.Controller\\n  struct MainStorage {\\n    address governance;\\n    mapping(address => bool) deployers;\\n  }\\n\\n  function init(address governance_) internal {\\n    _S().governance = governance_;\\n  }\\n\\n  //region ------------------------ Restrictions\\n  function onlyGovernance() internal view {\\n      if (!_isGovernance(msg.sender)) revert IAppErrors.NotGovernance();\\n  }\\n\\n  function onlyDeployer() internal view {\\n    if (!isDeployer(msg.sender)) revert IAppErrors.NotDeployer();\\n  }\\n\\n  function _isGovernance(address _value) internal view returns (bool) {\\n    return _S().governance == _value;\\n  }\\n\\n  function isDeployer(address adr) internal view returns (bool) {\\n    return _S().deployers[adr] || _isGovernance(adr);\\n  }\\n  //endregion ------------------------ Restrictions\\n\\n  //region ------------------------ Logic\\n  function governance() internal view returns (address) {\\n    return _S().governance;\\n  }\\n\\n  function updateProxies(address[] memory proxies, address newLogic) internal {\\n    onlyDeployer();\\n\\n    for (uint i; i < proxies.length; i++) {\\n      IProxyControlled(proxies[i]).upgrade(newLogic);\\n    }\\n  }\\n\\n  function changeDeployer(address adr, bool remove) internal {\\n    onlyGovernance();\\n\\n    if (remove) {\\n      delete _S().deployers[adr];\\n    } else {\\n      _S().deployers[adr] = true;\\n    }\\n  }\\n  //endregion ------------------------ Logic\\n\\n  //region ------------------------ Internal logic\\n  function _S() internal pure returns (MainStorage storage $) {\\n    assembly {\\n      $.slot := CONTROLLER_STORAGE_LOCATION\\n    }\\n    return $;\\n  }\\n  //endregion ------------------------ Internal logic\\n}\",\"keccak256\":\"0x87eaae172580c6c97aad6ba10d2437f5aa3217a7f91e6dd0040fdb65b2d58102\",\"license\":\"MIT\"},\"contracts/lib/SlotsLib.sol\":{\"content\":\"// SPDX-License-Identifier: BUSL-1.1\\npragma solidity 0.8.23;\\n\\n/// @title Library for setting / getting slot variables (used in upgradable proxy contracts)\\n/// @author bogdoslav\\nlibrary SlotsLib {\\n\\n  /// @notice Version of the contract\\n  /// @dev Should be incremented when contract changed\\n  string public constant SLOT_LIB_VERSION = \\\"1.0.0\\\";\\n\\n  // ************* GETTERS *******************\\n\\n  /// @dev Gets a slot as bytes32\\n  function getBytes32(bytes32 slot) internal view returns (bytes32 result) {\\n    assembly {\\n      result := sload(slot)\\n    }\\n  }\\n\\n  /// @dev Gets a slot as an address\\n  function getAddress(bytes32 slot) internal view returns (address result) {\\n    assembly {\\n      result := sload(slot)\\n    }\\n  }\\n\\n  /// @dev Gets a slot as uint256\\n  function getUint(bytes32 slot) internal view returns (uint result) {\\n    assembly {\\n      result := sload(slot)\\n    }\\n  }\\n\\n  // ************* ARRAY GETTERS *******************\\n\\n  /// @dev Gets an array length\\n  function arrayLength(bytes32 slot) internal view returns (uint result) {\\n    assembly {\\n      result := sload(slot)\\n    }\\n  }\\n\\n  /// @dev Gets a slot array by index as address\\n  /// @notice First slot is array length, elements ordered backward in memory\\n  /// @notice This is unsafe, without checking array length.\\n  function addressAt(bytes32 slot, uint index) internal view returns (address result) {\\n    bytes32 pointer = bytes32(uint(slot) - 1 - index);\\n    assembly {\\n      result := sload(pointer)\\n    }\\n  }\\n\\n  // ************* SETTERS *******************\\n\\n  /// @dev Sets a slot with bytes32\\n  /// @notice Check address for 0 at the setter\\n  function set(bytes32 slot, bytes32 value) internal {\\n    assembly {\\n      sstore(slot, value)\\n    }\\n  }\\n\\n  /// @dev Sets a slot with address\\n  /// @notice Check address for 0 at the setter\\n  function set(bytes32 slot, address value) internal {\\n    assembly {\\n      sstore(slot, value)\\n    }\\n  }\\n\\n  /// @dev Sets a slot with uint\\n  function set(bytes32 slot, uint value) internal {\\n    assembly {\\n      sstore(slot, value)\\n    }\\n  }\\n\\n}\\n\",\"keccak256\":\"0x52ede981a6bb509c0dce07a0373e3c073c24fd16ca4ca7fbaa24f6c8b747b45b\",\"license\":\"BUSL-1.1\"},\"contracts/openzeppelin/Initializable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.3.0-rc.0) (proxy/utils/Initializable.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev This is a base contract to aid in writing upgradeable contracts, or any kind of contract that will be deployed\\n * behind a proxy. Since proxied contracts do not make use of a constructor, it's common to move constructor logic to an\\n * external initializer function, usually called `initialize`. It then becomes necessary to protect this initializer\\n * function so it can only be called once. The {initializer} modifier provided by this contract will have this effect.\\n *\\n * The initialization functions use a version number. Once a version number is used, it is consumed and cannot be\\n * reused. This mechanism prevents re-execution of each \\\"step\\\" but allows the creation of new initialization steps in\\n * case an upgrade adds a module that needs to be initialized.\\n *\\n * For example:\\n *\\n * [.hljs-theme-light.nopadding]\\n * ```solidity\\n * contract MyToken is ERC20Upgradeable {\\n *     function initialize() initializer public {\\n *         __ERC20_init(\\\"MyToken\\\", \\\"MTK\\\");\\n *     }\\n * }\\n *\\n * contract MyTokenV2 is MyToken, ERC20PermitUpgradeable {\\n *     function initializeV2() reinitializer(2) public {\\n *         __ERC20Permit_init(\\\"MyToken\\\");\\n *     }\\n * }\\n * ```\\n *\\n * TIP: To avoid leaving the proxy in an uninitialized state, the initializer function should be called as early as\\n * possible by providing the encoded function call as the `_data` argument to {ERC1967Proxy-constructor}.\\n *\\n * CAUTION: When used with inheritance, manual care must be taken to not invoke a parent initializer twice, or to ensure\\n * that all initializers are idempotent. This is not verified automatically as constructors are by Solidity.\\n *\\n * [CAUTION]\\n * ====\\n * Avoid leaving a contract uninitialized.\\n *\\n * An uninitialized contract can be taken over by an attacker. This applies to both a proxy and its implementation\\n * contract, which may impact the proxy. To prevent the implementation contract from being used, you should invoke\\n * the {_disableInitializers} function in the constructor to automatically lock it when it is deployed:\\n *\\n * [.hljs-theme-light.nopadding]\\n * ```\\n * /// @custom:oz-upgrades-unsafe-allow constructor\\n * constructor() {\\n *     _disableInitializers();\\n * }\\n * ```\\n * ====\\n */\\nabstract contract Initializable {\\n    /**\\n     * @dev Storage of the initializable contract.\\n     *\\n     * It's implemented on a custom ERC-7201 namespace to reduce the risk of storage collisions\\n     * when using with upgradeable contracts.\\n     *\\n     * @custom:storage-location erc7201:openzeppelin.storage.Initializable\\n     */\\n    struct InitializableStorage {\\n        /**\\n         * @dev Indicates that the contract has been initialized.\\n         */\\n        uint64 _initialized;\\n        /**\\n         * @dev Indicates that the contract is in the process of being initialized.\\n         */\\n        bool _initializing;\\n    }\\n\\n    // keccak256(abi.encode(uint256(keccak256(\\\"openzeppelin.storage.Initializable\\\")) - 1)) & ~bytes32(uint256(0xff))\\n    bytes32 private constant INITIALIZABLE_STORAGE = 0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a00;\\n\\n    /**\\n     * @dev The contract is already initialized.\\n     */\\n    error InvalidInitialization();\\n\\n    /**\\n     * @dev The contract is not initializing.\\n     */\\n    error NotInitializing();\\n\\n    /**\\n     * @dev Triggered when the contract has been initialized or reinitialized.\\n     */\\n    event Initialized(uint64 version);\\n\\n    /**\\n     * @dev A modifier that defines a protected initializer function that can be invoked at most once. In its scope,\\n     * `onlyInitializing` functions can be used to initialize parent contracts.\\n     *\\n     * Similar to `reinitializer(1)`, except that in the context of a constructor an `initializer` may be invoked any\\n     * number of times. This behavior in the constructor can be useful during testing and is not expected to be used in\\n     * production.\\n     *\\n     * Emits an {Initialized} event.\\n     */\\n    modifier initializer() {\\n        // solhint-disable-next-line var-name-mixedcase\\n        InitializableStorage storage $ = _getInitializableStorage();\\n\\n        // Cache values to avoid duplicated sloads\\n        bool isTopLevelCall = !$._initializing;\\n        uint64 initialized = $._initialized;\\n\\n        // Allowed calls:\\n        // - initialSetup: the contract is not in the initializing state and no previous version was\\n        //                 initialized\\n        // - construction: the contract is initialized at version 1 (no reinitialization) and the\\n        //                 current contract is just being deployed\\n        bool initialSetup = initialized == 0 && isTopLevelCall;\\n        bool construction = initialized == 1 && address(this).code.length == 0;\\n\\n        if (!initialSetup && !construction) {\\n            revert InvalidInitialization();\\n        }\\n        $._initialized = 1;\\n        if (isTopLevelCall) {\\n            $._initializing = true;\\n        }\\n        _;\\n        if (isTopLevelCall) {\\n            $._initializing = false;\\n            emit Initialized(1);\\n        }\\n    }\\n\\n    /**\\n     * @dev A modifier that defines a protected reinitializer function that can be invoked at most once, and only if the\\n     * contract hasn't been initialized to a greater version before. In its scope, `onlyInitializing` functions can be\\n     * used to initialize parent contracts.\\n     *\\n     * A reinitializer may be used after the original initialization step. This is essential to configure modules that\\n     * are added through upgrades and that require initialization.\\n     *\\n     * When `version` is 1, this modifier is similar to `initializer`, except that functions marked with `reinitializer`\\n     * cannot be nested. If one is invoked in the context of another, execution will revert.\\n     *\\n     * Note that versions can jump in increments greater than 1; this implies that if multiple reinitializers coexist in\\n     * a contract, executing them in the right order is up to the developer or operator.\\n     *\\n     * WARNING: Setting the version to 2**64 - 1 will prevent any future reinitialization.\\n     *\\n     * Emits an {Initialized} event.\\n     */\\n    modifier reinitializer(uint64 version) {\\n        // solhint-disable-next-line var-name-mixedcase\\n        InitializableStorage storage $ = _getInitializableStorage();\\n\\n        if ($._initializing || $._initialized >= version) {\\n            revert InvalidInitialization();\\n        }\\n        $._initialized = version;\\n        $._initializing = true;\\n        _;\\n        $._initializing = false;\\n        emit Initialized(version);\\n    }\\n\\n    /**\\n     * @dev Modifier to protect an initialization function so that it can only be invoked by functions with the\\n     * {initializer} and {reinitializer} modifiers, directly or indirectly.\\n     */\\n    modifier onlyInitializing() {\\n        _checkInitializing();\\n        _;\\n    }\\n\\n    /**\\n     * @dev Reverts if the contract is not in an initializing state. See {onlyInitializing}.\\n     */\\n    function _checkInitializing() internal view virtual {\\n        if (!_isInitializing()) {\\n            revert NotInitializing();\\n        }\\n    }\\n\\n    /**\\n     * @dev Locks the contract, preventing any future reinitialization. This cannot be part of an initializer call.\\n     * Calling this in the constructor of a contract will prevent that contract from being initialized or reinitialized\\n     * to any version. It is recommended to use this to lock implementation contracts that are designed to be called\\n     * through proxies.\\n     *\\n     * Emits an {Initialized} event the first time it is successfully executed.\\n     */\\n    function _disableInitializers() internal virtual {\\n        // solhint-disable-next-line var-name-mixedcase\\n        InitializableStorage storage $ = _getInitializableStorage();\\n\\n        if ($._initializing) {\\n            revert InvalidInitialization();\\n        }\\n        if ($._initialized != type(uint64).max) {\\n            $._initialized = type(uint64).max;\\n            emit Initialized(type(uint64).max);\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns the highest version that has been initialized. See {reinitializer}.\\n     */\\n    function _getInitializedVersion() internal view returns (uint64) {\\n        return _getInitializableStorage()._initialized;\\n    }\\n\\n    /**\\n     * @dev Returns `true` if the contract is currently initializing. See {onlyInitializing}.\\n     */\\n    function _isInitializing() internal view returns (bool) {\\n        return _getInitializableStorage()._initializing;\\n    }\\n\\n    /**\\n     * @dev Pointer to storage slot. Allows integrators to override it with a custom storage location.\\n     *\\n     * NOTE: Consider following the ERC-7201 formula to derive storage locations.\\n     */\\n    function _initializableStorageSlot() internal pure virtual returns (bytes32) {\\n        return INITIALIZABLE_STORAGE;\\n    }\\n\\n    /**\\n     * @dev Returns a pointer to the storage namespace.\\n     */\\n    // solhint-disable-next-line var-name-mixedcase\\n    function _getInitializableStorage() private pure returns (InitializableStorage storage $) {\\n        bytes32 slot = _initializableStorageSlot();\\n        assembly {\\n            $.slot := slot\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0xb1a428e27a784eb74ecb32a09dd1fbe69d6870c22186046169917282e9024f0a\",\"license\":\"MIT\"},\"contracts/proxy/Controllable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.23;\\n\\nimport \\\"../openzeppelin/Initializable.sol\\\";\\nimport \\\"../interfaces/IControllable.sol\\\";\\nimport \\\"../interfaces/IController.sol\\\";\\nimport \\\"../lib/SlotsLib.sol\\\";\\n\\n/// @title Implement basic functionality for any contract that require strict control\\n/// @dev Can be used with upgradeable pattern.\\n///      Require call __Controllable_init() in any case.\\n/// @author belbix\\nabstract contract Controllable is Initializable, IControllable {\\n  using SlotsLib for bytes32;\\n\\n  /// @notice Version of the contract\\n  /// @dev Should be incremented when contract changed\\n  string public constant CONTROLLABLE_VERSION = \\\"1.0.0\\\";\\n\\n  bytes32 internal constant _CONTROLLER_SLOT = bytes32(uint256(keccak256(\\\"eip1967.controllable.controller\\\")) - 1);\\n  bytes32 internal constant _CREATED_SLOT = bytes32(uint256(keccak256(\\\"eip1967.controllable.created\\\")) - 1);\\n  bytes32 internal constant _CREATED_BLOCK_SLOT = bytes32(uint256(keccak256(\\\"eip1967.controllable.created_block\\\")) - 1);\\n  bytes32 internal constant _REVISION_SLOT = bytes32(uint256(keccak256(\\\"eip1967.controllable.revision\\\")) - 1);\\n  bytes32 internal constant _PREVIOUS_LOGIC_SLOT = bytes32(uint256(keccak256(\\\"eip1967.controllable.prev_logic\\\")) - 1);\\n\\n  event ContractInitialized(address controller, uint ts, uint block);\\n  event RevisionIncreased(uint value, address oldLogic);\\n\\n  // init implementation contract\\n  constructor() initializer {}\\n\\n  /// @notice Initialize contract after setup it as proxy implementation\\n  ///         Save block.timestamp in the \\\"created\\\" variable\\n  /// @dev Use it only once after first logic setup\\n  /// @param controller_ Controller address\\n  function __Controllable_init(address controller_) internal onlyInitializing {\\n    _init(controller_);\\n  }\\n\\n  function _init(address controller_) private {\\n    require(controller_ != address(0), \\\"Zero controller\\\");\\n    _CONTROLLER_SLOT.set(controller_);\\n    _CREATED_SLOT.set(block.timestamp);\\n    _CREATED_BLOCK_SLOT.set(block.number);\\n    emit ContractInitialized(controller_, block.timestamp, block.number);\\n  }\\n\\n  /// @dev Return true if given address is controller\\n  function isController(address value_) public override view returns (bool) {\\n    return value_ == controller();\\n  }\\n\\n  /// @notice Return true if given address is setup as governance in Controller\\n  function isGovernance(address value_) public override view returns (bool) {\\n    return IController(controller()).governance() == value_;\\n  }\\n\\n  /// @dev Contract upgrade counter\\n  function revision() external view override returns (uint) {\\n    return _REVISION_SLOT.getUint();\\n  }\\n\\n  /// @dev Previous logic implementation\\n  function previousImplementation() external view override returns (address) {\\n    return _PREVIOUS_LOGIC_SLOT.getAddress();\\n  }\\n\\n  // ************* SETTERS/GETTERS *******************\\n\\n  /// @notice Return controller address saved in the contract slot\\n  function controller() public view override returns (address) {\\n    return _CONTROLLER_SLOT.getAddress();\\n  }\\n\\n  /// @notice Return creation timestamp\\n  /// @return Creation timestamp\\n  function created() external view override returns (uint256) {\\n    return _CREATED_SLOT.getUint();\\n  }\\n\\n  /// @notice Return creation block number\\n  /// @return Creation block number\\n  function createdBlock() external override view returns (uint256) {\\n    return _CREATED_BLOCK_SLOT.getUint();\\n  }\\n\\n  /// @dev Revision should be increased on each contract upgrade\\n  function increaseRevision(address oldLogic) external override {\\n    require(msg.sender == address(this), \\\"Increase revision forbidden\\\");\\n    uint r = _REVISION_SLOT.getUint() + 1;\\n    _REVISION_SLOT.set(r);\\n    _PREVIOUS_LOGIC_SLOT.set(oldLogic);\\n    emit RevisionIncreased(r, oldLogic);\\n  }\\n\\n}\\n\",\"keccak256\":\"0xa5dc1d7d001ec6feae11da98fc8fb440ac653c19fa29ef7d5ec5b879f6d71012\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b507ff0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a00805468010000000000000000810460ff1615906001600160401b031660008115801561005b5750825b90506000826001600160401b031660011480156100775750303b155b905081158015610085575080155b156100a35760405163f92ee8a960e01b815260040160405180910390fd5b84546001600160401b031916600117855583156100d157845460ff60401b1916680100000000000000001785555b831561011757845460ff60401b19168555604051600181527fc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d29060200160405180910390a15b5050505050610c4b8061012b6000396000f3fe608060405234801561001057600080fd5b50600436106100e55760003560e01c80637262bb2d11610097578063b429afeb11610066578063b429afeb146101df578063dee1f0e4146101f2578063f77c479114610205578063ffa1ad74146101a657600080fd5b80637262bb2d1461018b5780637cc963801461019e578063936725ec146101a65780639d0bcca0146101d757600080fd5b806319ab453c146100ea578063325a19f1146100ff5780634576dc521461011a5780634593144c1461012d5780634fac6ccd1461013557806350c358a4146101485780635aa6e6751461016b575b600080fd5b6100fd6100f8366004610a08565b61020d565b005b610107610312565b6040519081526020015b60405180910390f35b6100fd610128366004610a42565b61034b565b610107610359565b6100fd610143366004610a08565b610389565b61015b610156366004610a08565b6104c0565b6040519015158152602001610111565b6101736104d1565b6040516001600160a01b039091168152602001610111565b6100fd610199366004610b19565b6104db565b6101076104e5565b6101ca604051806040016040528060058152602001640312e302e360dc1b81525081565b6040516101119190610b57565b610173610515565b61015b6101ed366004610a08565b610545565b61015b610200366004610a08565b61056a565b6101736105ef565b600061021761061f565b805490915060ff600160401b820416159067ffffffffffffffff1660008115801561023f5750825b905060008267ffffffffffffffff16600114801561025c5750303b155b90508115801561026a575080155b156102885760405163f92ee8a960e01b815260040160405180910390fd5b845467ffffffffffffffff1916600117855583156102b257845460ff60401b1916600160401b1785555b6102bb30610648565b6102c48661065c565b831561030a57845460ff60401b19168555604051600181527fc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d29060200160405180910390a15b505050505050565b600061034661034260017f6f55f470bdc9cb5f04223fd822021061668e4dccb43e8727b295106dc9769c8b610bbc565b5490565b905090565b6103558282610686565b5050565b600061034661034260017f812a673dfca07956350df10f8a654925f561d7a0da09bdbe79e653939a14d9f1610bbc565b3330146103dd5760405162461bcd60e51b815260206004820152601b60248201527f496e637265617365207265766973696f6e20666f7262696464656e000000000060448201526064015b60405180910390fd5b600061040d61034260017f22573091f17911fb166032a3d9e0554aa73d31b7b7ddea4a4dd2995650af84bd610bbc565b610418906001610bcf565b905061044c8161044960017f22573091f17911fb166032a3d9e0554aa73d31b7b7ddea4a4dd2995650af84bd610bbc565b55565b61047b8261044960017fbfaaa2fb63266ff27c2da975f5894955056f50419af651a81f6c5060581857e4610bbc565b604080518281526001600160a01b03841660208201527ff27e2ef832a4eb8ed8ec553b875eecd44764cda95b1c24170e281539e0a869c8910160405180910390a15050565b60006104cb82610723565b92915050565b600061034661075c565b6103558282610775565b600061034661034260017f22573091f17911fb166032a3d9e0554aa73d31b7b7ddea4a4dd2995650af84bd610bbc565b600061034661034260017fbfaaa2fb63266ff27c2da975f5894955056f50419af651a81f6c5060581857e4610bbc565b600061054f6105ef565b6001600160a01b0316826001600160a01b0316149050919050565b6000816001600160a01b031661057e6105ef565b6001600160a01b0316635aa6e6756040518163ffffffff1660e01b8152600401602060405180830381865afa1580156105bb573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906105df9190610be2565b6001600160a01b03161492915050565b600061034661034260017f5165972ef41194f06c5007493031d0b927c20741adcb74403b954009fd2c3618610bbc565b6000807ff0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a006104cb565b6106506107ee565b61065981610815565b50565b80610665610934565b80546001600160a01b0319166001600160a01b039290921691909117905550565b61068e610958565b60005b825181101561071e578281815181106106ac576106ac610bff565b602090810291909101015160405162900f0160e41b81526001600160a01b03848116600483015290911690630900f01090602401600060405180830381600087803b1580156106fa57600080fd5b505af115801561070e573d6000803e3d6000fd5b5050600190920191506106919050565b505050565b600061072d610934565b6001600160a01b0383166000908152600191909101602052604090205460ff16806104cb57506104cb8261097e565b6000610766610934565b546001600160a01b0316919050565b61077d6109a3565b80156107b35761078b610934565b6001600160a01b038316600090815260019190910160205260409020805460ff191690555050565b60016107bd610934565b6001600160a01b038416600090815260019190910160205260409020805491151560ff199092169190911790555050565b6107f66109c9565b61081357604051631afcd79f60e31b815260040160405180910390fd5b565b6001600160a01b03811661085d5760405162461bcd60e51b815260206004820152600f60248201526e2d32b9379031b7b73a3937b63632b960891b60448201526064016103d4565b61088c8161044960017f5165972ef41194f06c5007493031d0b927c20741adcb74403b954009fd2c3618610bbc565b6108bb4261044960017f6f55f470bdc9cb5f04223fd822021061668e4dccb43e8727b295106dc9769c8b610bbc565b6108ea4361044960017f812a673dfca07956350df10f8a654925f561d7a0da09bdbe79e653939a14d9f1610bbc565b604080516001600160a01b0383168152426020820152438183015290517f1a2dd071001ebf6e03174e3df5b305795a4ad5d41d8fdb9ba41dbbe2367134269181900360600190a150565b7f4c6450c977215891cc3be3fa519a5e16bed895db738a774c07512a1e9245d30090565b61096133610723565b61081357604051638b906c9760e01b815260040160405180910390fd5b6000816001600160a01b0316610992610934565b546001600160a01b03161492915050565b6109ac3361097e565b61081357604051632d5be4cb60e21b815260040160405180910390fd5b60006109d361061f565b54600160401b900460ff16919050565b6001600160a01b038116811461065957600080fd5b8035610a03816109e3565b919050565b600060208284031215610a1a57600080fd5b8135610a25816109e3565b9392505050565b634e487b7160e01b600052604160045260246000fd5b60008060408385031215610a5557600080fd5b823567ffffffffffffffff80821115610a6d57600080fd5b818501915085601f830112610a8157600080fd5b8135602082821115610a9557610a95610a2c565b8160051b604051601f19603f83011681018181108682111715610aba57610aba610a2c565b604052928352818301935084810182019289841115610ad857600080fd5b948201945b83861015610afd57610aee866109f8565b85529482019493820193610add565b9650610b0c90508782016109f8565b9450505050509250929050565b60008060408385031215610b2c57600080fd5b8235610b37816109e3565b915060208301358015158114610b4c57600080fd5b809150509250929050565b60006020808352835180602085015260005b81811015610b8557858101830151858201604001528201610b69565b506000604082860101526040601f19601f8301168501019250505092915050565b634e487b7160e01b600052601160045260246000fd5b818103818111156104cb576104cb610ba6565b808201808211156104cb576104cb610ba6565b600060208284031215610bf457600080fd5b8151610a25816109e3565b634e487b7160e01b600052603260045260246000fdfea26469706673582212202fdea1fc8f5dea03fd401a9b08a77f913ff2384f002a5a21f642c883126fb62d64736f6c63430008170033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100e55760003560e01c80637262bb2d11610097578063b429afeb11610066578063b429afeb146101df578063dee1f0e4146101f2578063f77c479114610205578063ffa1ad74146101a657600080fd5b80637262bb2d1461018b5780637cc963801461019e578063936725ec146101a65780639d0bcca0146101d757600080fd5b806319ab453c146100ea578063325a19f1146100ff5780634576dc521461011a5780634593144c1461012d5780634fac6ccd1461013557806350c358a4146101485780635aa6e6751461016b575b600080fd5b6100fd6100f8366004610a08565b61020d565b005b610107610312565b6040519081526020015b60405180910390f35b6100fd610128366004610a42565b61034b565b610107610359565b6100fd610143366004610a08565b610389565b61015b610156366004610a08565b6104c0565b6040519015158152602001610111565b6101736104d1565b6040516001600160a01b039091168152602001610111565b6100fd610199366004610b19565b6104db565b6101076104e5565b6101ca604051806040016040528060058152602001640312e302e360dc1b81525081565b6040516101119190610b57565b610173610515565b61015b6101ed366004610a08565b610545565b61015b610200366004610a08565b61056a565b6101736105ef565b600061021761061f565b805490915060ff600160401b820416159067ffffffffffffffff1660008115801561023f5750825b905060008267ffffffffffffffff16600114801561025c5750303b155b90508115801561026a575080155b156102885760405163f92ee8a960e01b815260040160405180910390fd5b845467ffffffffffffffff1916600117855583156102b257845460ff60401b1916600160401b1785555b6102bb30610648565b6102c48661065c565b831561030a57845460ff60401b19168555604051600181527fc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d29060200160405180910390a15b505050505050565b600061034661034260017f6f55f470bdc9cb5f04223fd822021061668e4dccb43e8727b295106dc9769c8b610bbc565b5490565b905090565b6103558282610686565b5050565b600061034661034260017f812a673dfca07956350df10f8a654925f561d7a0da09bdbe79e653939a14d9f1610bbc565b3330146103dd5760405162461bcd60e51b815260206004820152601b60248201527f496e637265617365207265766973696f6e20666f7262696464656e000000000060448201526064015b60405180910390fd5b600061040d61034260017f22573091f17911fb166032a3d9e0554aa73d31b7b7ddea4a4dd2995650af84bd610bbc565b610418906001610bcf565b905061044c8161044960017f22573091f17911fb166032a3d9e0554aa73d31b7b7ddea4a4dd2995650af84bd610bbc565b55565b61047b8261044960017fbfaaa2fb63266ff27c2da975f5894955056f50419af651a81f6c5060581857e4610bbc565b604080518281526001600160a01b03841660208201527ff27e2ef832a4eb8ed8ec553b875eecd44764cda95b1c24170e281539e0a869c8910160405180910390a15050565b60006104cb82610723565b92915050565b600061034661075c565b6103558282610775565b600061034661034260017f22573091f17911fb166032a3d9e0554aa73d31b7b7ddea4a4dd2995650af84bd610bbc565b600061034661034260017fbfaaa2fb63266ff27c2da975f5894955056f50419af651a81f6c5060581857e4610bbc565b600061054f6105ef565b6001600160a01b0316826001600160a01b0316149050919050565b6000816001600160a01b031661057e6105ef565b6001600160a01b0316635aa6e6756040518163ffffffff1660e01b8152600401602060405180830381865afa1580156105bb573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906105df9190610be2565b6001600160a01b03161492915050565b600061034661034260017f5165972ef41194f06c5007493031d0b927c20741adcb74403b954009fd2c3618610bbc565b6000807ff0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a006104cb565b6106506107ee565b61065981610815565b50565b80610665610934565b80546001600160a01b0319166001600160a01b039290921691909117905550565b61068e610958565b60005b825181101561071e578281815181106106ac576106ac610bff565b602090810291909101015160405162900f0160e41b81526001600160a01b03848116600483015290911690630900f01090602401600060405180830381600087803b1580156106fa57600080fd5b505af115801561070e573d6000803e3d6000fd5b5050600190920191506106919050565b505050565b600061072d610934565b6001600160a01b0383166000908152600191909101602052604090205460ff16806104cb57506104cb8261097e565b6000610766610934565b546001600160a01b0316919050565b61077d6109a3565b80156107b35761078b610934565b6001600160a01b038316600090815260019190910160205260409020805460ff191690555050565b60016107bd610934565b6001600160a01b038416600090815260019190910160205260409020805491151560ff199092169190911790555050565b6107f66109c9565b61081357604051631afcd79f60e31b815260040160405180910390fd5b565b6001600160a01b03811661085d5760405162461bcd60e51b815260206004820152600f60248201526e2d32b9379031b7b73a3937b63632b960891b60448201526064016103d4565b61088c8161044960017f5165972ef41194f06c5007493031d0b927c20741adcb74403b954009fd2c3618610bbc565b6108bb4261044960017f6f55f470bdc9cb5f04223fd822021061668e4dccb43e8727b295106dc9769c8b610bbc565b6108ea4361044960017f812a673dfca07956350df10f8a654925f561d7a0da09bdbe79e653939a14d9f1610bbc565b604080516001600160a01b0383168152426020820152438183015290517f1a2dd071001ebf6e03174e3df5b305795a4ad5d41d8fdb9ba41dbbe2367134269181900360600190a150565b7f4c6450c977215891cc3be3fa519a5e16bed895db738a774c07512a1e9245d30090565b61096133610723565b61081357604051638b906c9760e01b815260040160405180910390fd5b6000816001600160a01b0316610992610934565b546001600160a01b03161492915050565b6109ac3361097e565b61081357604051632d5be4cb60e21b815260040160405180910390fd5b60006109d361061f565b54600160401b900460ff16919050565b6001600160a01b038116811461065957600080fd5b8035610a03816109e3565b919050565b600060208284031215610a1a57600080fd5b8135610a25816109e3565b9392505050565b634e487b7160e01b600052604160045260246000fd5b60008060408385031215610a5557600080fd5b823567ffffffffffffffff80821115610a6d57600080fd5b818501915085601f830112610a8157600080fd5b8135602082821115610a9557610a95610a2c565b8160051b604051601f19603f83011681018181108682111715610aba57610aba610a2c565b604052928352818301935084810182019289841115610ad857600080fd5b948201945b83861015610afd57610aee866109f8565b85529482019493820193610add565b9650610b0c90508782016109f8565b9450505050509250929050565b60008060408385031215610b2c57600080fd5b8235610b37816109e3565b915060208301358015158114610b4c57600080fd5b809150509250929050565b60006020808352835180602085015260005b81811015610b8557858101830151858201604001528201610b69565b506000604082860101526040601f19601f8301168501019250505092915050565b634e487b7160e01b600052601160045260246000fd5b818103818111156104cb576104cb610ba6565b808201808211156104cb576104cb610ba6565b600060208284031215610bf457600080fd5b8151610a25816109e3565b634e487b7160e01b600052603260045260246000fdfea26469706673582212202fdea1fc8f5dea03fd401a9b08a77f913ff2384f002a5a21f642c883126fb62d64736f6c63430008170033",
+  "devdoc": {
+    "errors": {
+      "InvalidInitialization()": [
+        {
+          "details": "The contract is already initialized."
+        }
+      ],
+      "NotInitializing()": [
+        {
+          "details": "The contract is not initializing."
+        }
+      ]
+    },
+    "events": {
+      "Initialized(uint64)": {
+        "details": "Triggered when the contract has been initialized or reinitialized."
+      }
+    },
+    "kind": "dev",
+    "methods": {
+      "created()": {
+        "returns": {
+          "_0": "Creation timestamp"
+        }
+      },
+      "createdBlock()": {
+        "returns": {
+          "_0": "Creation block number"
+        }
+      },
+      "increaseRevision(address)": {
+        "details": "Revision should be increased on each contract upgrade"
+      },
+      "isController(address)": {
+        "details": "Return true if given address is controller"
+      },
+      "previousImplementation()": {
+        "details": "Previous logic implementation"
+      },
+      "revision()": {
+        "details": "Contract upgrade counter"
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "CONTROLLABLE_VERSION()": {
+        "notice": "Version of the contract"
+      },
+      "controller()": {
+        "notice": "Return controller address saved in the contract slot"
+      },
+      "created()": {
+        "notice": "Return creation timestamp"
+      },
+      "createdBlock()": {
+        "notice": "Return creation block number"
+      },
+      "isGovernance(address)": {
+        "notice": "Return true if given address is setup as governance in Controller"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}
