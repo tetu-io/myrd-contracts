@@ -9,6 +9,7 @@ contract XMyrdMock is MockToken {
   address gauge;
   bool private rebaseCalled;
   mapping(address => uint) private _enterForCalled;
+  uint private rebaseAmountToTransfer;
 
   constructor(address myrd_, address gauge_) MockToken("x", "y") {
     myrd = myrd_;
@@ -22,9 +23,14 @@ contract XMyrdMock is MockToken {
       uint256 myrdBalance = IERC20(myrd).balanceOf(address(this));
 
       if (myrdBalance != 0) {
-        IERC20(myrd).transfer(gauge, myrdBalance);
+        uint amount = rebaseAmountToTransfer == 0 ? myrdBalance : rebaseAmountToTransfer;
+        IERC20(myrd).transfer(gauge, amount);
       }
     }
+  }
+
+  function setRebaseAmountToTransfer_(uint rebaseAmountToTransfer_) external {
+    rebaseAmountToTransfer = rebaseAmountToTransfer_;
   }
 
   function isRebaseCalled() external view returns (bool) {
@@ -37,5 +43,13 @@ contract XMyrdMock is MockToken {
 
   function enterForAmount(address receiver) external view returns (uint) {
     return _enterForCalled[receiver];
+  }
+
+  function pendingRebase() external view returns (uint) {
+    return IERC20(myrd).balanceOf(address(this));
+  }
+
+  function BASIS() external pure returns (uint) {
+    return 10_000;
   }
 }

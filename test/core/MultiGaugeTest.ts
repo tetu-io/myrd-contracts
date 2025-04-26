@@ -119,11 +119,20 @@ describe('MultiGaugeTest', function() {
     });
 
     interface IParams {
-      amount: bigint;
+      amount: bigint | string;
       penalties: bigint;
       timePassedSincePeriodStartSeconds?: number;
       balanceSigner?: bigint;
       useInitialUpdate?: boolean;
+
+      /**
+       * By default, we call updatePeriod at the exact moment of the beginning of the period.
+       * There are also special cases:
+       *    1) first period is started, i.e. in 3 days after an exact moment.
+       *    2) at the moment of the beginning of the next period, there are some left rewards in the gauge.
+       */
+      left?: bigint;
+      rebaseAmountToTransfer?: bigint;
     }
 
     interface IResults {
@@ -139,17 +148,35 @@ describe('MultiGaugeTest', function() {
       lastUpdateTime: number;
       periodFinish: number;
       blockTimestamp: number;
+
+      leftBefore: bigint;
+      initialSignerBalance: bigint;
     }
 
     async function makeTest(p: IParams): Promise<IResults> {
       // --------------- at first let's move to the board of the period
+      const rewardsPeriod = Number(await gauge.REWARDS_PERIOD());
       const period0 = Number(await gauge.getPeriod());
-      const delta = (period0 + 1) * 7 * 24 * 60 * 60 - Math.floor(Date.now() / 1000);
+      const currentTimestamp = (await ethers.provider.getBlock("latest"))?.timestamp ?? 0;
+      const delta = (period0 + 1) * rewardsPeriod - currentTimestamp;
+
+      if (p.rebaseAmountToTransfer) {
+        xmyrdMock.setRebaseAmountToTransfer_(p.rebaseAmountToTransfer);
+      }
 
       await TimeUtils.advanceBlocksOnTs(delta);
 
       if (p.useInitialUpdate) {
-        await gauge.updatePeriod(0n);
+        if (p.left) {
+          // shift on 3 days from the exact moment
+          await TimeUtils.advanceBlocksOnTs(3 * 24 * 60 * 60); // 3 days
+
+          await myrd.mint(signer, p.left);
+          await myrd.connect(signer).approve(gauge, Misc.MAX_UINT);
+          await gauge.updatePeriod(p.left);
+        } else {
+          await gauge.updatePeriod(0);
+        }
       }
 
       const periodBefore = Number(await gauge.getPeriod());
@@ -161,13 +188,19 @@ describe('MultiGaugeTest', function() {
         await myrd.mint(xmyrdMock, p.penalties);
       }
 
-      if (p.balanceSigner ?? p.amount != 0n) {
-        await myrd.mint(signer, p.balanceSigner ?? p.amount);
+      const leftBefore = await gauge.left(xmyrdMock, myrd);
+      const initialSignerBalance = p.amount === "LEFT_MINUS_8000" ? leftBefore - 8000n : BigInt(p.amount);
+
+      if (p.balanceSigner ?? initialSignerBalance != 0n) {
+        await myrd.mint(signer, p.balanceSigner ?? initialSignerBalance);
       }
       await myrd.connect(signer).approve(gauge, Misc.MAX_UINT);
 
+
       // --------------- updatePeriod
-      const tx = await gauge.connect(signer).updatePeriod(p.amount);
+      const amountToSend = p.amount === "LEFT_MINUS_8000" ? await gauge.left(xmyrdMock, myrd) - 8000n : BigInt(p.amount);
+
+      const tx = await gauge.connect(signer).updatePeriod(amountToSend);
       const cr = await tx.wait();
       const blockTimestamp = (await ethers.provider.getBlock(cr?.blockNumber ?? 0))?.timestamp;
 
@@ -182,6 +215,8 @@ describe('MultiGaugeTest', function() {
         lastUpdateTime: Number(await gauge.lastUpdateTime(xmyrdMock, myrd)),
         periodFinish: Number(await gauge.periodFinish(xmyrdMock, myrd)),
         blockTimestamp: blockTimestamp ?? 0,
+        leftBefore,
+        initialSignerBalance
       }
     }
 
@@ -203,20 +238,20 @@ describe('MultiGaugeTest', function() {
     it("should return expected values if penalties only", async () => {
       const ret = await makeTest({
         amount: 0n,
-        penalties: 2n,
-        balanceSigner: 1n,
+        penalties: 20_000n,
+        balanceSigner: 30_000n,
       });
       console.log(ret);
 
       expect(ret.periodBefore).eq(ret.periodAfter - 1);
       expect(ret.activePeriod).eq(ret.periodAfter);
 
-      expect(ret.gaugeMyrdBalance).eq(2n);
-      expect(ret.signerMyrdBalance).eq(1n);
+      expect(ret.gaugeMyrdBalance).eq(20_000n);
+      expect(ret.signerMyrdBalance).eq(30_000n);
       expect(ret.xmyrdMyrdBalance).eq(0n);
 
       // see _notifyRewardAmount implementation
-      expect(ret.rewardRate).eq(2n * 10n**27n / (7n * 24n * 60n * 60n));
+      expect(ret.rewardRate).eq(20_000n * 10n**27n / (7n * 24n * 60n * 60n));
       expect(ret.lastUpdateTime).eq(ret.blockTimestamp);
       expect(ret.periodFinish).eq(ret.blockTimestamp + 7 * 24 * 60 * 60);
     });
@@ -243,20 +278,20 @@ describe('MultiGaugeTest', function() {
 
     it("should return expected values if penalties + amount", async () => {
       const ret = await makeTest({
-        amount: 2n,
-        penalties: 3n,
-        balanceSigner: 2n,
+        amount: 20_000n,
+        penalties: 30_000n,
+        balanceSigner: 20_000n,
       });
 
       expect(ret.periodBefore).eq(ret.periodAfter - 1);
       expect(ret.activePeriod).eq(ret.periodAfter);
 
-      expect(ret.gaugeMyrdBalance).eq(5n);
+      expect(ret.gaugeMyrdBalance).eq(50_000n);
       expect(ret.signerMyrdBalance).eq(0n);
       expect(ret.xmyrdMyrdBalance).eq(0n);
 
       // see _notifyRewardAmount implementation
-      expect(ret.rewardRate).eq(5n * 10n**27n / (7n * 24n * 60n * 60n));
+      expect(ret.rewardRate).eq(50_000n * 10n**27n / (7n * 24n * 60n * 60n));
       expect(ret.lastUpdateTime).eq(ret.blockTimestamp);
       expect(ret.periodFinish).eq(ret.blockTimestamp + 7 * 24 * 60 * 60);
     });
@@ -268,6 +303,61 @@ describe('MultiGaugeTest', function() {
         useInitialUpdate: true,
         timePassedSincePeriodStartSeconds: 3 * 24 * 60 * 60, // 3 days of 7 required
       })).revertedWithCustomError(gauge, "WaitForNewPeriod");
+    });
+
+    it("should not call _notifyRewardAmount if left amount exceeds new amount", async () => {
+      const ret = await makeTest({
+        amount: parseUnits("1"),
+        penalties: parseUnits("40"),
+        useInitialUpdate: true,
+        left: parseUnits("100"),
+        timePassedSincePeriodStartSeconds: 4 * 24 * 60 * 60, // 3 + 4 = 7  => updatePeriod is allowed
+      });
+
+      expect(+formatUnits(ret.leftBefore, 18)).approximately(42, 1);
+      expect(ret.xmyrdMyrdBalance).eq(parseUnits("40"));
+      expect(ret.signerMyrdBalance).eq(parseUnits("1"));
+    });
+
+    it("should call _notifyRewardAmount if new amount exceeds left", async () => {
+      const ret = await makeTest({
+        amount: parseUnits("3"),
+        penalties: parseUnits("40"),
+        useInitialUpdate: true,
+        left: parseUnits("100"),
+        timePassedSincePeriodStartSeconds: 4 * 24 * 60 * 60, // 3 + 4 = 7  => updatePeriod is allowed
+      });
+
+      expect(+formatUnits(ret.leftBefore, 18)).approximately(42, 1);
+      expect(+formatUnits(ret.gaugeMyrdBalance, 18)).approximately(100 + 40 + 3, 1);
+      expect(ret.xmyrdMyrdBalance).eq(parseUnits("0"));
+      expect(ret.signerMyrdBalance).eq(parseUnits("0"));
+    });
+
+    it("should not call _notifyRewardAmount if new amount exceeds left but only together with penalties but penalties are not paid", async () => {
+      const ret = await makeTest({
+        amount: "LEFT_MINUS_8000",
+        penalties: 9_999n, // < BASIS=10_000
+        useInitialUpdate: true,
+        left: 700_000n,
+        timePassedSincePeriodStartSeconds: 4 * 24 * 60 * 60, // 3 + 4 = 7  => updatePeriod is allowed
+      });
+      console.log(ret)
+
+      expect(ret.leftBefore).approximately(299999, 10);
+      expect(ret.xmyrdMyrdBalance).eq(9_999n);
+      expect(ret.signerMyrdBalance).eq(ret.initialSignerBalance);
+    });
+
+    it("should revert if rebase doesn't transfer expected amount", async () => {
+      await expect(makeTest({
+        amount: 0n,
+        useInitialUpdate: true,
+
+        penalties: parseUnits("5"),
+        rebaseAmountToTransfer: parseUnits("3"),
+
+      })).revertedWithCustomError(gauge, "IncorrectBalance");
     });
   });
 
