@@ -38,6 +38,7 @@ describe('MultiGaugeFTest', function() {
   let user3: SignerWithAddress;
   let user4: SignerWithAddress;
   let deployerInController: SignerWithAddress;
+  let controllerGovernance: SignerWithAddress;
 
   let controller: Controller;
   let xMyrd: XMyrd;
@@ -73,7 +74,8 @@ describe('MultiGaugeFTest', function() {
     usdcMock = await DeployerUtils.deployMockToken(signer, 'USDC', 6, false);
     wethMock = await DeployerUtils.deployMockToken(signer, 'WETH', 18, false);
 
-    await controller.connect(governance).changeDeployer(deployerInController, false);
+    controllerGovernance = await DeployUtils.impersonate(await controller.governance());
+    await controller.connect(controllerGovernance).changeDeployer(deployerInController, false);
   });
 
   after(async function () {
@@ -90,7 +92,7 @@ describe('MultiGaugeFTest', function() {
 
   describe("Check initialization of deployed proxy contracts", () => {
     it("should return expected values", async () => {
-      expect((await controller.governance()).toLowerCase()).eq(governance.address.toLowerCase());
+      expect((await controller.governance()).toLowerCase()).eq(controllerGovernance.address.toLowerCase());
 
       expect((await gauge.controller()).toLowerCase()).eq((await controller.getAddress()).toLowerCase());
       expect((await gauge.xMyrd()).toLowerCase()).eq((await xMyrd.getAddress()).toLowerCase());
@@ -450,8 +452,8 @@ describe('MultiGaugeFTest', function() {
 
         // ------------ try to remove reward tokens
         await expect(await gauge.left(xMyrd, usdcMock)).gt(0n);
-        await expect(gauge.connect(governance).removeRewardToken(xMyrd, usdcMock)).rejectedWith("Rewards not ended", "there is not empty amount of rewards for the current period");
-        await expect(gauge.connect(governance).removeRewardToken(xMyrd, wethMock)).rejectedWith("Not reward token", "default token cannot be removed");
+        await expect(gauge.connect(controllerGovernance).removeRewardToken(xMyrd, usdcMock)).rejectedWith("Rewards not ended", "there is not empty amount of rewards for the current period");
+        await expect(gauge.connect(controllerGovernance).removeRewardToken(xMyrd, wethMock)).rejectedWith("Not reward token", "default token cannot be removed");
 
         // ------------ register WETH as reward
         await gauge.connect(deployerInController).registerRewardToken(xMyrd, wethMock);
