@@ -382,7 +382,7 @@ describe('XMyrdFTest', function() {
 
       // -------------- rebase
       const gaugeAsSigner = await DeployUtils.impersonate(await gauge.getAddress());
-      await xmyrd.connect(gaugeAsSigner).rebase();
+      await xmyrd.connect(gaugeAsSigner).rebase(0n);
 
       expect(await myrd.balanceOf(gauge)).eq(AMOUNT / 2n);
       expect(await xmyrd.balanceOf(gauge)).eq(0n);
@@ -398,7 +398,7 @@ describe('XMyrdFTest', function() {
 
       // -------------- first rebase in the period
       const gaugeAsSigner = await DeployUtils.impersonate(await gauge.getAddress());
-      await xmyrd.connect(gaugeAsSigner).rebase();
+      await xmyrd.connect(gaugeAsSigner).rebase(0n);
 
       // -------------- check results 1
       expect(await xmyrd.lastDistributedPeriod()).eq(await gauge.getPeriod());
@@ -414,7 +414,7 @@ describe('XMyrdFTest', function() {
       await xmyrd.connect(user1).exit(AMOUNT);
 
       // -------------- second rebase in the same period
-      await xmyrd.connect(gaugeAsSigner).rebase();
+      await xmyrd.connect(gaugeAsSigner).rebase(0n);
 
       // -------------- check results 2
       expect(await xmyrd.lastDistributedPeriod()).eq(await gauge.getPeriod());
@@ -433,7 +433,7 @@ describe('XMyrdFTest', function() {
 
       // -------------- rebase
       const gaugeAsSigner = await DeployUtils.impersonate(await gauge.getAddress());
-      await xmyrd.connect(gaugeAsSigner).rebase();
+      await xmyrd.connect(gaugeAsSigner).rebase(0n);
 
       // -------------- check results
       expect(await xmyrd.lastDistributedPeriod()).eq(0n);
@@ -442,7 +442,7 @@ describe('XMyrdFTest', function() {
     });
 
     it("should revert if not gauge", async () => {
-      await expect(xmyrd.connect(user1).rebase()).revertedWithCustomError(xmyrd, "NotGauge");
+      await expect(xmyrd.connect(user1).rebase(0n)).revertedWithCustomError(xmyrd, "NotGauge");
     });
   });
 });

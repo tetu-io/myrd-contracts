@@ -16,8 +16,9 @@ contract XMyrd is Controllable, ERC20Upgradeable, IXMyrd {
 
     //region ------------------------ Constants
 
-    /// @inheritdoc IControllable
-    string public constant VERSION = "1.0.0";
+    /// @dev Version of this contract. Adjust manually on each code modification.
+    /// 1.0.1: add minAmount param to rebase
+    string public constant VERSION = "1.0.1";
 
     /// @inheritdoc IXMyrd
     uint public constant BASIS = 10_000;
@@ -73,7 +74,7 @@ contract XMyrd is Controllable, ERC20Upgradeable, IXMyrd {
     //region ------------------------ Restricted actions
 
     /// @inheritdoc IXMyrd
-    function rebase() external {
+    function rebase(uint minAmount) external {
         MainStorage storage $ = _S();
 
         address _gauge = $.gauge;
@@ -90,6 +91,8 @@ contract XMyrd is Controllable, ERC20Upgradeable, IXMyrd {
         if (
             /// @dev if the rebase is greater than the Basis
             period > $.lastDistributedPeriod && _pendingRebase >= BASIS
+            /// @dev if the rebase is greater than the given threshold
+            && _pendingRebase >= minAmount
         ) {
             $.lastDistributedPeriod = period;
 

@@ -59,7 +59,8 @@ interface IXMyrd {
     function setExemptionTo(address[] calldata exemptee, bool[] calldata exempt) external;
 
     /// @notice Function called by the gauge to send the rebases once a week
-    function rebase() external;
+    /// @param minAmount If available penalties < minAmount function won't send anything
+    function rebase(uint minAmount) external;
 
 
     // ------------------------------ View functions

@@ -11,6 +11,7 @@ interface IAppErrors {
   error IncorrectArrayLength();
   error IncorrectZeroArgument();
   error IncorrectZeroAddress();
+  error IncorrectBalance();
   error AlreadySet();
   error ZeroAddress();
 

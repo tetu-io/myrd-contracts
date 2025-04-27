@@ -84,19 +84,25 @@ export default {
         accountsBalance: '100000000000000000000000000000',
       },
       loggingEnabled: argv.loggingEnabled,
-      // chains: {
+      chains: {
       //   778877: {
       //     hardforkHistory: {
       //       istanbul: 0,
       //     },
       //   }
-      // },
+         146: {
+           hardforkHistory: {
+             shanghai: 0,
+           },
+         }
+      },
     },
     sonic: {
       chainId: 146,
       url: argv.sonicRpcUrl,
       accounts: [argv.privateKey],
       timeout: 99999,
+			hardfork: "shanghai",
       verify: {
         etherscan: {
           apiKey: argv.networkScanKeySonic,

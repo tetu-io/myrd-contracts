@@ -13,7 +13,8 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
   //region ---------------------- Constants
 
   /// @dev Version of this contract. Adjust manually on each code modification.
-  string public constant VERSION = "1.0.0";
+  /// 1.0.1 - check left() in updatePeriod
+  string public constant VERSION = "1.0.1";
 
   // keccak256(abi.encode(uint256(keccak256("erc7201:myrd.MultiGauge")) - 1)) & ~bytes32(uint256(0xff))
   bytes32 internal constant MULTI_GAUGE_STORAGE_LOCATION = 0x56fe937432a4b636174f357965a052660eeb836d7a87be456fd784604b733000; // erc7201:myrd.MultiGauge
@@ -64,22 +65,28 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
     $.activePeriod = _activePeriod;
 
     address _xMyrd = $.xMyrd;
-    // get MYRD balance before calling rebase()
     address _myrd = defaultRewardToken;
+
+    // get MYRD balance before calling rebase()
     uint balanceBefore = IERC20(_myrd).balanceOf(address(this));
 
-    // receive penalties from xMyrd (if any)
-    // xMyrd will transfer penalties directly to this contract
-    IXMyrd(_xMyrd).rebase();
+    // min amount that is allowed to be send to the gauge according implementation of _notifyRewardAmount()
+    uint _left = left(_xMyrd, _myrd);
 
-    // notify reward amount if necessary
+    // min required amount of the rebase to satisfy requirements in _notifyRewardAmount()
+    uint minAllowedRebase = amount_ > _left ? 0 : _left - amount_ + 1;
+
+    // xMyrd transfers penalties directly to this contract
+    // assume here that XMyrd won't transfer anything if available penalties are less than minAllowedRebase
+    IXMyrd(_xMyrd).rebase(minAllowedRebase);
+
+    // ensure that rebase haven't sent any penalties OR it sent at least minAllowedRebase
     uint balanceAfter = IERC20(_myrd).balanceOf(address(this));
-    if (
-      balanceAfter > balanceBefore // penalties received
-      || amount_ != 0 // additional amount provided
-    ) {
-      // received penalties will be added to the amount_ inside _notifyRewardAmount
-      _notifyRewardAmount(_S().xMyrd, _myrd, amount_, true, balanceBefore);
+    if (balanceAfter != balanceBefore && balanceAfter < minAllowedRebase + balanceBefore) revert IAppErrors.IncorrectBalance();
+
+    // total amount for _notifyRewardAmount must exceed left amount
+    if (amount_ + balanceAfter > _left + balanceBefore) {
+      _notifyRewardAmount(_xMyrd, _myrd, amount_, true, balanceBefore);
     }
   }
   //endregion ---------------------- Operator actions
