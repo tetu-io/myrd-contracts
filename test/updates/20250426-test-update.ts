@@ -56,6 +56,7 @@ describe('Test update 20250426', () => {
     const myrd = MYRD__factory.connect(await xmyrd.myrd(), signer);
 
     if (await gauge.VERSION() !== "1.0.0") return;
+    if (await xmyrd.VERSION() !== "1.0.0") return;
 
     //------------------- Reproduce the problem
 
@@ -63,10 +64,13 @@ describe('Test update 20250426', () => {
 
     await expect(gauge.connect(gaugeAsSigner).updatePeriod(0)).revertedWith("Amount should be higher than remaining rewards");
 
-    //------------------- Apply gauge update
+    //------------------- Apply gauge and xmyrd update
     const newGaugeLogic = await (await deployer.deployContract('MultiGauge')).getAddress();
+    const newXMyrdLogic = await (await deployer.deployContract('XMyrd')).getAddress();
     await controller.connect(governance).updateProxies([gauge], newGaugeLogic);
+    await controller.connect(governance).updateProxies([xmyrd], newXMyrdLogic);
     expect(await gauge.VERSION()).eq("1.0.1");
+    expect(await xmyrd.VERSION()).eq("1.0.1");
 
     //------------------- Now we can update period
     await gauge.connect(gaugeAsSigner).updatePeriod(0);

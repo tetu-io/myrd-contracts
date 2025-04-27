@@ -258,20 +258,20 @@ describe('MultiGaugeTest', function() {
 
     it("should return expected values if amount only", async () => {
       const ret = await makeTest({
-        amount: 2n,
+        amount: parseUnits("2"),
         penalties: 0n,
-        balanceSigner: 2n,
+        balanceSigner: parseUnits("2"),
       });
 
       expect(ret.periodBefore).eq(ret.periodAfter - 1);
       expect(ret.activePeriod).eq(ret.periodAfter);
 
-      expect(ret.gaugeMyrdBalance).eq(2n);
+      expect(ret.gaugeMyrdBalance).eq(parseUnits("2"));
       expect(ret.signerMyrdBalance).eq(0n);
       expect(ret.xmyrdMyrdBalance).eq(0n);
 
       // see _notifyRewardAmount implementation
-      expect(ret.rewardRate).eq(2n * 10n**27n / (7n * 24n * 60n * 60n));
+      expect(ret.rewardRate).eq(parseUnits("2") * 10n**27n / (7n * 24n * 60n * 60n));
       expect(ret.lastUpdateTime).eq(ret.blockTimestamp);
       expect(ret.periodFinish).eq(ret.blockTimestamp + 7 * 24 * 60 * 60);
     });
@@ -351,11 +351,12 @@ describe('MultiGaugeTest', function() {
 
     it("should revert if rebase doesn't transfer expected amount", async () => {
       await expect(makeTest({
-        amount: 0n,
+        amount: "LEFT_MINUS_8000",
+        penalties: parseUnits("1"),
         useInitialUpdate: true,
-
-        penalties: parseUnits("5"),
-        rebaseAmountToTransfer: parseUnits("3"),
+        left: 700_000n,
+        timePassedSincePeriodStartSeconds: 4 * 24 * 60 * 60,
+        rebaseAmountToTransfer: 100n, // (!)
 
       })).revertedWithCustomError(gauge, "IncorrectBalance");
     });

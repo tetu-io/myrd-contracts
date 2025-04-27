@@ -17,12 +17,12 @@ contract XMyrdMock is MockToken {
   }
 
   /// @dev Transfer all MYRD balance to the gauge
-  function rebase() external {
+  function rebase(uint minAmount) external {
     rebaseCalled = true;
     if (myrd != address(0) && gauge != address(0)) {
       uint256 myrdBalance = IERC20(myrd).balanceOf(address(this));
 
-      if (myrdBalance != 0) {
+      if (myrdBalance != 0 && myrdBalance >= minAmount && myrdBalance >= 10_000) {
         uint amount = rebaseAmountToTransfer == 0 ? myrdBalance : rebaseAmountToTransfer;
         IERC20(myrd).transfer(gauge, amount);
       }

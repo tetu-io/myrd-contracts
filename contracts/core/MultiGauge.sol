@@ -65,35 +65,27 @@ contract MultiGauge is StakelessMultiPoolBase, IGauge {
     $.activePeriod = _activePeriod;
 
     address _xMyrd = $.xMyrd;
-
-    // get MYRD balance before calling rebase()
     address _myrd = defaultRewardToken;
 
-    // xMyrd sends penalties only if it exceeds the threshold
-    uint pendingRebase = IXMyrd(_xMyrd).pendingRebase();
-    if (pendingRebase < IXMyrd(_xMyrd).BASIS()) {
-      pendingRebase = 0;
-    }
+    // get MYRD balance before calling rebase()
+    uint balanceBefore = IERC20(_myrd).balanceOf(address(this));
 
+    // min amount that is allowed to be send to the gauge according implementation of _notifyRewardAmount()
     uint _left = left(_xMyrd, _myrd);
 
-    // _notifyRewardAmount can be called only if
-    // (penalties received + additional amount) exceeds left amount of rewards in the gauge
-    if (pendingRebase  + amount_ > _left) {
-      uint balanceBefore = IERC20(_myrd).balanceOf(address(this));
+    // min required amount of the rebase to satisfy requirements in _notifyRewardAmount()
+    uint minAllowedRebase = amount_ > _left ? 0 : _left - amount_ + 1;
 
-      // receive penalties from xMyrd (if any)
-      // xMyrd will transfer penalties directly to this contract
-      // If pendingRebase is too low rebase doesn't transfer anything
-      IXMyrd(_xMyrd).rebase();
+    // xMyrd transfers penalties directly to this contract
+    // assume here that XMyrd won't transfer anything if available penalties are less than minAllowedRebase
+    IXMyrd(_xMyrd).rebase(minAllowedRebase);
 
-      // check left once more and notify reward amount if it's allowed
-      uint balanceAfter = IERC20(_myrd).balanceOf(address(this));
+    // ensure that rebase haven't sent any penalties OR it sent at least minAllowedRebase
+    uint balanceAfter = IERC20(_myrd).balanceOf(address(this));
+    if (balanceAfter != balanceBefore && balanceAfter < minAllowedRebase + balanceBefore) revert IAppErrors.IncorrectBalance();
 
-      // ensure that rebase transferred expected penalties
-      if (balanceBefore + pendingRebase != balanceAfter) revert IAppErrors.IncorrectBalance();
-
-      // received penalties will be added to the amount_ inside _notifyRewardAmount
+    // total amount for _notifyRewardAmount must exceed left amount
+    if (amount_ + balanceAfter > _left + balanceBefore) {
       _notifyRewardAmount(_xMyrd, _myrd, amount_, true, balanceBefore);
     }
   }
